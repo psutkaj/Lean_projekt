@@ -1,4 +1,4 @@
-def obvod_obdelnika (a b : Nat) : Nat := 2 * (a + b)
+def joinStringsWith (a : String) (b : String) (c : String) : String :=
+String.append b (String.append a c)
 
-#eval obvod_obdelnika 3 4
-#eval obvod_obdelnika 4 7
+joinStringsWith ", " "one" "and another"
