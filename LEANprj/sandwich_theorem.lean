@@ -20,14 +20,15 @@ by
   intros n hn
     -- zavedu si n ∈ ℕ a hyp hn, že n ≥ n₀
   have ha_appl := han n (le_trans (le_max_left _ _) hn)
-    -- vyrobím hyp, že |a n - q| < ε, mám tvrzení han do kterého dosaním n
+    -- aplikuju han v indexu n, tj. |a n - q| < ε,
     -- a potřebuji dokázat, že n ≥ n₁ (víme, protože beru maximum ze dvou)
   have hc_appl := hcn n (le_trans (le_max_right _ _) hn)
-    -- obdobně pro |c n - q| < ε, důkaz beru pouze pro n₂
+    -- obdobně pro hcn v indexu n, tj. |c n - q| < ε, důkaz beru pro n₂
   rw [abs_lt]
   rw [abs_lt] at ha_appl
   rw [abs_lt] at hc_appl
     -- rozeberu v těchto třech případech absolutní hodnotu v nerovnosti na dva případy
+    -- a v cíli získám konjukci
   have ha_lower  : q - ε < a n   := by linarith
     -- pomocné tvrzení q - ε < a n, získám upravením z ha_appl.left
   have hc_upper  : c n < q + ε   := by linarith
