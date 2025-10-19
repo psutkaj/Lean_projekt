@@ -1,9 +1,17 @@
 import Mathlib
 
--- uvod do posloupnosti - zatim omezenost
+-- uvod do posloupnosti
+
+-- omezenost
 def LowerBoundedSequence (a : ℕ → ℝ) := ∃ l : ℝ, ∀ n : ℕ, a n > l
 def UpperBoundedSequence (a : ℕ → ℝ) := ∃ u : ℝ, ∀ n : ℕ, a n < u
 def BoundedSequence (a : ℕ → ℝ) := ∃ K > 0, ∀ n : ℕ, |a n| < K
+
+-- monotonie
+def IncreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≥ a n
+def StrictlyIncreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) > a n
+def DecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≤ a n
+def StrictlyDecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) < a n
 
 example (a : ℕ → ℝ) (c : ℝ) (h : ∀ n : ℕ, a n = c) : BoundedSequence a := by
   unfold BoundedSequence
@@ -25,14 +33,16 @@ example (a : ℕ → ℝ) (c : ℝ) (h: ∀ n : ℕ, a n = c ∨ a n = -c) : Bou
   | inr hcn =>
     simp [hcn]
 
-example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = n) : LowerBoundedSequence a ∧ ¬ UpperBoundedSequence a := by
+example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = n) : LowerBoundedSequence a ∧ ¬ UpperBoundedSequence a ∧ StrictlyIncreasingSequence a := by
   constructor
   unfold LowerBoundedSequence
   use -1
   intro n
   rw [ha]
   linarith
+  constructor
   unfold UpperBoundedSequence
+  -- zneguji vyraz
   contrapose!
   intro h u
   simp [ha]
@@ -59,6 +69,11 @@ example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = n) : LowerBoundedSequence a �
   trans ↑⌈u⌉
   · exact h₁
   · norm_cast
+  unfold StrictlyIncreasingSequence
+  intro n
+  rw [ha, ha]
+  norm_cast
+  linarith
 
 
 example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = (n / (n + 1))) : BoundedSequence a := by
