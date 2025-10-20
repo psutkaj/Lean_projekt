@@ -16,5 +16,3 @@ def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a 
 -- podposloupnost posloupnosi a s indexovou fci k
 def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) (_hk : ∀ n : ℕ, k (n + 1) > k n) : ℕ → ℝ :=
   λ n => a (k n)
-
-#eval Subsequence (λ n => n) (λ n => 2 * n) (by intro n; linarith) 3
