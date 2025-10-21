@@ -16,3 +16,13 @@ def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a 
 -- podposloupnost posloupnosi a s indexovou fci k
 def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) (_hk : ∀ n : ℕ, k (n + 1) > k n) : ℕ → ℝ :=
   λ n => a (k n)
+
+-- supremum a infimum posloupnosti
+  -- noncomputable, protoze LEAN ho primo nepocita, jenom vi, ze existuje, je jednoznacny a bere ho tak
+  -- vlastnosti jsou jiz dokazane z knihoven
+noncomputable def SupSequence (a : ℕ → ℝ) (_h_bdd : BddAbove (Set.range a)) : ℝ := sSup (Set.range a)
+noncomputable def InfSequence (a : ℕ → ℝ) (_h_bdd : BddBelow (Set.range a)) : ℝ := sInf (Set.range a)
+
+-- konvergence a n → q
+def ConvergentTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |a n - q| < ε
+def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergentTo a q
