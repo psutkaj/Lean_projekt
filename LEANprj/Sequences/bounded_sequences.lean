@@ -48,7 +48,7 @@ example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = n) : LowerBoundedSequence a �
       -- a pro 0 ≥ ⌈u⌉ vime, ze ⌈u⌉.toNat = 0, protoze Nat cisla nemuzou byt mensi
     · have : (Int.ceil u).toNat = 0 := by
         simp_all only [not_false_eq_true, not_le, Int.toNat_eq_zero]
-        linarith
+        omega
       rw [this]
       exact Int.le_of_not_le hpos
   -- ted uz mame dokazane potrebne kroky k uziti tranzitivity pred ↑⌈u⌉
