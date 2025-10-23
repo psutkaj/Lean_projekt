@@ -17,15 +17,22 @@ def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a 
 def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) (_hk : ∀ n : ℕ, k (n + 1) > k n) : ℕ → ℝ :=
   λ n => a (k n)
 
--- supremum a infimum posloupnosti
-  -- noncomputable, protoze LEAN ho primo nepocita, jenom vi, ze existuje, je jednoznacny a bere ho tak
-  -- vlastnosti jsou jiz dokazane z knihoven
-noncomputable def SupSequence (a : ℕ → ℝ) (_h_bdd : BddAbove (Set.range a)) : ℝ := sSup (Set.range a)
-noncomputable def InfSequence (a : ℕ → ℝ) (_h_bdd : BddBelow (Set.range a)) : ℝ := sInf (Set.range a)
-
 -- overeni zda s (i) je sup (inf)
 def IsSup (a : ℕ → ℝ) (s : ℝ) : Prop := ∀ x ∈ (Set.range a), x ≤ s ∧ ∀ ε > 0, ∃ x ∈ (Set.range a), s - ε < x
 def IsInf (a : ℕ → ℝ) (i : ℝ) : Prop := ∀ x ∈ (Set.range a), i ≤ x ∧ ∀ ε > 0, ∃ x ∈ (Set.range a), x < i + ε
+
+-- supremum a infimum posloupnosti
+noncomputable def SupSeq (a : ℕ → ℝ) (h_low_bdd : LowerBoundedSequence a) : ℝ :=
+  Classical.choose (exists_unique_supremum a h_low_bdd)
+noncomputable def InfSeq (a : ℕ → ℝ) (h_upp_bdd : LowerBoundedSequence a) : ℝ :=
+  Classical.choose (exists_unique_infimum a h_upp_bdd)
+
+-- exsitence a jednoznacnost suprema (infima)
+theorem exists_unique_supremum (a : ℕ → ℝ) : ∃! s : ℝ, IsSup a s := by
+  sorry
+
+theorem exists_unique_infimum (a : ℕ → ℝ) : ∃! i : ℝ, IsInf a i := by
+  sorry
 
 -- konvergence a n → q
 def ConvergentTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |a n - q| < ε
