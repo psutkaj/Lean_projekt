@@ -46,8 +46,10 @@ example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := 
   have N_nonzero : N ≠ 0 := by
     by_contra hN
     linarith
-  have N
+  -- have N
   have : N * (1/N) = 1 := by field_simp [N_nonzero]
   have n_geq_N_inv : 1/n ≤ 1/N := by
-    calc
-      1/n = N * (1/N) * (1/n) := by refine Nat.div_eq_of_eq_mul_left ?_ ?_; linarith;
+    --calc
+    --  1/n = N * (1/N) * (1/n) := by refine Nat.div_eq_of_eq_mul_left ?_ ?_; linarith;
+    sorry
+  sorry
