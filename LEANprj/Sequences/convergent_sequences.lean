@@ -11,7 +11,7 @@ example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergentTo a 1 := by
   linarith
 
 -- AI generated
-example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := by
+theorem posl1 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := by
   intros ε ε_pos
   obtain ⟨N, hN⟩ := exists_nat_gt (1 / ε)
   use N
@@ -32,7 +32,7 @@ example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := 
   simpa using this
 
 -- vlastni postup
-example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := by
+theorem posl2 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := by
   unfold ConvergentTo
   intros ε ε_pos
   let N := ⌈1/ε⌉.toNat + 1
@@ -76,3 +76,6 @@ example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := 
     |1 / (n : ℝ)| = 1 / (n : ℝ) := by simp
     _ ≤ 1 / N := by exact n_geq_N_inv
   exact (one_div_lt ε_pos N_cast_pos).mp this
+
+#print axioms posl1
+#print axioms posl2
