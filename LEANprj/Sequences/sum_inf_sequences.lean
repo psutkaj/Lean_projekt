@@ -1,14 +1,47 @@
 import LEANprj.Sequences.definitions
 
-example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1) : IsSup a 1 := by
-  unfold IsSup
-  intro x x_1
+example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1) : IsSup a 1 ∧ IsInf a 1 := by
   constructor
-  obtain ⟨n, hn⟩ := x_1
-  rw [ha] at hn
-  linarith
-  intro ε ε_pos
-  use 1
+  · unfold IsSup
+    intro x x_1
+    constructor
+    · obtain ⟨n, hn⟩ := x_1
+      rw [ha] at hn
+      linarith
+    · intro ε ε_pos
+      use 1
+      constructor
+      · tauto
+      · linarith
+  · intro x x_1
+    constructor
+    · obtain ⟨n, hn⟩ := x_1
+      rw [ha] at hn
+      linarith
+    · intros ε ε_pos
+      use 1
+      constructor
+      · tauto
+      · linarith
+
+example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = (-1) ^ n) : IsSup a 1 := by
+  intros x x_1
   constructor
-  tauto
-  linarith
+  · obtain ⟨n, hn⟩ := x_1
+    rw [ha] at hn
+    rw [←hn]
+    rcases Nat.even_or_odd n with ⟨k, hk⟩ | ⟨k, hk⟩
+    · calc
+        (-1 : ℝ) ^ n = (-1)^(2*k) := by rw [hk]; simp
+        _ = 1 := by simp
+        _ ≤ 1 := by linarith
+    · calc
+        (-1 : ℝ) ^ n = (-1)^(2*k + 1) := by rw [hk]
+        _ = (-1)^(2*k)*(-1)^(1) := by exact pow_add (-1) (2 * k) 1
+        _ = -1 := by simp
+        _ ≤ 1 := by linarith
+  · intros ε ε_pos
+    use 1
+    constructor
+    · tauto
+    · linarith

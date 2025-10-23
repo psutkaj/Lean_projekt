@@ -1,6 +1,5 @@
 import LEANprj.Sequences.definitions
 
-
 example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergentTo a 1 := by
   unfold ConvergentTo
   intro ε ε_pos
