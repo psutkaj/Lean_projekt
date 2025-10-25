@@ -1,4 +1,5 @@
 import Mathlib
+open Classical
 
 -- omezenost
 def LowerBoundedSequence (a : ℕ → ℝ) := ∃ l : ℝ, ∀ n : ℕ, a n > l
@@ -18,21 +19,15 @@ def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) (_hk : ∀ n : ℕ, k (n + 1
   λ n => a (k n)
 
 -- overeni zda s (i) je sup (inf)
-def IsSup (a : ℕ → ℝ) (s : ℝ) : Prop := ∀ x ∈ (Set.range a), x ≤ s ∧ ∀ ε > 0, ∃ x ∈ (Set.range a), s - ε < x
-def IsInf (a : ℕ → ℝ) (i : ℝ) : Prop := ∀ x ∈ (Set.range a), i ≤ x ∧ ∀ ε > 0, ∃ x ∈ (Set.range a), x < i + ε
+def IsSup (A : Set ℝ) (s : ℝ) : Prop := ∀ x ∈ A, x ≤ s ∧ ∀ ε > 0, ∃ x ∈ A, s - ε < x
+def IsInf (A : Set ℝ) (i : ℝ) : Prop := ∀ x ∈ A, i ≤ x ∧ ∀ ε > 0, ∃ x ∈ A, x < i + ε
 
 -- supremum a infimum posloupnosti
-noncomputable def SupSeq (a : ℕ → ℝ) (h_low_bdd : LowerBoundedSequence a) : ℝ :=
-  Classical.choose (exists_unique_supremum a h_low_bdd)
-noncomputable def InfSeq (a : ℕ → ℝ) (h_upp_bdd : LowerBoundedSequence a) : ℝ :=
-  Classical.choose (exists_unique_infimum a h_upp_bdd)
+-- noncomputable def SupSeq (a : ℕ → ℝ) (h_low_bdd : LowerBoundedSequence a) : ℝ :=
+--   choose (exists_unique_supremum a h_low_bdd)
+-- noncomputable def InfSeq (a : ℕ → ℝ) (h_upp_bdd : LowerBoundedSequence a) : ℝ :=
+--   choose (exists_unique_infimum a h_upp_bdd)
 
--- exsitence a jednoznacnost suprema (infima)
-theorem exists_unique_supremum (a : ℕ → ℝ) : ∃! s : ℝ, IsSup a s := by
-  sorry
-
-theorem exists_unique_infimum (a : ℕ → ℝ) : ∃! i : ℝ, IsInf a i := by
-  sorry
 
 -- konvergence a n → q
 def ConvergentTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |a n - q| < ε
