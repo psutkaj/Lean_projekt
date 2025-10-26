@@ -7,6 +7,13 @@ variable (A : Set ℝ) (l₀ u₀ : ℝ)
 -- chci si vytvorit pulleni intervalu, a aby ho rozeznavalo simp
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
 
+lemma sub_mid (l u : ℝ) : u - mid l u = (u - l) / 2 := by
+  simp
+  ring
+lemma mid_sub (l u : ℝ) : mid l u - l = (u - l) / 2 := by
+  simp
+  ring
+
 -- definuju krok puleni, beru bud levou nebo pravou cast, podle toho kde mam a ∈ A
 def step (l u : ℝ) : ℝ × ℝ :=
   if _ : ∃ a : A, mid l u < a then (mid l u, u) else (l, mid l u)
@@ -81,34 +88,84 @@ theorem exists_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ
     · use l₀
       constructor
       · exact hl₀
-      · simp [lSeq, uSeq, luNext]
-        exact hu₀ l₀ hl₀
-    · obtain ⟨a, ha₁, ha₂⟩ := hd
+      · constructor
+        · simp [lSeq, luNext]
+        · simp [uSeq, luNext]
+          exact hu₀ l₀ hl₀
+    · obtain ⟨a, ha, ha_l, ha_u⟩ := hd
       unfold lSeq uSeq luNext step
       simp only [Subtype.exists, exists_prop, dite_eq_ite]
       split_ifs with h
-      · obtain ⟨w, hw⟩ := h
+      · obtain ⟨w, hw_mem, hw_gt⟩ := h
         use w
-        constructor
-        · exact hw.1
-        · constructor
-          · have mid_le := mid_le_right (lₙ_leq_uₙ d)
-            have h_upper := upperBound d w hw.1
-            unfold uSeq luNext at h_upper
-            linarith
-          · have := upperBound d w hw.1
-            dsimp
-            simp
-            simp_all only [mid, and_true]
-            obtain ⟨left, right⟩ := hw
-            unfold luNext
-            split
-            · simp
-              exact hu₀ w left
-            · simp_all only [Nat.succ_eq_add_one]
-              sorry
-      · use a
-        sorry
+        refine ⟨hw_mem, ?_, upperBound d w hw_mem⟩
+        show mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
+        have : lSeq A l₀ u₀ d = (luNext A l₀ u₀ d).1 := rfl
+        have : uSeq A l₀ u₀ d = (luNext A l₀ u₀ d).2 := rfl
+        exact le_of_lt hw_gt
+      · push_neg at h
+        use a
+        refine ⟨ha, ha_l, ?_⟩
+        show a ≤ mid (lSeq A l₀ u₀ d) (uSeq A l₀ u₀ d)
+        exact h a ha
+
+  -- puleni intervalu
+  have shrink : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
+    intro n
+    set l := lSeq A l₀ u₀ n with hl
+    set u := uSeq A l₀ u₀ n with hu
+    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
+    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
+    by_cases hRight : ∃ a : A, mid l u < a
+    · have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
+        simp [lSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          ring
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, l, u]
+      have h_u_succ : uSeq A l₀ u₀ (n+1) = u := by
+        simp [uSeq, luNext, step]
+        split_ifs with h
+        · simp
+          exact hu
+        · simp
+          rw [hu]
+          unfold uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, l, u]
+      calc
+        uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = u - mid l u := by simp_all only [mid, Subtype.exists, exists_prop, l, u]
+        _ = (u - l) / 2 := by exact sub_mid l u
+    · have h_l_succ : lSeq A l₀ u₀ (n+1) = l := by
+        simp [lSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl]
+          unfold lSeq
+          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
+        · simp
+          rw [hl]
+          unfold lSeq
+          exact hl
+      have h_u_succ : uSeq A l₀ u₀ (n+1) = mid l u := by
+        simp [uSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
+        · simp
+          rw [hu]
+          unfold uSeq
+          exact rfl
+      calc
+        uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = mid l u - l := by simp_all only [mid, Subtype.exists, exists_prop, not_exists, not_and, not_lt, l, u]
+        _ = (u - l) / 2 := by exact mid_sub l u
+
 
   sorry
 
