@@ -32,3 +32,7 @@ def IsInf (A : Set ℝ) (i : ℝ) : Prop := ∀ x ∈ A, i ≤ x ∧ ∀ ε > 0,
 -- konvergence a n → q
 def ConvergentTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergentTo a q
+
+theorem ConvIffMonAndBdd (a : ℕ → ℝ) (hMon : MonotonicSequence a) (hBdd : BoundedSequence a) : Convergent a := by
+
+  sorry

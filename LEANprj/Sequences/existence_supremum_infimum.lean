@@ -82,7 +82,7 @@ theorem exists_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ
         exact h a ha
 
   -- do sebe vlozene intervaly neprazdne
-  have intNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
+  have nestedNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
     intro n
     induction' n with d hd
     · use l₀
@@ -166,19 +166,82 @@ theorem exists_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ
         uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = mid l u - l := by simp_all only [mid, Subtype.exists, exists_prop, not_exists, not_and, not_lt, l, u]
         _ = (u - l) / 2 := by exact mid_sub l u
 
+  -- lₙ rostouci posloupnost
+  have lInc : IncreasingSequence (lSeq A l₀ u₀) := by
+    unfold IncreasingSequence
+    intro n
+    set l := lSeq A l₀ u₀ n with hl
+    set u := uSeq A l₀ u₀ n with hu
+    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
+    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
+    by_cases hRight : ∃ a : A, mid l u < a
+    · have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
+        simp [lSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          ring
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, l, u]
+      rw [h_l_succ]
+      exact left_le_mid (lₙ_leq_uₙ n)
+    · have h_l_succ : lSeq A l₀ u₀ (n+1) = l := by
+        simp [lSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl]
+          unfold lSeq
+          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
+        · simp
+          rw [hl]
+          unfold lSeq
+          exact hl
+      rw [h_l_succ]
 
+  -- uₙ klesajici posloupnost
+  have uDec : DecreasingSequence (uSeq A l₀ u₀) := by
+    unfold DecreasingSequence
+    intro n
+    set l := lSeq A l₀ u₀ n with hl
+    set u := uSeq A l₀ u₀ n with hu
+    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
+    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
+    by_cases hRight : ∃  a : A, mid l u < a
+    · have h_u_succ : uSeq A l₀ u₀ (n+1) = u := by
+        simp [uSeq, luNext, step]
+        split_ifs with h
+        · simp
+          exact hu
+        · simp
+          rw [hu]
+          unfold uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, l, u]
+      rw [h_u_succ]
+    · have h_u_succ : uSeq A l₀ u₀ (n+1) = mid l u := by
+        simp [uSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
+        · simp
+          rw [hu]
+          unfold uSeq
+          exact rfl
+      rw [h_u_succ]
+      exact mid_le_right (lₙ_leq_uₙ n)
+
+  -- prunik do sebe vlozenych intervalu existuje prave jeden
+  have nestedUnique : ∃! s : ℝ, ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n := by
+    sorry
   sorry
 
 
 
 
 
-
-
-
-
-
-theorem exists_unique_infimum (A : Set ℝ) : ∃! i : ℝ, IsInf A i := by
-  sorry
 
 end
