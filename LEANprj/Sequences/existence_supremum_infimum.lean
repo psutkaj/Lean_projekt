@@ -2,7 +2,7 @@ import LEANprj.Sequences.definitions
 noncomputable section
 open Classical
 
-variable (A : Set ℝ) (l₀ u₀ : ℝ)
+variable (A : Set ℝ) (l₀ u₀ : ℝ) (n : ℕ)
 
 -- chci si vytvorit pulleni intervalu, a aby ho rozeznavalo simp
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
@@ -234,12 +234,69 @@ theorem exists_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ
       rw [h_u_succ]
       exact mid_le_right (lₙ_leq_uₙ n)
 
-  -- prunik do sebe vlozenych intervalu existuje prave jeden
+  have abs_le_gap (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : ∀ n : ℕ, |s - t| ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
+    intro n
+    set l := lSeq A l₀ u₀ n with hl
+    set u := uSeq A l₀ u₀ n with hu
+    have l_leq_s : l ≤ s := (hs n).1
+    have s_leq_u : s ≤ u := (hs n).2
+    have l_leq_t : l ≤ t := (ht n).1
+    have t_leq_u : t ≤ u := (ht n).2
+    exact abs_sub_le_of_le_of_le l_leq_s s_leq_u l_leq_t t_leq_u
+
+
+  have gap_shrink : ∀ n : ℕ, uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
+    intro n
+    induction' n with d hd
+    · simp
+      rfl
+    · simp_all
+      ring
+
+  have gap_to_0  : ∀ ε > 0, ∃ n₀, ∀ n > n₀, |((u₀ - l₀) / 2^n)| < ε := by
+    intros ε ε_pos
+    have h_pos : u₀ - l₀ ≥ 0 := by linarith
+    have h_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
+      intro n
+      simp [div_nonneg h_pos]
+    by_cases hGap : u₀ - l₀ = 0
+    · refine ⟨0, ?_⟩
+      intros n n_pos
+      rw [hGap]
+      simp
+      linarith
+    · have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne h_pos fun a => hGap (id (Eq.symm a))
+      have x_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
+      have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ (2 : ℝ) ^ N := by
+        intro N
+        induction' N with k ih
+        · simp
+        · have : (k : ℝ) ≤ (2 : ℝ) ^ k := ih
+          have one_le : (1 : ℝ) ≤ (2 : ℝ) ^ k := by
+            have : (0 : ℝ) < 2 := by norm_num
+            have : (1 : ℝ) ≤ 2 ^ k := by refine one_le_pow₀ ?_; linarith
+            exact this
+          have : (k : ℝ) + 1 ≤ (2 : ℝ) ^ k + (2 : ℝ) ^ k := add_le_add ih one_le
+          -- 2 * (2^k) = (2^k) + (2^k)
+          have : (2 : ℝ) ^ k + (2 : ℝ) ^ k = 2 * (2 : ℝ) ^ k := by ring
+          calc (↑k.succ : ℝ) = (k : ℝ) + 1 := by simp [Nat.succ_eq_add_one]
+            _ ≤ (2 : ℝ) ^ k + (2 : ℝ) ^ k := add_le_add ih one_le
+            _ = 2 * (2 : ℝ) ^ k := by ring
+            _ = (2 : ℝ) ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
+      sorry
+
+
+
+
+
+  -- prunik do sebe vlozenych intervalu je prave jeden prvek
   have nestedUnique : ∃! s : ℝ, ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n := by
+
+    --refine ⟨?_, ?_, ?_⟩
     sorry
+
+
   sorry
-
-
 
 
 
