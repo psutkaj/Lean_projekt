@@ -346,6 +346,53 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       exact nested_unique_of_two t s ht hs
     exact ⟨s, hs, unique⟩
 
+  obtain ⟨s, hs⟩ := nestedUnique
+  -- s je horní závora množiny A
+  have upper_s : ∀ a ∈ A, a ≤ s := by
+    intro a ha
+    -- spor: a > s
+    by_contra hnot
+    have hgt : s < a := lt_of_le_of_ne (le_of_not_ge hnot) (ne_comm.mp ?hne)
+    · -- jen konstatujeme, že z a ≤ s by byl opak; stačí, že máme s < a ⇒ a ≠ s
+      have hne : a ≠ s := ne_of_gt hgt
+      -- ε = (a - s)/2 > 0
+      have hpos : 0 < a - s := sub_pos.mpr hgt
+      set ε := (a - s) / 2 with hε
+      have ε_pos : 0 < ε := by simpa [hε] using half_pos hpos
+
+      -- z "gap_to_0" vyber N s u_N - l_N < ε (přes tvoje gap_shrink)
+      obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
+      -- vezmeme rovnou N+1, ať máme > N
+      have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
+        -- |(u₀ - l₀)/2^(N+1)| < ε  ⇒  u_{N+1} - l_{N+1} < ε
+        have := hN (N+1) (Nat.lt_succ_self N)
+        -- přepiš délku intervalu na frakci
+        rw [gap_shrink (N+1)]
+        have h_pos : u₀ - l₀ ≥ 0 := by linarith
+        simp at this
+        have le_abs : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
+        exact lt_of_le_of_lt le_abs this
+
+      -- vztahy k N+1:
+      have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := upperBound (N+1) a ha
+      have l_le_s : lSeq A l₀ u₀ (N+1) ≤ s := by sorry
+      have s_le_u : s ≤ uSeq A l₀ u₀ (N+1) := by sorry
+
+      -- odhad rozdílu a - s přes délku intervalu
+      have as_le_us : a - s ≤ uSeq A l₀ u₀ (N+1) - s := by linarith
+      have us_le_gap : uSeq A l₀ u₀ (N+1) - s ≤
+                        uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith
+      have as_le_gap :
+          a - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) :=
+        le_trans as_le_us us_le_gap
+
+      -- teď: a - s ≤ gap < ε = (a - s)/2  ⇒ spor
+      have h_as_lt_eps : a - s < ε := lt_of_le_of_lt as_le_gap gap_small
+      have h_not_lt_half : ¬ a - s < (a - s) / 2 := by
+        exact not_lt_of_ge (half_le_self (le_of_lt hpos))
+      exact h_not_lt_half (by simpa [hε] using h_as_lt_eps)
+    sorry
+  -- teď máš s jako horní závoru A
 
 
   sorry
