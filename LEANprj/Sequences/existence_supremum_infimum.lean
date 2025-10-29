@@ -48,7 +48,7 @@ lemma mid_le_right {l u : ℝ} (h : l ≤ u) : mid l u ≤ u := by
   have : u + l ≤ u + u := by linarith
   linarith
 
--- exsitence a jednoznacnost suprema (infima)
+-- exsitence a jednoznacnost suprema
 theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u): ∃! s : ℝ, IsSup A s := by
   obtain ⟨l₀, hl₀⟩ := hA
   obtain ⟨u₀, hu₀⟩ := hUpperBdd
@@ -352,50 +352,137 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     intro a ha
     -- spor: a > s
     by_contra hnot
-    have hgt : s < a := lt_of_le_of_ne (le_of_not_ge hnot) (ne_comm.mp ?hne)
-    · -- jen konstatujeme, že z a ≤ s by byl opak; stačí, že máme s < a ⇒ a ≠ s
-      have hne : a ≠ s := ne_of_gt hgt
-      -- ε = (a - s)/2 > 0
-      have hpos : 0 < a - s := sub_pos.mpr hgt
-      set ε := (a - s) / 2 with hε
-      have ε_pos : 0 < ε := by simpa [hε] using half_pos hpos
+    have hgt : s < a := by exact lt_of_not_ge hnot
+    -- jen konstatujeme, že z a ≤ s by byl opak; stačí, že máme s < a ⇒ a ≠ s
+    have hne : a ≠ s := ne_of_gt hgt
+    -- ε = (a - s)/2 > 0
+    have hpos : 0 < a - s := sub_pos.mpr hgt
+    set ε := (a - s) / 2 with hε
+    have ε_pos : 0 < ε := by simpa [hε] using half_pos hpos
 
-      -- z "gap_to_0" vyber N s u_N - l_N < ε (přes tvoje gap_shrink)
-      obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
-      -- vezmeme rovnou N+1, ať máme > N
+    -- z "gap_to_0" vyber N s u_N - l_N < ε (přes tvoje gap_shrink)
+    obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
+    -- vezmeme rovnou N+1, ať máme > N
+    have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
+      -- |(u₀ - l₀)/2^(N+1)| < ε  ⇒  u_{N+1} - l_{N+1} < ε
+      have := hN (N+1) (Nat.lt_succ_self N)
+      -- přepiš délku intervalu na frakci
+      rw [gap_shrink (N+1)]
+      have h_pos : u₀ - l₀ ≥ 0 := by linarith
+      simp at this
+      have le_abs : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
+      exact lt_of_le_of_lt le_abs this
+
+    -- vztahy k N+1:
+    have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := upperBound (N+1) a ha
+    have l_le_s : lSeq A l₀ u₀ (N+1) ≤ s := (hs.1 (N+1)).1
+    have s_le_u : s ≤ uSeq A l₀ u₀ (N+1) := (hs.1 (N+1)).2
+
+    -- odhad rozdílu a - s přes délku intervalu
+    have as_le_us : a - s ≤ uSeq A l₀ u₀ (N+1) - s := by linarith
+    have us_le_gap : uSeq A l₀ u₀ (N+1) - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith
+    have as_le_gap : a - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by exact le_trans as_le_us us_le_gap
+
+    -- teď: a - s ≤ gap < ε = (a - s)/2  ⇒ spor
+    have h_as_lt_eps : a - s < ε := lt_of_le_of_lt as_le_gap gap_small
+    have h_not_lt_half : ¬ a - s < (a - s) / 2 := by exact not_lt_of_ge (half_le_self (le_of_lt hpos))
+    exact h_not_lt_half h_as_lt_eps
+
+  have least : ∀ z, (∀ a ∈ A, a ≤ z) → s ≤ z := by
+    intro z zUpperBound
+    by_contra hgt
+    have : s > z := by exact lt_of_not_ge hgt
+    have h_pos : 0 < s - z := by exact sub_pos.mpr this
+
+    set ε := (s - z) / 2 with h_ε
+    have ε_pos : ε > 0 := by exact half_pos h_pos
+    choose a haA hla hau using nestedNonempty
+    have l_le_z : ∀ n, lSeq A l₀ u₀ n ≤ z := by
+      exact fun n => Std.le_trans (hla n) (zUpperBound (a n) (haA n))
+    obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
+    have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
+      have := hN (N+1) (Nat.lt_succ_self N)
+      rw [gap_shrink]
+      have : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
+      (expose_names; exact lt_of_le_of_lt this this_2)
+    have lN_le_s : lSeq A l₀ u₀ N ≤ s := (hs.1 N).1
+    have s_le_uN : s ≤ uSeq A l₀ u₀ N := (hs.1 N).2
+    have sl_le_gap : s - lSeq A l₀ u₀ N ≤ uSeq A l₀ u₀ N - lSeq A l₀ u₀ N := by linarith
+    set lN := lSeq A l₀ u₀ (N+1) with hl
+    set uN := uSeq A l₀ u₀ (N+1) with hu
+
+    have l_le_s : lN ≤ s := by simpa [hl] using (hs.1 (N+1)).1
+    have s_le_u : s ≤ uN := by simpa [hu] using (hs.1 (N+1)).2
+
+    have sl_le_ul : s - lN ≤ uN - lN := sub_le_sub_right s_le_u lN
+
+
+    have : s - lN < ε := by exact lt_of_le_of_lt sl_le_ul gap_small
+    have : lN > s - ε := by exact sub_lt_comm.mp this
+    have s_sub_eps_eq_z : s - ε = z + ε := by rw [h_ε]; ring
+    have : lN > z := by linarith [l_le_z (N+1)]
+    exact (not_lt_of_ge (l_le_z (N+1))) this
+
+  have hsSup : IsSup A s := by
+    unfold IsSup
+    intro x hx
+    constructor
+    · exact upper_s x hx
+    · intro ε hε
+      -- We need to find a ∈ A such that s - ε < a
+      -- Use gap_to_0 to find an interval small enough
+      obtain ⟨N, hN⟩ := gap_to_0 ε hε
+
+      -- Get an element from the nested interval at N+1
+      obtain ⟨a, ha_mem, ha_lower, ha_upper⟩ := nestedNonempty (N+1)
+
+      use a, ha_mem
+
+      -- Show s - ε < a
       have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
-        -- |(u₀ - l₀)/2^(N+1)| < ε  ⇒  u_{N+1} - l_{N+1} < ε
         have := hN (N+1) (Nat.lt_succ_self N)
-        -- přepiš délku intervalu na frakci
-        rw [gap_shrink (N+1)]
-        have h_pos : u₀ - l₀ ≥ 0 := by linarith
-        simp at this
-        have le_abs : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
-        exact lt_of_le_of_lt le_abs this
+        rw [gap_shrink]
+        have : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := le_abs_self _
+        (expose_names; exact lt_of_le_of_lt this this_1)
 
-      -- vztahy k N+1:
-      have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := upperBound (N+1) a ha
-      have l_le_s : lSeq A l₀ u₀ (N+1) ≤ s := by sorry
-      have s_le_u : s ≤ uSeq A l₀ u₀ (N+1) := by sorry
+      have s_in_interval : lSeq A l₀ u₀ (N+1) ≤ s ∧ s ≤ uSeq A l₀ u₀ (N+1) := hs.1 (N+1)
 
-      -- odhad rozdílu a - s přes délku intervalu
-      have as_le_us : a - s ≤ uSeq A l₀ u₀ (N+1) - s := by linarith
-      have us_le_gap : uSeq A l₀ u₀ (N+1) - s ≤
-                        uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith
-      have as_le_gap :
-          a - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) :=
-        le_trans as_le_us us_le_gap
+      -- Since a ≥ lSeq (N+1) and s ≤ uSeq (N+1) and gap < ε
+      -- we have s - a ≤ uSeq - lSeq < ε
+      -- Thus a > s - ε
+      have : s - lSeq A l₀ u₀ (N+1) ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith [s_in_interval.2]
+      have : s - lSeq A l₀ u₀ (N+1) < ε := lt_of_le_of_lt this gap_small
+      have : lSeq A l₀ u₀ (N+1) > s - ε := by linarith
+      linarith [ha_lower]
 
-      -- teď: a - s ≤ gap < ε = (a - s)/2  ⇒ spor
-      have h_as_lt_eps : a - s < ε := lt_of_le_of_lt as_le_gap gap_small
-      have h_not_lt_half : ¬ a - s < (a - s) / 2 := by
-        exact not_lt_of_ge (half_le_self (le_of_lt hpos))
-      exact h_not_lt_half (by simpa [hε] using h_as_lt_eps)
-    sorry
-  -- teď máš s jako horní závoru A
-
-
-  sorry
+  refine ⟨s, hsSup, ?_⟩
+  intro t htSup
+  apply le_antisymm
+  · -- Show t ≤ s: since s is an upper bound and t is the least upper bound
+    have t_least : ∀ z, (∀ a ∈ A, a ≤ z) → t ≤ z := by
+      intro z hz
+      by_contra hgt
+      push_neg at hgt
+      have : z < t := hgt
+      have h_pos : 0 < t - z := sub_pos.mpr this
+      set ε := (t - z) / 2
+      have ε_pos : ε > 0 := half_pos h_pos
+      have hA_local : A.Nonempty := ⟨l₀, hl₀⟩
+      obtain ⟨a, ha_mem, ha_close⟩ := (htSup l₀ hl₀).2 ε ε_pos
+      have : z < a := by
+        have : t - ε = t - (t - z) / 2 := rfl
+        have : t - (t - z) / 2 = (t + z) / 2 := by ring
+        have : t - ε = (t + z) / 2 := by rw [this]
+        have : (t + z) / 2 < a := by linarith [ha_close]
+        linarith
+      exact (not_lt_of_ge (hz a ha_mem)) this
+    exact t_least s upper_s
+  · -- Show s ≤ t: since t is a supremum and s is an upper bound
+    -- We use that s is the least upper bound (from 'least')
+    -- For any upper bound z, s ≤ z
+    -- t is an upper bound (from htSup), so s ≤ t
+    have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
+    exact least t t_upper
 
 
 end
