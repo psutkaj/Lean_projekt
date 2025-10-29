@@ -4,6 +4,15 @@ open Classical
 
 variable (A : Set ℝ) (l₀ u₀ : ℝ) (n : ℕ)
 
+-- zavedu jako axiom, z uplnosti Realnych cisel
+axiom exists_point_in_nested_intervals
+  (l u : ℕ → ℝ)
+  (mono_l : IncreasingSequence l)
+  (anti_u : DecreasingSequence u)
+  (sep : ∀ n, l n ≤ u n)
+  (shrink : ∀ n, u (n+1) - l (n+1) = (u n - l n) / 2) :
+  ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
+
 -- chci si vytvorit pulleni intervalu, a aby ho rozeznavalo simp
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
 
@@ -40,7 +49,7 @@ lemma mid_le_right {l u : ℝ} (h : l ≤ u) : mid l u ≤ u := by
   linarith
 
 -- exsitence a jednoznacnost suprema (infima)
-theorem exists_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u): ∃ s : ℝ, IsSup A s := by
+theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u): ∃! s : ℝ, IsSup A s := by
   obtain ⟨l₀, hl₀⟩ := hA
   obtain ⟨u₀, hu₀⟩ := hUpperBdd
   have h_l₀_leq_u₀ : l₀ ≤ u₀ := by exact hu₀ l₀ hl₀
@@ -267,38 +276,79 @@ theorem exists_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ
       linarith
     · have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne h_pos fun a => hGap (id (Eq.symm a))
       have x_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
-      have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ (2 : ℝ) ^ N := by
+      have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
         intro N
         induction' N with k ih
         · simp
-        · have : (k : ℝ) ≤ (2 : ℝ) ^ k := ih
-          have one_le : (1 : ℝ) ≤ (2 : ℝ) ^ k := by
+        · have : (k : ℝ) ≤ 2 ^ k := ih
+          have one_le : (1 : ℝ) ≤ 2 ^ k := by
             have : (0 : ℝ) < 2 := by norm_num
             have : (1 : ℝ) ≤ 2 ^ k := by refine one_le_pow₀ ?_; linarith
             exact this
-          have : (k : ℝ) + 1 ≤ (2 : ℝ) ^ k + (2 : ℝ) ^ k := add_le_add ih one_le
+          have : (k : ℝ) + 1 ≤ 2^ k + 2 ^ k := add_le_add ih one_le
           -- 2 * (2^k) = (2^k) + (2^k)
-          have : (2 : ℝ) ^ k + (2 : ℝ) ^ k = 2 * (2 : ℝ) ^ k := by ring
+          have : 2 ^ k + 2 ^ k = 2 * 2 ^ k := by ring
           calc (↑k.succ : ℝ) = (k : ℝ) + 1 := by simp [Nat.succ_eq_add_one]
-            _ ≤ (2 : ℝ) ^ k + (2 : ℝ) ^ k := add_le_add ih one_le
-            _ = 2 * (2 : ℝ) ^ k := by ring
-            _ = (2 : ℝ) ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
-      sorry
+            _ ≤ 2 ^ k + 2 ^ k := add_le_add ih one_le
+            _ = 2 * 2 ^ k := by ring
+            _ = 2 ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
+      obtain ⟨N, hN⟩ := exists_nat_gt ((u₀ - l₀) / ε)
+      have pow_gt :  (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
+      have posPow : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
+      have posRight : 0 < ε / 2 ^ N := div_pos ε_pos posPow
+      have step :
+       ((u₀ - l₀) / ε) * (ε / 2 ^ N) < 2 ^ N * (ε / 2 ^ N) := mul_lt_mul_of_pos_right pow_gt posRight
+      have base : (u₀ - l₀) / 2^N < ε := by
+        calc
+          (u₀ - l₀) / 2^N = (u₀ - l₀) / 2^N * ε / ε := by field_simp
+          _ = ((u₀ - l₀) / ε) * (ε / (2^N)) := by ring
+          _ < (2 ^ N) * (ε / (2^N)) := by exact step
+          _ = ε := by field_simp
+      refine ⟨N, ?_⟩
+      intros n hn
+      have pow_mono : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
+      have posPowN : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
+      have posPown : 0 < (2 : ℝ) ^ n := pow_pos (by norm_num) n
+      have inv_mono : (1 : ℝ) / (2 : ℝ) ^ n < (1 : ℝ) / (2 : ℝ) ^ N := by exact div_lt_div_of_pos_left (by norm_num) posPowN (by norm_cast)
+      have : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos posPow (by norm_cast)
+      have : |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
+        rw [h_abs n, h_abs N]
+        exact this
+      calc
+        |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := this
+        _ < ε := by exact lt_of_eq_of_lt (h_abs N) base
 
-
-
-
+  have nested_unique_of_two (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : s = t := by
+    by_contra hne
+    have hpos : 0 < |s - t| := by exact abs_sub_pos.mpr hne
+    set ε := |s - t| / 2 with h_ε
+    have ε_pos : 0 < ε := by exact half_pos hpos
+    obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
+    have hsmall : |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| < ε :=
+      hN (N+1) (Nat.lt_succ_self N)
+    have hbound : |s - t| ≤ |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| := by
+      have st_bound := abs_le_gap s t hs ht (N+1)
+      rw [← gap_shrink (N+1)]
+      have : uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1) ≤ |uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1)| := by exact le_abs_self (uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1))
+      exact Std.le_trans st_bound this
+    have contr_1 : |s - t| < ε := lt_of_le_of_lt hbound hsmall
+    rw [h_ε] at contr_1
+    have contr_2 : ¬ |s - t| < |s - t| / 2 := by
+      have hhalf_lt : |s - t| / 2 < |s - t| := half_lt_self hpos
+      exact not_lt_of_gt hhalf_lt
+    exact contr_2 contr_1
 
   -- prunik do sebe vlozenych intervalu je prave jeden prvek
   have nestedUnique : ∃! s : ℝ, ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n := by
+    obtain ⟨s, hs⟩ := exists_point_in_nested_intervals (l := fun n => lSeq A l₀ u₀ n) (u := fun n => uSeq A l₀ u₀ n) lInc uDec lₙ_leq_uₙ shrink
+    have unique : ∀ t, (∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) → t = s := by
+      intro t ht
+      exact nested_unique_of_two t s ht hs
+    exact ⟨s, hs, unique⟩
 
-    --refine ⟨?_, ?_, ?_⟩
-    sorry
 
 
   sorry
-
-
 
 
 end
