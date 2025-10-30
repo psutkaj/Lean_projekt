@@ -81,21 +81,97 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         -- vime z left_le_mid
         linarith
 
-  -- horni zavora
-  have upperBound : ∀ n : ℕ, ∀ a ∈ A, a ≤ uSeq A l₀ u₀ n := by
+  -- ∀ n ∈ ℕ : uₙ je horni zavora mnoziny A
+  have uₙ_upperBound : ∀ n : ℕ, ∀ a ∈ A, a ≤ uSeq A l₀ u₀ n := by
     intro n a ha
+    -- provedeme indukci podle n
     induction' n with d hd
     · unfold uSeq luNext
       simp
       exact hu₀ a ha
     · unfold uSeq luNext step
-      simp only [Subtype.exists, exists_prop, dite_eq_ite]
+      simp
+      -- opet rozdelime if na dva pripady h a ¬h
       split_ifs with h
       · exact hd
-      · push_neg at h
+      · -- znegujeme vyraz v h
+        push_neg at h
+        -- a mame presne to co v h
         exact h a ha
 
-  -- do sebe vlozene intervaly neprazdne
+   -- lₙ je rostouci posloupnost
+  have lInc : IncreasingSequence (lSeq A l₀ u₀) := by
+    unfold IncreasingSequence
+    intro n
+    set l := lSeq A l₀ u₀ n with hl
+    set u := uSeq A l₀ u₀ n with hu
+    -- pomocne have : o luNext nasledovnicich lu dvojic
+    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
+    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
+    -- resime podle pripadu zda plati hyp hRight, tj. zda ∃ a ∈ A : (l + u) / 2 < a, pomoci tohoto dokazeme urcit nasledovnika step
+    by_cases hRight : ∃ a : A, mid l u < a
+    · -- pomocne, ze naslednovnik lₙ je mid lu, tj ze pri puleni posouvam levou hranici a pravou nechavam
+      have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
+        simp [lSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          ring
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, l, u]
+      rw [h_l_succ]
+      exact left_le_mid (lₙ_leq_uₙ n)
+    · -- pomocne, ze nasledovni je v tomto pripade l, a tedy je levou hranici nechavam a klesam s pravou
+      have h_l_succ : lSeq A l₀ u₀ (n+1) = l := by
+        simp [lSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl]
+          unfold lSeq
+          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
+        · simp
+          rw [hl]
+          unfold lSeq
+          rfl
+      rw [h_l_succ]
+
+  -- uₙ je klesajici posloupnost, skoro stejne jako rostouci pro lₙ, jenom beru v jednotlivych pripadech intervaly naopak
+  have uDec : DecreasingSequence (uSeq A l₀ u₀) := by
+    unfold DecreasingSequence
+    intro n
+    set l := lSeq A l₀ u₀ n with hl
+    set u := uSeq A l₀ u₀ n with hu
+    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
+    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
+    by_cases hRight : ∃  a : A, mid l u < a
+    · have h_u_succ : uSeq A l₀ u₀ (n+1) = u := by
+        simp [uSeq, luNext, step]
+        split_ifs with h
+        · simp
+          exact hu
+        · simp
+          rw [hu]
+          unfold uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, l, u]
+      rw [h_u_succ]
+    · have h_u_succ : uSeq A l₀ u₀ (n+1) = mid l u := by
+        simp [uSeq, luNext, step]
+        split_ifs with h
+        · simp
+          rw [hl, hu]
+          unfold lSeq uSeq
+          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
+        · simp
+          rw [hu]
+          unfold uSeq
+          exact rfl
+      rw [h_u_succ]
+      exact mid_le_right (lₙ_leq_uₙ n)
+
+  -- do sebe vnorene intervaly jsou vzdy neprazdne
   have nestedNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
     intro n
     induction' n with d hd
@@ -112,7 +188,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       split_ifs with h
       · obtain ⟨w, hw_mem, hw_gt⟩ := h
         use w
-        refine ⟨hw_mem, ?_, upperBound d w hw_mem⟩
+        refine ⟨hw_mem, ?_, uₙ_upperBound d w hw_mem⟩
         show mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
         have : lSeq A l₀ u₀ d = (luNext A l₀ u₀ d).1 := rfl
         have : uSeq A l₀ u₀ d = (luNext A l₀ u₀ d).2 := rfl
@@ -180,73 +256,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = mid l u - l := by simp_all only [mid, Subtype.exists, exists_prop, not_exists, not_and, not_lt, l, u]
         _ = (u - l) / 2 := by exact mid_sub l u
 
-  -- lₙ rostouci posloupnost
-  have lInc : IncreasingSequence (lSeq A l₀ u₀) := by
-    unfold IncreasingSequence
-    intro n
-    set l := lSeq A l₀ u₀ n with hl
-    set u := uSeq A l₀ u₀ n with hu
-    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
-    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
-    by_cases hRight : ∃ a : A, mid l u < a
-    · have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
-        simp [lSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          ring
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, l, u]
-      rw [h_l_succ]
-      exact left_le_mid (lₙ_leq_uₙ n)
-    · have h_l_succ : lSeq A l₀ u₀ (n+1) = l := by
-        simp [lSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl]
-          unfold lSeq
-          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
-        · simp
-          rw [hl]
-          unfold lSeq
-          exact hl
-      rw [h_l_succ]
 
-  -- uₙ klesajici posloupnost
-  have uDec : DecreasingSequence (uSeq A l₀ u₀) := by
-    unfold DecreasingSequence
-    intro n
-    set l := lSeq A l₀ u₀ n with hl
-    set u := uSeq A l₀ u₀ n with hu
-    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
-    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
-    by_cases hRight : ∃  a : A, mid l u < a
-    · have h_u_succ : uSeq A l₀ u₀ (n+1) = u := by
-        simp [uSeq, luNext, step]
-        split_ifs with h
-        · simp
-          exact hu
-        · simp
-          rw [hu]
-          unfold uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, l, u]
-      rw [h_u_succ]
-    · have h_u_succ : uSeq A l₀ u₀ (n+1) = mid l u := by
-        simp [uSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
-        · simp
-          rw [hu]
-          unfold uSeq
-          exact rfl
-      rw [h_u_succ]
-      exact mid_le_right (lₙ_leq_uₙ n)
 
   -- v kazdem kroce je rozdil libovolnych dvou prvku z intervalu (lₙ, uₙ) v absolutni hodnote mensi nebo roven uₙ - lₙ (gap)
   have abs_le_gap (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : ∀ n : ℕ, |s - t| ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
@@ -354,8 +364,10 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       exact nested_unique_of_two t s ht hs
     exact ⟨s, hs, unique⟩
 
+  -- z jednoznacnosti prvku v pruniku si vezmu s - kandidat na supremum
   obtain ⟨s, hs⟩ := nestedUnique
-  -- s je horní závora množiny A
+
+  -- a zbyva dokazat, ze s je horní závora množiny A
   have upper_s : ∀ a ∈ A, a ≤ s := by
     intro a ha
     -- spor: a > s
@@ -382,7 +394,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       exact lt_of_le_of_lt le_abs this
 
     -- vztahy k N+1:
-    have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := upperBound (N+1) a ha
+    have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := uₙ_upperBound (N+1) a ha
     have l_le_s : lSeq A l₀ u₀ (N+1) ≤ s := (hs.1 (N+1)).1
     have s_le_u : s ≤ uSeq A l₀ u₀ (N+1) := (hs.1 (N+1)).2
 
@@ -491,6 +503,9 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     -- t is an upper bound (from htSup), so s ≤ t
     have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
     exact least t t_upper
+
+
+
 
 -- existence a jednoznacnost infima
 -- kazda neprazdna, zdola omezena mnozina ma prave jedno infimum
