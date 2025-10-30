@@ -22,13 +22,6 @@ def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) (_hk : ∀ n : ℕ, k (n + 1
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := ∀ x ∈ A, x ≤ s ∧ ∀ ε > 0, ∃ x ∈ A, s - ε < x
 def IsInf (A : Set ℝ) (i : ℝ) : Prop := ∀ x ∈ A, i ≤ x ∧ ∀ ε > 0, ∃ x ∈ A, x < i + ε
 
--- supremum a infimum posloupnosti
--- noncomputable def SupSeq (a : ℕ → ℝ) (h_low_bdd : LowerBoundedSequence a) : ℝ :=
---   choose (exists_unique_supremum a h_low_bdd)
--- noncomputable def InfSeq (a : ℕ → ℝ) (h_upp_bdd : LowerBoundedSequence a) : ℝ :=
---   choose (exists_unique_infimum a h_upp_bdd)
-
-
 -- konvergence a n → q
 def ConvergentTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergentTo a q

@@ -1,4 +1,4 @@
-import LEANprj.Sequences.definitions
+import LEANprj.Sequences.defs
 noncomputable section
 open Classical
 
@@ -58,6 +58,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
   -- ukazeme, ze ∀ n ∈ ℕ : lₙ ≤ uₙ
   have lₙ_leq_uₙ : ∀ n : ℕ, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
     intro n
+    -- provedeme indukci podle n
     induction' n with d hd
     · simp [lSeq, uSeq, luNext]
       exact h_l₀_leq_u₀
@@ -65,17 +66,19 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       let l_d := lSeq A l₀ u₀ d
       let u_d := uSeq A l₀ u₀ d
       let lu_d_next := step A l_d u_d
+      -- prepiseme do citelnejsi podoby za pomoci zavedenych promennych
       change lu_d_next.1 ≤ lu_d_next.2
       unfold lu_d_next step mid
-      simp_all only [Subtype.exists, exists_prop, dite_eq_ite, l_d, u_d]
-      split
-      next h =>
-        simp_all only
-        obtain ⟨w, h⟩ := h
-        obtain ⟨left, right⟩ := h
+      simp
+      -- rozdelime na dve casti podle toho zda je if splnen nebo ne
+      split_ifs with h
+      · simp
+        -- z h si vezmeme svedka w ∈ A, plus jeho vlastnost
+        obtain ⟨w, hw, right⟩ := h
+        -- vime z mid_le_right
         linarith
-      next h =>
-        simp_all only [not_exists, not_and, not_lt]
+      · simp
+        -- vime z left_le_mid
         linarith
 
   -- horni zavora
@@ -489,6 +492,59 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
     exact least t t_upper
 
--- #print axioms exists_unique_supremum
+-- existence a jednoznacnost infima
+-- kazda neprazdna, zdola omezena mnozina ma prave jedno infimum
+theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l : ℝ, ∀ a ∈ A, l ≤ a): ∃! s : ℝ, IsInf A s := by
+  -- Define the negated set
+  let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
 
+  -- Show negA is nonempty
+  have hNegA : negA.Nonempty := by
+    obtain ⟨a, ha⟩ := hA
+    exact ⟨-a, a, ha, rfl⟩
+
+  -- Show negA is bounded above
+  have hNegUpperBdd : ∃ u : ℝ, ∀ x ∈ negA, x ≤ u := by
+    obtain ⟨l, hl⟩ := hLowerBdd
+    use -l
+    intro x xNeg
+    obtain ⟨a, ha, rfl⟩ := xNeg
+    exact neg_le_neg_iff.mpr (hl a ha)
+
+  -- Apply exists_unique_supremum to negA
+  obtain ⟨s, hs, hunique⟩ := exists_unique_supremum negA hNegA hNegUpperBdd
+
+  -- The infimum of A is -s
+  use -s
+  constructor
+  · -- Show IsInf A (-s)
+    intro a ha
+    constructor
+    · -- Show -s ≤ a
+      have : -a ∈ negA := ⟨a, ha, rfl⟩
+      have : -a ≤ s := (hs (-a) this).1
+      linarith
+    · -- Show ∀ ε > 0, ∃ b ∈ A, b < -s + ε
+      intro ε hε
+      obtain ⟨x, hx_mem, hx_close⟩ := (hs (-a) ⟨a, ha, rfl⟩).2 ε hε
+      obtain ⟨b, hb_mem, rfl⟩ := hx_mem
+      use b, hb_mem
+      linarith
+  · -- Show uniqueness
+    intro t ht
+    have : -t = s := by
+      apply hunique
+      intro x hx
+      obtain ⟨a, ha, rfl⟩ := hx
+      constructor
+      · have : t ≤ a := (ht a ha).1
+        linarith
+      · intro ε hε
+        obtain ⟨b, hb_mem, hb_close⟩ := (ht a ha).2 ε hε
+        use -b, ⟨b, hb_mem, rfl⟩
+        linarith
+    linarith
+
+--#print axioms exists_unique_supremum
+--#print axioms exists_unique_infimum
 end
