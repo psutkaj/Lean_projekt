@@ -7,25 +7,21 @@ variable (A : Set ℝ) (l₀ u₀ : ℝ) (n : ℕ)
 -- zavedu jako axiom, z uplnosti Realnych cisel
 axiom exists_point_in_nested_intervals
   (l u : ℕ → ℝ)
-  (mono_l : IncreasingSequence l)
-  (anti_u : DecreasingSequence u)
+  (inc_l : IncreasingSequence l)
+  (dec_u : DecreasingSequence u)
   (sep : ∀ n, l n ≤ u n)
   (shrink : ∀ n, u (n+1) - l (n+1) = (u n - l n) / 2) :
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
--- chci si vytvorit pulleni intervalu, a aby ho rozeznavalo simp
+-- chci si vytvorit puleni intervalu, a aby ho rozeznavalo simp
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
 
-lemma sub_mid (l u : ℝ) : u - mid l u = (u - l) / 2 := by
-  simp
-  ring
-lemma mid_sub (l u : ℝ) : mid l u - l = (u - l) / 2 := by
-  simp
-  ring
+-- lemmata o delce intervalu po puleni
+lemma sub_mid (l u : ℝ) : u - mid l u = (u - l) / 2 := by simp; ring
+lemma mid_sub (l u : ℝ) : mid l u - l = (u - l) / 2 := by simp; ring
 
 -- definuju krok puleni, beru bud levou nebo pravou cast, podle toho kde mam a ∈ A
-def step (l u : ℝ) : ℝ × ℝ :=
-  if _ : ∃ a : A, mid l u < a then (mid l u, u) else (l, mid l u)
+def step (l u : ℝ) : ℝ × ℝ := if _ : ∃ a : A, mid l u < a then (mid l u, u) else (l, mid l u)
 
 -- definuju si posloupnost dvojic (lₙ, uₙ)
 def luNext : ℕ → ℝ × ℝ
@@ -36,6 +32,7 @@ def luNext : ℕ → ℝ × ℝ
 def lSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).1
 def uSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).2
 
+-- lemmata pro porovnani prvku s pulenim
 lemma left_le_mid {l u : ℝ} (h : l ≤ u) : l ≤ mid l u := by
   unfold mid
   have : l = (l + l) / 2 := by ring
@@ -49,11 +46,16 @@ lemma mid_le_right {l u : ℝ} (h : l ≤ u) : mid l u ≤ u := by
   linarith
 
 -- exsitence a jednoznacnost suprema
+-- kazda neprazdna, shora omezena mnozina ma prave jedno supremum
 theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u): ∃! s : ℝ, IsSup A s := by
+  -- z nonempty A si vytahnu l₀ () a hl₀
   obtain ⟨l₀, hl₀⟩ := hA
+  -- z horni omezenosti si vytahnu u₀ () a hl₀
   obtain ⟨u₀, hu₀⟩ := hUpperBdd
+  -- vime, ze l₀ ≤ u₀
   have h_l₀_leq_u₀ : l₀ ≤ u₀ := by exact hu₀ l₀ hl₀
-  -- lₙ ≤ uₙ
+
+  -- ukazeme, ze ∀ n ∈ ℕ : lₙ ≤ uₙ
   have lₙ_leq_uₙ : ∀ n : ℕ, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
     intro n
     induction' n with d hd
@@ -243,6 +245,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       rw [h_u_succ]
       exact mid_le_right (lₙ_leq_uₙ n)
 
+  -- v kazdem kroce je rozdil libovolnych dvou prvku z intervalu (lₙ, uₙ) v absolutni hodnote mensi nebo roven uₙ - lₙ (gap)
   have abs_le_gap (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : ∀ n : ℕ, |s - t| ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
     intro n
     set l := lSeq A l₀ u₀ n with hl
@@ -253,7 +256,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     have t_leq_u : t ≤ u := (ht n).2
     exact abs_sub_le_of_le_of_le l_leq_s s_leq_u l_leq_t t_leq_u
 
-
+  -- mezera (gap) se zmensuje / 2ⁿ
   have gap_shrink : ∀ n : ℕ, uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
     intro n
     induction' n with d hd
@@ -262,6 +265,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     · simp_all
       ring
 
+  -- mezera inervalu jde s rostoucim n k nule
   have gap_to_0  : ∀ ε > 0, ∃ n₀, ∀ n > n₀, |((u₀ - l₀) / 2^n)| < ε := by
     intros ε ε_pos
     have h_pos : u₀ - l₀ ≥ 0 := by linarith
@@ -318,6 +322,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := this
         _ < ε := by exact lt_of_eq_of_lt (h_abs N) base
 
+  -- pro libovolne n existuje pouze jeden prvek z intervalu (lₙ, uₙ), tady dokazujeme sporem, ze pokud jsou dva, jsou si rovny
   have nested_unique_of_two (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : s = t := by
     by_contra hne
     have hpos : 0 < |s - t| := by exact abs_sub_pos.mpr hne
@@ -484,5 +489,6 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
     exact least t t_upper
 
+-- #print axioms exists_unique_supremum
 
 end
