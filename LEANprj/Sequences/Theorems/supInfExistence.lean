@@ -174,32 +174,42 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
   -- do sebe vnorene intervaly jsou vzdy neprazdne
   have nestedNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
     intro n
+    -- indukci podle n
     induction' n with d hd
-    · use l₀
+    · -- pouzijeme napr l₀ pro n = 0
+      use l₀
       constructor
       · exact hl₀
       · constructor
         · simp [lSeq, luNext]
         · simp [uSeq, luNext]
           exact hu₀ l₀ hl₀
-    · obtain ⟨a, ha, ha_l, ha_u⟩ := hd
+    · -- vytahnu si z hd a ∈ A, l_d ≤ a ∧ a ≤ u_d
+      obtain ⟨a, ha, ha_l, ha_u⟩ := hd
       unfold lSeq uSeq luNext step
-      simp only [Subtype.exists, exists_prop, dite_eq_ite]
+      simp
       split_ifs with h
-      · obtain ⟨w, hw_mem, hw_gt⟩ := h
+      · -- z h si vytahnu w ∈ A a ze w > mid luNext
+        obtain ⟨w, hwA, hw_gt_mid⟩ := h
         use w
-        refine ⟨hw_mem, ?_, uₙ_upperBound d w hw_mem⟩
-        show mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
+        -- mam 3 cile, do prvniho a tretiho doplnim, a druhy si necham prazdny pomoci ?_ a nasledne ho dokazu
+        refine ⟨hwA, ?_, uₙ_upperBound d w hwA⟩
+        -- prepiseme na ekvivalentni tvar
+        change mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
+        -- pomocna have
         have : lSeq A l₀ u₀ d = (luNext A l₀ u₀ d).1 := rfl
         have : uSeq A l₀ u₀ d = (luNext A l₀ u₀ d).2 := rfl
-        exact le_of_lt hw_gt
-      · push_neg at h
+        exact le_of_lt hw_gt_mid
+      · -- znegujeme vyraz v h
+        push_neg at h
         use a
+        -- opet mame tri cile, takze doplnime za prvni dva a treti dokazeme pod tim
         refine ⟨ha, ha_l, ?_⟩
+        -- ukazeme definicne ekvivalentni vyraz
         show a ≤ mid (lSeq A l₀ u₀ d) (uSeq A l₀ u₀ d)
         exact h a ha
 
-  -- puleni intervalu
+  -- intervaly se v kazdem kroku puli
   have shrink : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
     intro n
     set l := lSeq A l₀ u₀ n with hl
