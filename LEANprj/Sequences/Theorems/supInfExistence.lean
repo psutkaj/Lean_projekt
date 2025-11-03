@@ -209,13 +209,14 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         show a ≤ mid (lSeq A l₀ u₀ d) (uSeq A l₀ u₀ d)
         exact h a ha
 
-  -- intervaly se v kazdem kroku puli
+  -- intervaly se v kazdem kroku zkracuji (puli)
   have shrink : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
     intro n
     set l := lSeq A l₀ u₀ n with hl
     set u := uSeq A l₀ u₀ n with hu
     have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
     have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
+    -- rozdelime si na dva pripady zda a je nad nebo pod mid l u a tim padem budeme vedet co je nasledovnik uₙ a lₙ
     by_cases hRight : ∃ a : A, mid l u < a
     · have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
         simp [lSeq, luNext, step]
@@ -266,7 +267,14 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = mid l u - l := by simp_all only [mid, Subtype.exists, exists_prop, not_exists, not_and, not_lt, l, u]
         _ = (u - l) / 2 := by exact mid_sub l u
 
-
+ -- mezera se zmensuje / 2ⁿ
+  have gap_shrink : ∀ n : ℕ, uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
+    intro n
+    induction' n with d hd
+    · simp
+      rfl
+    · simp_all
+      ring
 
   -- v kazdem kroce je rozdil libovolnych dvou prvku z intervalu (lₙ, uₙ) v absolutni hodnote mensi nebo roven uₙ - lₙ (gap)
   have abs_le_gap (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : ∀ n : ℕ, |s - t| ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
@@ -279,216 +287,198 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     have t_leq_u : t ≤ u := (ht n).2
     exact abs_sub_le_of_le_of_le l_leq_s s_leq_u l_leq_t t_leq_u
 
-  -- mezera (gap) se zmensuje / 2ⁿ
-  have gap_shrink : ∀ n : ℕ, uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
-    intro n
-    induction' n with d hd
-    · simp
-      rfl
-    · simp_all
-      ring
-
   -- mezera inervalu jde s rostoucim n k nule
-  have gap_to_0  : ∀ ε > 0, ∃ n₀, ∀ n > n₀, |((u₀ - l₀) / 2^n)| < ε := by
+  have gap_to_0 : ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |(u₀ - l₀) / 2^n| < ε := by
     intros ε ε_pos
-    have h_pos : u₀ - l₀ ≥ 0 := by linarith
-    have h_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
+    -- vime, ze mezera je ≥ 0 a tedy se rovna svoji abs hodnote
+    have gap_nonneg : u₀ - l₀ ≥ 0 := by linarith
+    have gap_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
       intro n
-      simp [div_nonneg h_pos]
+      simp [div_nonneg gap_nonneg]
+    -- rozebereme podle pripadu kdyz mezera je nulova nebo ne
     by_cases hGap : u₀ - l₀ = 0
-    · refine ⟨0, ?_⟩
+    · use 0
       intros n n_pos
       rw [hGap]
       simp
       linarith
-    · have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne h_pos fun a => hGap (id (Eq.symm a))
-      have x_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
+    · have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
+      have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
+      -- pom tvrzeni ze n ≤ 2^n
       have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
         intro N
         induction' N with k ih
         · simp
-        · have : (k : ℝ) ≤ 2 ^ k := ih
-          have one_le : (1 : ℝ) ≤ 2 ^ k := by
-            have : (0 : ℝ) < 2 := by norm_num
-            have : (1 : ℝ) ≤ 2 ^ k := by refine one_le_pow₀ ?_; linarith
-            exact this
-          have : (k : ℝ) + 1 ≤ 2^ k + 2 ^ k := add_le_add ih one_le
-          -- 2 * (2^k) = (2^k) + (2^k)
-          have : 2 ^ k + 2 ^ k = 2 * 2 ^ k := by ring
+        · have one_le : (1 : ℝ) ≤ 2 ^ k := by exact one_le_pow₀ (by linarith)
           calc (↑k.succ : ℝ) = (k : ℝ) + 1 := by simp [Nat.succ_eq_add_one]
-            _ ≤ 2 ^ k + 2 ^ k := add_le_add ih one_le
+            _ ≤ 2 ^ k + 2 ^ k := by exact add_le_add ih one_le
             _ = 2 * 2 ^ k := by ring
             _ = 2 ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
+      -- vybereme si N > (u₀ - l₀) / ε
       obtain ⟨N, hN⟩ := exists_nat_gt ((u₀ - l₀) / ε)
-      have pow_gt :  (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
-      have posPow : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
-      have posRight : 0 < ε / 2 ^ N := div_pos ε_pos posPow
-      have step :
-       ((u₀ - l₀) / ε) * (ε / 2 ^ N) < 2 ^ N * (ε / 2 ^ N) := mul_lt_mul_of_pos_right pow_gt posRight
+      -- mezera je mensi nez 2^N
+      have pow_gt_gap_div :  (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
+      have pow_2_N_pos : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
+      have posRight : 0 < ε / 2 ^ N := div_pos ε_pos pow_2_N_pos
+      -- pro pevne zvolene N je mensi nez ε
       have base : (u₀ - l₀) / 2^N < ε := by
         calc
           (u₀ - l₀) / 2^N = (u₀ - l₀) / 2^N * ε / ε := by field_simp
           _ = ((u₀ - l₀) / ε) * (ε / (2^N)) := by ring
-          _ < (2 ^ N) * (ε / (2^N)) := by exact step
+          _ < (2 ^ N) * (ε / (2^N)) := by exact mul_lt_mul_of_pos_right pow_gt_gap_div posRight
           _ = ε := by field_simp
-      refine ⟨N, ?_⟩
+      use N
       intros n hn
-      have pow_mono : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
-      have posPowN : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
-      have posPown : 0 < (2 : ℝ) ^ n := pow_pos (by norm_num) n
-      have inv_mono : (1 : ℝ) / (2 : ℝ) ^ n < (1 : ℝ) / (2 : ℝ) ^ N := by exact div_lt_div_of_pos_left (by norm_num) posPowN (by norm_cast)
-      have : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos posPow (by norm_cast)
-      have : |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
-        rw [h_abs n, h_abs N]
-        exact this
+      -- mocnina rostouci
+      have pow_inc : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
+      -- mezera klesajici
+      have gap_dec : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos pow_2_N_pos (by norm_cast)
+      have abs_gap_dec: |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
+        rw [gap_abs n, gap_abs N]
+        exact gap_dec
       calc
-        |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := this
-        _ < ε := by exact lt_of_eq_of_lt (h_abs N) base
+        |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := abs_gap_dec
+        _ < ε := by exact lt_of_eq_of_lt (gap_abs N) base
 
   -- pro libovolne n existuje pouze jeden prvek z intervalu (lₙ, uₙ), tady dokazujeme sporem, ze pokud jsou dva, jsou si rovny
   have nested_unique_of_two (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : s = t := by
+    -- dokazeme sporem
     by_contra hne
+    -- predpokladejme tedy, ze s ≠ t
+    -- vime tedy, ze jejich rozdil v abs hodnote je kladny
     have hpos : 0 < |s - t| := by exact abs_sub_pos.mpr hne
+    -- vezmeme ε pevne dane
     set ε := |s - t| / 2 with h_ε
     have ε_pos : 0 < ε := by exact half_pos hpos
+    -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
     obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
-    have hsmall : |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| < ε :=
-      hN (N+1) (Nat.lt_succ_self N)
+    -- mezera je i pro N + 1 mensi nez ε
+    have hsmall : |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| < ε := hN (N+1) (Nat.lt_succ_self N)
+      -- |s - t| je omezeno touto hodnotou
     have hbound : |s - t| ≤ |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| := by
       have st_bound := abs_le_gap s t hs ht (N+1)
       rw [← gap_shrink (N+1)]
       have : uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1) ≤ |uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1)| := by exact le_abs_self (uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1))
       exact Std.le_trans st_bound this
+    -- prvni cast pro spor, ze |s - t| < ε
     have contr_1 : |s - t| < ε := lt_of_le_of_lt hbound hsmall
     rw [h_ε] at contr_1
+    -- druha cast, z predpokladu uz ted vime ze |s - t| < |s - t| / 2, coz je spor, ale musime dokazat jeste negaci tohoto vyrazu
     have contr_2 : ¬ |s - t| < |s - t| / 2 := by
       have hhalf_lt : |s - t| / 2 < |s - t| := half_lt_self hpos
       exact not_lt_of_gt hhalf_lt
     exact contr_2 contr_1
 
   -- prunik do sebe vlozenych intervalu je prave jeden prvek
-  have nestedUnique : ∃! s : ℝ, ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n := by
+  have nested_unique : ∃! s : ℝ, ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n := by
+    -- z axiomu, ze v do sebe vnorenych intervalech existuje vzdy alespon jeden prvek si ten prvek vezmeme, nadefinujeme si l u jako lSeq uSeq, a z jiz dokazanych tvrzeni lInc, uDec, lₙ ≤ uₙ a zkracovani intervalu
     obtain ⟨s, hs⟩ := exists_point_in_nested_intervals (l := fun n => lSeq A l₀ u₀ n) (u := fun n => uSeq A l₀ u₀ n) lInc uDec lₙ_leq_uₙ shrink
+    -- pro jakekoliv jine t, ktere splnuje stejne podminky plati t = s
     have unique : ∀ t, (∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) → t = s := by
       intro t ht
       exact nested_unique_of_two t s ht hs
     exact ⟨s, hs, unique⟩
 
   -- z jednoznacnosti prvku v pruniku si vezmu s - kandidat na supremum
-  obtain ⟨s, hs⟩ := nestedUnique
+  obtain ⟨s, hs⟩ := nested_unique
 
-  -- a zbyva dokazat, ze s je horní závora množiny A
+  -- zbyva dokazat, ze s je horní závora množiny A
   have upper_s : ∀ a ∈ A, a ≤ s := by
     intro a ha
-    -- spor: a > s
+    -- sporem predpokladejme a > s
     by_contra hnot
     have hgt : s < a := by exact lt_of_not_ge hnot
-    -- jen konstatujeme, že z a ≤ s by byl opak; stačí, že máme s < a ⇒ a ≠ s
-    have hne : a ≠ s := ne_of_gt hgt
-    -- ε = (a - s)/2 > 0
     have hpos : 0 < a - s := sub_pos.mpr hgt
     set ε := (a - s) / 2 with hε
     have ε_pos : 0 < ε := by simpa [hε] using half_pos hpos
-
-    -- z "gap_to_0" vyber N s u_N - l_N < ε (přes tvoje gap_shrink)
+    -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
     obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
     -- vezmeme rovnou N+1, ať máme > N
     have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
-      -- |(u₀ - l₀)/2^(N+1)| < ε  ⇒  u_{N+1} - l_{N+1} < ε
       have := hN (N+1) (Nat.lt_succ_self N)
-      -- přepiš délku intervalu na frakci
       rw [gap_shrink (N+1)]
       have h_pos : u₀ - l₀ ≥ 0 := by linarith
-      simp at this
       have le_abs : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
       exact lt_of_le_of_lt le_abs this
-
     -- vztahy k N+1:
     have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := uₙ_upperBound (N+1) a ha
     have l_le_s : lSeq A l₀ u₀ (N+1) ≤ s := (hs.1 (N+1)).1
     have s_le_u : s ≤ uSeq A l₀ u₀ (N+1) := (hs.1 (N+1)).2
-
     -- odhad rozdílu a - s přes délku intervalu
     have as_le_us : a - s ≤ uSeq A l₀ u₀ (N+1) - s := by linarith
     have us_le_gap : uSeq A l₀ u₀ (N+1) - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith
     have as_le_gap : a - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by exact le_trans as_le_us us_le_gap
+    -- dokazeme spor
+    have as_lt_ε : a - s < ε := lt_of_le_of_lt as_le_gap gap_small
+    have as_not_lt_ε: ¬ a - s < (a - s) / 2 := by exact not_lt_of_ge (half_le_self (le_of_lt hpos))
+    exact as_not_lt_ε as_lt_ε
 
-    -- teď: a - s ≤ gap < ε = (a - s)/2  ⇒ spor
-    have h_as_lt_eps : a - s < ε := lt_of_le_of_lt as_le_gap gap_small
-    have h_not_lt_half : ¬ a - s < (a - s) / 2 := by exact not_lt_of_ge (half_le_self (le_of_lt hpos))
-    exact h_not_lt_half h_as_lt_eps
-
+  -- a ze s je nejmensi horni zavora, dokazeme podobne jako horni zavora
   have least : ∀ z, (∀ a ∈ A, a ≤ z) → s ≤ z := by
     intro z zUpperBound
+    -- sporem z > s
     by_contra hgt
     have : s > z := by exact lt_of_not_ge hgt
     have h_pos : 0 < s - z := by exact sub_pos.mpr this
-
     set ε := (s - z) / 2 with h_ε
     have ε_pos : ε > 0 := by exact half_pos h_pos
+    -- vezmeme si prvek z neprazdnosti vnorenych inetrvalu
     choose a haA hla hau using nestedNonempty
-    have l_le_z : ∀ n, lSeq A l₀ u₀ n ≤ z := by
-      exact fun n => Std.le_trans (hla n) (zUpperBound (a n) (haA n))
+    have l_le_z : ∀ n, lSeq A l₀ u₀ n ≤ z := by exact fun n => Std.le_trans (hla n) (zUpperBound (a n) (haA n))
     obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
     have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
       have := hN (N+1) (Nat.lt_succ_self N)
       rw [gap_shrink]
       have : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
-      (expose_names; exact lt_of_le_of_lt this this_2)
+      expose_names
+      exact lt_of_le_of_lt this this_2
     have lN_le_s : lSeq A l₀ u₀ N ≤ s := (hs.1 N).1
     have s_le_uN : s ≤ uSeq A l₀ u₀ N := (hs.1 N).2
     have sl_le_gap : s - lSeq A l₀ u₀ N ≤ uSeq A l₀ u₀ N - lSeq A l₀ u₀ N := by linarith
     set lN := lSeq A l₀ u₀ (N+1) with hl
     set uN := uSeq A l₀ u₀ (N+1) with hu
-
     have l_le_s : lN ≤ s := by simpa [hl] using (hs.1 (N+1)).1
     have s_le_u : s ≤ uN := by simpa [hu] using (hs.1 (N+1)).2
 
     have sl_le_ul : s - lN ≤ uN - lN := sub_le_sub_right s_le_u lN
 
-
     have : s - lN < ε := by exact lt_of_le_of_lt sl_le_ul gap_small
     have : lN > s - ε := by exact sub_lt_comm.mp this
     have s_sub_eps_eq_z : s - ε = z + ε := by rw [h_ε]; ring
-    have : lN > z := by linarith [l_le_z (N+1)]
+    have : lN > z := by linarith
     exact (not_lt_of_ge (l_le_z (N+1))) this
 
+  -- overime, ze s je opravdu supremum a vyhovuje nasi definici suprema
   have hsSup : IsSup A s := by
     unfold IsSup
     intro x hx
     constructor
     · exact upper_s x hx
     · intro ε hε
-      -- We need to find a ∈ A such that s - ε < a
-      -- Use gap_to_0 to find an interval small enough
+      -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
       obtain ⟨N, hN⟩ := gap_to_0 ε hε
-
-      -- Get an element from the nested interval at N+1
+      -- vezmeme si prvek z neprazdnosti vnorenych inetrvalu
       obtain ⟨a, ha_mem, ha_lower, ha_upper⟩ := nestedNonempty (N+1)
-
       use a, ha_mem
-
-      -- Show s - ε < a
       have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
         have := hN (N+1) (Nat.lt_succ_self N)
         rw [gap_shrink]
         have : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := le_abs_self _
-        (expose_names; exact lt_of_le_of_lt this this_1)
-
+        expose_names
+        exact lt_of_le_of_lt this this_1
       have s_in_interval : lSeq A l₀ u₀ (N+1) ≤ s ∧ s ≤ uSeq A l₀ u₀ (N+1) := hs.1 (N+1)
-
-      -- Since a ≥ lSeq (N+1) and s ≤ uSeq (N+1) and gap < ε
-      -- we have s - a ≤ uSeq - lSeq < ε
-      -- Thus a > s - ε
       have : s - lSeq A l₀ u₀ (N+1) ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith [s_in_interval.2]
       have : s - lSeq A l₀ u₀ (N+1) < ε := lt_of_le_of_lt this gap_small
       have : lSeq A l₀ u₀ (N+1) > s - ε := by linarith
       linarith [ha_lower]
 
+  -- a zbyva nam ukazat jednoznacnost suprema
   refine ⟨s, hsSup, ?_⟩
   intro t htSup
+  -- ukazeme ze t, ktere je take supremem je rovno s
+  -- a uzijeme t ≤ s ∧ s ≤ t
   apply le_antisymm
-  · -- Show t ≤ s: since s is an upper bound and t is the least upper bound
+  · -- ukazeme, ze t je nejnizsi horni zavora
     have t_least : ∀ z, (∀ a ∈ A, a ≤ z) → t ≤ z := by
       intro z hz
       by_contra hgt
@@ -507,11 +497,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         linarith
       exact (not_lt_of_ge (hz a ha_mem)) this
     exact t_least s upper_s
-  · -- Show s ≤ t: since t is a supremum and s is an upper bound
-    -- We use that s is the least upper bound (from 'least')
-    -- For any upper bound z, s ≤ z
-    -- t is an upper bound (from htSup), so s ≤ t
-    have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
+  · have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
     exact least t t_upper
 
 
@@ -520,15 +506,15 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
 -- existence a jednoznacnost infima
 -- kazda neprazdna, zdola omezena mnozina ma prave jedno infimum
 theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l : ℝ, ∀ a ∈ A, l ≤ a): ∃! s : ℝ, IsInf A s := by
-  -- Define the negated set
+  -- znegujeme mnozinu a ukazeme ze ma supremum (-infimum)
   let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
 
-  -- Show negA is nonempty
+  -- je neprazdna
   have hNegA : negA.Nonempty := by
     obtain ⟨a, ha⟩ := hA
     exact ⟨-a, a, ha, rfl⟩
 
-  -- Show negA is bounded above
+  -- shora omezena
   have hNegUpperBdd : ∃ u : ℝ, ∀ x ∈ negA, x ≤ u := by
     obtain ⟨l, hl⟩ := hLowerBdd
     use -l
@@ -536,26 +522,24 @@ theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l
     obtain ⟨a, ha, rfl⟩ := xNeg
     exact neg_le_neg_iff.mpr (hl a ha)
 
-  -- Apply exists_unique_supremum to negA
+  -- uzijeme existence suprema
   obtain ⟨s, hs, hunique⟩ := exists_unique_supremum negA hNegA hNegUpperBdd
 
-  -- The infimum of A is -s
+  -- infimum je tedy -s
   use -s
   constructor
-  · -- Show IsInf A (-s)
+  · -- ukazame ze splnuji nasi definici infima
     intro a ha
     constructor
-    · -- Show -s ≤ a
-      have : -a ∈ negA := ⟨a, ha, rfl⟩
+    · have : -a ∈ negA := ⟨a, ha, rfl⟩
       have : -a ≤ s := (hs (-a) this).1
       linarith
-    · -- Show ∀ ε > 0, ∃ b ∈ A, b < -s + ε
-      intro ε hε
+    · intro ε hε
       obtain ⟨x, hx_mem, hx_close⟩ := (hs (-a) ⟨a, ha, rfl⟩).2 ε hε
       obtain ⟨b, hb_mem, rfl⟩ := hx_mem
       use b, hb_mem
       linarith
-  · -- Show uniqueness
+  · -- a jednoznacnost
     intro t ht
     have : -t = s := by
       apply hunique
