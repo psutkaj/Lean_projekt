@@ -7,3 +7,5 @@ noncomputable def Sup (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, 
   choose (exists_unique_supremum A hA hUpperBdd)
 noncomputable def Inf (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l : ℝ, ∀ a ∈ A, l ≤ a) : ℝ :=
   choose (exists_unique_infimum A hA hLowerBdd)
+
+noncomputable def SupSeq (a : ℕ → ℝ) := Sup (Set.Range a)
