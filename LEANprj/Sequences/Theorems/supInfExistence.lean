@@ -1,17 +1,9 @@
 import LEANprj.Sequences.defs
+import LEANprj.Sequences.Theorems.nestedIntervalUniqueness
 noncomputable section
 open Classical
 
 variable (A : Set ℝ) (l₀ u₀ : ℝ) (n : ℕ)
-
--- zavedu jako axiom, z uplnosti Realnych cisel
-axiom exists_point_in_nested_intervals
-  (l u : ℕ → ℝ)
-  (inc_l : IncreasingSequence l)
-  (dec_u : DecreasingSequence u)
-  (sep : ∀ n, l n ≤ u n)
-  (shrink : ∀ n, u (n+1) - l (n+1) = (u n - l n) / 2) :
-  ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
 -- chci si vytvorit puleni intervalu, a aby ho rozeznavalo simp
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
@@ -171,46 +163,12 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       rw [h_u_succ]
       exact mid_le_right (lₙ_leq_uₙ n)
 
-  -- do sebe vnorene intervaly jsou vzdy neprazdne
-  have nestedNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
+  have shrink : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
     intro n
-    -- indukci podle n
-    induction' n with d hd
-    · -- pouzijeme napr l₀ pro n = 0
-      use l₀
-      constructor
-      · exact hl₀
-      · constructor
-        · simp [lSeq, luNext]
-        · simp [uSeq, luNext]
-          exact hu₀ l₀ hl₀
-    · -- vytahnu si z hd a ∈ A, l_d ≤ a ∧ a ≤ u_d
-      obtain ⟨a, ha, ha_l, ha_u⟩ := hd
-      unfold lSeq uSeq luNext step
-      simp
-      split_ifs with h
-      · -- z h si vytahnu w ∈ A a ze w > mid luNext
-        obtain ⟨w, hwA, hw_gt_mid⟩ := h
-        use w
-        -- mam 3 cile, do prvniho a tretiho doplnim, a druhy si necham prazdny pomoci ?_ a nasledne ho dokazu
-        refine ⟨hwA, ?_, uₙ_upperBound d w hwA⟩
-        -- prepiseme na ekvivalentni tvar
-        change mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
-        -- pomocna have
-        have : lSeq A l₀ u₀ d = (luNext A l₀ u₀ d).1 := rfl
-        have : uSeq A l₀ u₀ d = (luNext A l₀ u₀ d).2 := rfl
-        exact le_of_lt hw_gt_mid
-      · -- znegujeme vyraz v h
-        push_neg at h
-        use a
-        -- opet mame tri cile, takze doplnime za prvni dva a treti dokazeme pod tim
-        refine ⟨ha, ha_l, ?_⟩
-        -- ukazeme definicne ekvivalentni vyraz
-        show a ≤ mid (lSeq A l₀ u₀ d) (uSeq A l₀ u₀ d)
-        exact h a ha
+    exact tsub_le_tsub (uDec n) (lInc n)
 
   -- intervaly se v kazdem kroku zkracuji (puli)
-  have shrink : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
+  have shrink_step : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
     intro n
     set l := lSeq A l₀ u₀ n with hl
     set u := uSeq A l₀ u₀ n with hu
@@ -287,7 +245,8 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     have t_leq_u : t ≤ u := (ht n).2
     exact abs_sub_le_of_le_of_le l_leq_s s_leq_u l_leq_t t_leq_u
 
-  -- mezera inervalu jde s rostoucim n k nule
+
+ -- mezera inervalu jde s rostoucim n k nule
   have gap_to_0 : ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |(u₀ - l₀) / 2^n| < ε := by
     intros ε ε_pos
     -- vime, ze mezera je ≥ 0 a tedy se rovna svoji abs hodnote
@@ -340,47 +299,56 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := abs_gap_dec
         _ < ε := by exact lt_of_eq_of_lt (gap_abs N) base
 
-  -- pro libovolne n existuje pouze jeden prvek z intervalu (lₙ, uₙ), tady dokazujeme sporem, ze pokud jsou dva, jsou si rovny
-  have nested_unique_of_two (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : s = t := by
-    -- dokazeme sporem
-    by_contra hne
-    -- predpokladejme tedy, ze s ≠ t
-    -- vime tedy, ze jejich rozdil v abs hodnote je kladny
-    have hpos : 0 < |s - t| := by exact abs_sub_pos.mpr hne
-    -- vezmeme ε pevne dane
-    set ε := |s - t| / 2 with h_ε
-    have ε_pos : 0 < ε := by exact half_pos hpos
-    -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
-    obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
-    -- mezera je i pro N + 1 mensi nez ε
-    have hsmall : |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| < ε := hN (N+1) (Nat.lt_succ_self N)
-      -- |s - t| je omezeno touto hodnotou
-    have hbound : |s - t| ≤ |(u₀ - l₀) / (2 : ℝ) ^ (N+1)| := by
-      have st_bound := abs_le_gap s t hs ht (N+1)
-      rw [← gap_shrink (N+1)]
-      have : uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1) ≤ |uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1)| := by exact le_abs_self (uSeq A l₀ u₀ (N + 1) - lSeq A l₀ u₀ (N + 1))
-      exact Std.le_trans st_bound this
-    -- prvni cast pro spor, ze |s - t| < ε
-    have contr_1 : |s - t| < ε := lt_of_le_of_lt hbound hsmall
-    rw [h_ε] at contr_1
-    -- druha cast, z predpokladu uz ted vime ze |s - t| < |s - t| / 2, coz je spor, ale musime dokazat jeste negaci tohoto vyrazu
-    have contr_2 : ¬ |s - t| < |s - t| / 2 := by
-      have hhalf_lt : |s - t| / 2 < |s - t| := half_lt_self hpos
-      exact not_lt_of_gt hhalf_lt
-    exact contr_2 contr_1
+  -- potrebujeme jen dokazat pro obecnou uSeq - lSeq aby slo pouzit ve vete o jednoznacnosti prvku
+  have shrink_to_zero : ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
+    intros ε ε_pos
+    obtain ⟨n₀, hn₀⟩ := gap_to_0 ε ε_pos
+    use n₀
+    intro n hn
+    rw [gap_shrink n]
+    exact hn₀ n hn
 
-  -- prunik do sebe vlozenych intervalu je prave jeden prvek
-  have nested_unique : ∃! s : ℝ, ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n := by
-    -- z axiomu, ze v do sebe vnorenych intervalech existuje vzdy alespon jeden prvek si ten prvek vezmeme, nadefinujeme si l u jako lSeq uSeq, a z jiz dokazanych tvrzeni lInc, uDec, lₙ ≤ uₙ a zkracovani intervalu
-    obtain ⟨s, hs⟩ := exists_point_in_nested_intervals (l := fun n => lSeq A l₀ u₀ n) (u := fun n => uSeq A l₀ u₀ n) lInc uDec lₙ_leq_uₙ shrink
-    -- pro jakekoliv jine t, ktere splnuje stejne podminky plati t = s
-    have unique : ∀ t, (∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) → t = s := by
-      intro t ht
-      exact nested_unique_of_two t s ht hs
-    exact ⟨s, hs, unique⟩
+-- v kazdem intervalu nasi posloupnosti je nejaky prvek mnoziny A
+  have nestedNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
+    intro n
+    -- indukci podle n
+    induction' n with d hd
+    · -- pouzijeme napr l₀ pro n = 0
+      use l₀
+      constructor
+      · exact hl₀
+      · constructor
+        · simp [lSeq, luNext]
+        · simp [uSeq, luNext]
+          exact hu₀ l₀ hl₀
+    · -- vytahnu si z hd a ∈ A, l_d ≤ a ∧ a ≤ u_d
+      obtain ⟨a, ha, ha_l, ha_u⟩ := hd
+      unfold lSeq uSeq luNext step
+      simp
+      split_ifs with h
+      · -- z h si vytahnu w ∈ A a ze w > mid luNext
+        obtain ⟨w, hwA, hw_gt_mid⟩ := h
+        use w
+        -- mam 3 cile, do prvniho a tretiho doplnim, a druhy si necham prazdny pomoci ?_ a nasledne ho dokazu
+        refine ⟨hwA, ?_, uₙ_upperBound d w hwA⟩
+        -- prepiseme na ekvivalentni tvar
+        change mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
+        -- pomocna have
+        have : lSeq A l₀ u₀ d = (luNext A l₀ u₀ d).1 := rfl
+        have : uSeq A l₀ u₀ d = (luNext A l₀ u₀ d).2 := rfl
+        exact le_of_lt hw_gt_mid
+      · -- znegujeme vyraz v h
+        push_neg at h
+        use a
+        -- opet mame tri cile, takze doplnime za prvni dva a treti dokazeme pod tim
+        refine ⟨ha, ha_l, ?_⟩
+        -- ukazeme definicne ekvivalentni vyraz
+        show a ≤ mid (lSeq A l₀ u₀ d) (uSeq A l₀ u₀ d)
+        exact h a ha
+
 
   -- z jednoznacnosti prvku v pruniku si vezmu s - kandidat na supremum
-  obtain ⟨s, hs⟩ := nested_unique
+  obtain ⟨s, hs⟩ := nested_uniqueness (lSeq A l₀ u₀) (uSeq A l₀ u₀) lInc uDec lₙ_leq_uₙ shrink shrink_to_zero
 
   -- zbyva dokazat, ze s je horní závora množiny A
   have upper_s : ∀ a ∈ A, a ≤ s := by
