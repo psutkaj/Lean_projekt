@@ -10,7 +10,7 @@ axiom exists_point_in_nested_intervals
   (shrink : ∀ n, u (n + 1) - l (n + 1) ≤ u n - l n) :
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
-theorem nested_niqueness (l u : ℕ → ℝ)
+theorem nested_uniqueness (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)
   (dec_u : DecreasingSequence u)
   (sep : ∀ n, l n ≤ u n)
