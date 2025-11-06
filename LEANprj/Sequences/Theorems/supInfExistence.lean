@@ -381,13 +381,6 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
     have as_not_lt_ε: ¬ a - s < (a - s) / 2 := by exact not_lt_of_ge (half_le_self (le_of_lt hpos))
     exact as_not_lt_ε as_lt_ε
 
-
-
-
-
------tadz jeste nevim---------------
-
-
   -- a ze s je nejmensi horni zavora, dokazeme podobne jako horni zavora
   have least : ∀ z, (∀ a ∈ A, a ≤ z) → s ≤ z := by
     intro z zUpperBound
