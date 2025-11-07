@@ -15,7 +15,6 @@ lemma not_peak_iff_exists_gt (a : ℕ → ℝ) (n : ℕ) : ¬ Peak a n ↔ ∃ m
 
 -- z nekonecnosti P ∀ t ∈ P ∃ m ∈ P : t < m, tj. vzdy ∃ m ∈ P vetsi nez t
 lemma exists_mem_P_gt_of_infinite (P : Set ℕ) (hInf : P.Infinite) (t : ℕ) : ∃ m, m ∈ P ∧ t < m := by
-  classical
   -- kdyby neexistovalo m > t v P, pak P by byla omezena tim t, a tedy P je konecna — spor.
   by_contra h
   push_neg at h   -- h : ∀ m ∈ P : m ≤ t
@@ -34,7 +33,6 @@ lemma exists_mem_P_gt_of_infinite (P : Set ℕ) (hInf : P.Infinite) (t : ℕ) : 
 -- Věta: Z každé posloupnosti v ℝ lze vybrat monotonní podposloupnost.
 theorem monoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) := by
   intro a
-  classical
   -- zavedeme mnozinu Peaks
   let P : Set ℕ := {n | Peak a n}
 
