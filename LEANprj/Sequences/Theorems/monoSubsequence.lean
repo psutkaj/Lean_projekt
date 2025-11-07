@@ -101,10 +101,11 @@ theorem monoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, StrictlyIn
       use B + 1
       intro n hnB hnP
       have : n ≤ B := by exact hB n hnP
-      have : n < B + 1 := by exact Order.lt_add_one_iff.mpr (hB n hnP)
+      have : n < B + 1 := by exact Nat.lt_succ_of_le (hB n hnP)
       exact (not_lt_of_ge hnB) this
 
-    -- z definice Peak, od N je posloupnost ostre rostouci
+    -- pro n vetsi nez N (posledni Peak), vzdy najdu m tak, ze hodnota posloupnosti v tomto je vetsi nez pro n, tj, a m > a n
+    -- tj. vzdy najdu vetsi prvek
     have step : ∀ n ≥ N, ∃ m, n < m ∧ a n < a m := by
       intro n hn
       have : n ∉ P := by exact hN n hn
