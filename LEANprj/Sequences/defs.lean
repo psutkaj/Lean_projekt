@@ -15,8 +15,7 @@ def MonotonicSequence (a : ℕ → ℝ) := IncreasingSequence a ∨ DecreasingSe
 def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a ∨ StrictlyDecreasingSequence a
 
 -- podposloupnost posloupnosi a s indexovou fci k
-def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ :=
-  λ n => a (k n)
+def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := λ n => a (k n)
 
 -- overeni zda s (i) je sup (inf)
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := ∀ x ∈ A, x ≤ s ∧ ∀ ε > 0, ∃ x ∈ A, s - ε < x
