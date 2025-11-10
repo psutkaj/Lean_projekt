@@ -1,5 +1,4 @@
 import LEANprj.Sequences.defs
-import LEANprj.Sequences.Theorems.sandwichTheorem
 
 -- zavedu jako axiom, z uplnosti Realnych cisel
 axiom exists_point_in_nested_intervals

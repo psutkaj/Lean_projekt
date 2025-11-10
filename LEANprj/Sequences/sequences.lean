@@ -1,5 +1,5 @@
 import LEANprj.Sequences.defs
-import LEANprj.Sequences.Theorems.supInfExistence
+import LEANprj.Sequences.Theorems.SupInfExistence
 open Classical
 -- v tomto souboru budoou dalsi definice, zavisle na nejakych vetach
 

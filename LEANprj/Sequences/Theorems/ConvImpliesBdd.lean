@@ -16,14 +16,16 @@ theorem convImpBdd (a : ℕ → ℝ) (a_conv : Convergent a) : BoundedSequence a
 
   -- zavedeme K₁ jako max S pokud je neprazdan, jinak 0
   let K₁ : ℝ := if h : S.Nonempty then S.max' h else 0
-  -- zavedeme K jako maximum z K₁ a (|q| + 1) + 1, ktere jiste vime, ze omezuje zbytek posloupnosti
+  -- zavedeme K jako maximum z (K₁ a (|q| + 1)) + 1, ktere jiste vime, ze omezuje zbytek posloupnosti
   let K : ℝ := max K₁ (|q| + 1) + 1
   use K
   constructor
-  · have : 0 ≤ max K₁ (|q| + 1) := by exact le_max_of_le_right (by have := abs_nonneg q; linarith)
+  · -- nejprve ukazeme ze K > 0
+    have : 0 ≤ max K₁ (|q| + 1) := by exact le_max_of_le_right (by have := abs_nonneg q; linarith)
     have : 0 < max K₁ (|q| + 1) + 1 := by exact add_pos_of_nonneg_of_pos this (by norm_num)
     simpa
-  · intro n
+  · -- a dale, ze K je horni zavora pro celou posloupnost
+    intro n
     by_cases hn : n₀ ≤ n
     · -- ukazem, ze vsechny prvky za n₀ jsou omezene
       have htri : |a n| ≤ |a n - q| + |q| := by simpa using (abs_add (a n - q) q)
