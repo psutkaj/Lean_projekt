@@ -23,7 +23,8 @@ theorem MonoBddImpliesConv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha
     obtain ⟨N, hN⟩ := hexn
     use N
     intro m hm
+    have : a N ≤ a m := by
 
-
+      sorry
     sorry
   · sorry
