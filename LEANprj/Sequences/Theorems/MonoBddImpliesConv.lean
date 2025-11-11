@@ -29,7 +29,6 @@ theorem MonoBddImpliesConv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha
       obtain ⟨le_s, s_lt⟩ := hsup (a m) (by tauto)
       exact le_s
     have : |a m - s| < ε := by
-      --have : s - ε < a m ∧ a m ≤ s := ⟨lower', upper'⟩
       have h₁ : s - a m < ε := by linarith
       have h₂ : s - a m ≥ 0 := by linarith
       have h₃ : s - a m = |s - a m| := by exact Eq.symm (abs_of_nonneg h₂)
