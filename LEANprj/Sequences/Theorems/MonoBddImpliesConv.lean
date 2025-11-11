@@ -4,5 +4,5 @@ theorem MonoBddImpliesConv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha
   unfold Convergent
   unfold MonotonicSequence IncreasingSequence DecreasingSequence at ha_mono
   unfold BoundedSequence at ha_bdd
-
+  obtain ⟨s, hs⟩ := SupSeq a
   sorry
