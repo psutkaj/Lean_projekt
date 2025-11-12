@@ -5,7 +5,6 @@ theorem BolzanoWeierstrass (a : ℕ → ℝ) (ha_bdd : BoundedSequence a) : ∃ 
   obtain ⟨k, hk_inc, hk_mono⟩ := monoSubsequence a
   use k
   have sub_bdd : BoundedSequence (Subsequence a k) := by
-    unfold BoundedSequence Subsequence
     obtain ⟨K, hK, hkn⟩ := ha_bdd
     refine ⟨K, hK, ?_⟩
     intro n
