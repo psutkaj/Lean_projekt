@@ -1,7 +1,4 @@
-import Mathlib
-
-def ConvergesTo (a : ℕ → ℝ) (c : ℝ) :=
-  ∀ ε > 0, ∃ N, ∀ n ≥ N, |a n - c| < ε
+import LEANprj.Sequences.defs
 
 theorem limit_add
   {a b : ℕ → ℝ} {c d : ℝ}

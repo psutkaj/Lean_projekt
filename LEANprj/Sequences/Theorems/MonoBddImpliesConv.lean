@@ -1,4 +1,5 @@
-import LEANprj.Sequences.sequences
+import LEANprj.Sequences.defs
+import LEANprj.Sequences.Theorems.SupInfExistence
 open Classical
 
 lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by

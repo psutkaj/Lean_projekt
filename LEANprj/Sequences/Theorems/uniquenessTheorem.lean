@@ -1,6 +1,4 @@
-import Mathlib
-
-def ConvergesTo (a : ℕ → ℝ) (p : ℝ) := ∀ ε > 0, ∃ nₒ, ∀ n ≥ nₒ, |a n - p| < ε
+import LEANprj.Sequences.defs
 
 theorem Uniqueness
   (a : ℕ → ℝ) (p q : ℝ) (h₁ : ConvergesTo a p) (h₂ : ConvergesTo a q) : p = q :=

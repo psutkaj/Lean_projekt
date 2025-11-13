@@ -1,4 +1,4 @@
-import LEANprj.Sequences.sequences
+import LEANprj.Sequences.defs
 open Classical
 noncomputable section
 
