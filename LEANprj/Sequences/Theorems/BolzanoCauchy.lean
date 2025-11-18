@@ -42,7 +42,7 @@ lemma cauchy_with_convergent_subseq_limit {a : ℕ → ℝ} (hC : CauchySequence
   have hm₀_ge_k₀ : k₀ ≤ m₀ := h_id_le k₀
   have hm₀_gt_N₁ : m₀ > N₁ := by linarith
   use m₀
-  have h_sub_k₀ : |a m₀ - L| < ε / 2 := by exact?
+  have h_sub_k₀ : |a m₀ - L| < ε / 2 := by exact hN₂ k₀ hk₀_ge_N₂
   intro n hn
   have hn_gt_N₁ : n > N₁ := by exact Nat.lt_of_lt_of_le hm₀_gt_N₁ hn
   have h_cauchy : |a n - a m₀| < ε / 2 := by exact hN₁ n m₀ ⟨hn_gt_N₁, hm₀_gt_N₁⟩
