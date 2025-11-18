@@ -125,7 +125,7 @@ theorem cauchySeq_bounded {u : ℕ → ℝ} (h : CauchySeq u) :
       _ = M₁ := rfl
       _ ≤ M := le_max_right _ _
 
--- DeepSeek - pouziva ale svoje definice
+-- DeepSeek
 theorem CauchySeqBounded {a : ℕ → ℝ} (ha : CauchySeq a) : ∃ B, ∀ n, |a n| ≤ B := by
   rcases Metric.cauchySeq_iff'.1 ha 1 zero_lt_one with ⟨N, hN⟩
   let M := Finset.sup' (Finset.range (N + 1)) (Finset.nonempty_range_add_one) fun i => |a i|
