@@ -1,7 +1,6 @@
 import LEANprj.Sequences.defs
 
 --GPT 5.1
--- all generated
 
 lemma prefix_bounded (a : ℕ → ℝ) :
     ∀ N : ℕ, ∃ M : ℝ, ∀ n ≤ N, |a n| ≤ M := by
