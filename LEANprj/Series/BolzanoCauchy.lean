@@ -17,9 +17,7 @@ This matches the visual formula: |a_{n+1} + ... + a_{n+p}| < ε
 def BolzanoCauchyCondition (a : ℕ → ℝ) :=
   ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, ∀ p : ℕ, |PartialSum a (n + p) - PartialSum a n| < ε
 
-/--
-Proof that the Image Condition is equivalent to the Standard Cauchy Sequence.
--/
+/--Proof that the Image Condition is equivalent to the Standard Cauchy Sequence.-/
 theorem Image_Equivalent_To_Standard (a : ℕ → ℝ) :
   BolzanoCauchyCondition a ↔ CauchySequence (PartialSum a) := by
   constructor
