@@ -1,4 +1,4 @@
-import LEANprj.Sequences.defs
+import LEANprj._02Sequences.defs
 
 --GPT 5.1
 
@@ -94,52 +94,52 @@ theorem cauchySequence_bounded {a : ℕ → ℝ} (h : CauchySequence a) : Bounde
          _ < max M0 (|a (N + 1)| + 1) + 1 := by linarith
 
 
--- GPT 5.1 bez personalizace
-theorem cauchySeq_bounded {u : ℕ → ℝ} (h : CauchySeq u) :
-    ∃ M, ∀ n, |u n| ≤ M := by
-  -- Choose ε = 1, so after some N, all terms are within distance 1.
-  obtain ⟨N, hN⟩ := Metric.cauchySeq_iff'.1 h 1 zero_lt_one
-  -- Define a bound for the finite initial segment up to N.
-  let M₀ := Finset.sup' (Finset.range (N + 1)) (Finset.nonempty_range_add_one)
-              (fun n => |u n|)
-  -- Define a bound for the tail: everything after N lies within 1 of u N.
-  let M₁ := |u N| + 1
-  -- Combine both bounds.
-  let M := max M₀ M₁
-  use M
-  intro n
-  by_cases hn : n ≤ N
-  · -- Case 1: n ≤ N, bounded by finite supremum M₀ ≤ M
-    have h₁ : |u n| ≤ M₀ := Finset.le_sup' (fun n => |u n|) (Finset.mem_range_succ_iff.mpr hn)
-    exact le_trans h₁ (le_max_left _ _)
-  · -- Case 2: n > N, use the Cauchy property for m = N.
-    have hdist : |u n - u N| < 1 := hN n (not_le.mp hn).le
-    have h₂ : |u n| ≤ |u N| + |u n - u N| := by
-      have : |u n| = |(u n - u N) + u N| := by ring_nf
-      rw [this]
-      have := abs_add (u n - u N) (u N)
-      linarith
-    calc
-      |u n| ≤ |u N| + |u n - u N| := h₂
-      _ ≤ |u N| + 1 := by linarith
-      _ = M₁ := rfl
-      _ ≤ M := le_max_right _ _
+-- -- GPT 5.1 bez personalizace
+-- theorem cauchySeq_bounded {u : ℕ → ℝ} (h : CauchySeq u) :
+--     ∃ M, ∀ n, |u n| ≤ M := by
+--   -- Choose ε = 1, so after some N, all terms are within distance 1.
+--   obtain ⟨N, hN⟩ := Metric.cauchySeq_iff'.1 h 1 zero_lt_one
+--   -- Define a bound for the finite initial segment up to N.
+--   let M₀ := Finset.sup' (Finset.range (N + 1)) (Finset.nonempty_range_add_one)
+--               (fun n => |u n|)
+--   -- Define a bound for the tail: everything after N lies within 1 of u N.
+--   let M₁ := |u N| + 1
+--   -- Combine both bounds.
+--   let M := max M₀ M₁
+--   use M
+--   intro n
+--   by_cases hn : n ≤ N
+--   · -- Case 1: n ≤ N, bounded by finite supremum M₀ ≤ M
+--     have h₁ : |u n| ≤ M₀ := Finset.le_sup' (fun n => |u n|) (Finset.mem_range_succ_iff.mpr hn)
+--     exact le_trans h₁ (le_max_left _ _)
+--   · -- Case 2: n > N, use the Cauchy property for m = N.
+--     have hdist : |u n - u N| < 1 := hN n (not_le.mp hn).le
+--     have h₂ : |u n| ≤ |u N| + |u n - u N| := by
+--       have : |u n| = |(u n - u N) + u N| := by ring_nf
+--       rw [this]
+--       have := abs_add (u n - u N) (u N)
+--       linarith
+--     calc
+--       |u n| ≤ |u N| + |u n - u N| := h₂
+--       _ ≤ |u N| + 1 := by linarith
+--       _ = M₁ := rfl
+--       _ ≤ M := le_max_right _ _
 
--- DeepSeek
-theorem CauchySeqBounded {a : ℕ → ℝ} (ha : CauchySeq a) : ∃ B, ∀ n, |a n| ≤ B := by
-  rcases Metric.cauchySeq_iff'.1 ha 1 zero_lt_one with ⟨N, hN⟩
-  let M := Finset.sup' (Finset.range (N + 1)) (Finset.nonempty_range_add_one) fun i => |a i|
-  use M + 1
-  intro n
-  cases' lt_or_ge n N with hn hn
-  · have : n ∈ Finset.range (N + 1) := by simp; linarith
-    have : |a n| ≤ M := Finset.le_sup' (f := fun i => |a i|) this
-    exact le_trans this (by linarith)
-  · have : |a n - a N| < 1 := by exact hN n hn
-    have : |a n| - |a N| ≤ |a n - a N| := abs_sub_abs_le_abs_sub _ _
-    have : |a n| < |a N| + 1 := by linarith
-    have : |a n| ≤ |a N| + 1 := le_of_lt this
-    have : |a N| ≤ M := by
-      apply Finset.le_sup' (fun i => |a i|)
-      simp
-    linarith
+-- -- DeepSeek
+-- theorem CauchySeqBounded {a : ℕ → ℝ} (ha : CauchySeq a) : ∃ B, ∀ n, |a n| ≤ B := by
+--   rcases Metric.cauchySeq_iff'.1 ha 1 zero_lt_one with ⟨N, hN⟩
+--   let M := Finset.sup' (Finset.range (N + 1)) (Finset.nonempty_range_add_one) fun i => |a i|
+--   use M + 1
+--   intro n
+--   cases' lt_or_ge n N with hn hn
+--   · have : n ∈ Finset.range (N + 1) := by simp; linarith
+--     have : |a n| ≤ M := Finset.le_sup' (f := fun i => |a i|) this
+--     exact le_trans this (by linarith)
+--   · have : |a n - a N| < 1 := by exact hN n hn
+--     have : |a n| - |a N| ≤ |a n - a N| := abs_sub_abs_le_abs_sub _ _
+--     have : |a n| < |a N| + 1 := by linarith
+--     have : |a n| ≤ |a N| + 1 := le_of_lt this
+--     have : |a N| ≤ M := by
+--       apply Finset.le_sup' (fun i => |a i|)
+--       simp
+--     linarith

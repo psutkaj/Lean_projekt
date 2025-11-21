@@ -1,4 +1,4 @@
-import LEANprj.Sequences.defs
+import LEANprj._02Sequences.defs
 
 --
 def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 1), a k

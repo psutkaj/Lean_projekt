@@ -1,5 +1,4 @@
-import LEANprj.Sequences.defs
-import LEANprj.Sequences.Theorems.NestedIntervalUniqueness
+import LEANprj._01Sets.Theorems.NestedIntervalUniqueness
 noncomputable section
 open Classical
 

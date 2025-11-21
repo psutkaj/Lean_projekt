@@ -1,5 +1,5 @@
-import LEANprj.Sequences.Theorems.BolzanoWeierstrass
-import LEANprj.Sequences.Theorems.CauchyImpliesBounded
+import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
+import LEANprj._02Sequences.Theorems.CauchyImpliesBounded
 
 
 theorem convergent_imp_cauchy (a : ℕ → ℝ) (h : Convergent a) : CauchySequence a := by

@@ -1,4 +1,4 @@
-import LEANprj.Sequences.defs
+import LEANprj._02Sequences.defs
 open Classical
 
 
@@ -167,4 +167,4 @@ theorem monoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, StrictlyIn
 
     exact ⟨k, k_strict_inc, h_inc⟩
 
---#print axioms monoSubsequence
+-- #print axioms monoSubsequence

@@ -1,5 +1,5 @@
-import LEANprj.Series.defs
-import LEANprj.Sequences.Theorems.CauchyEqConv
+import LEANprj._03Series.defs
+import LEANprj._02Sequences.Theorems.CauchyEqConv
 
 theorem BolzanoCauchySeries (a : ℕ → ℝ) : SeriesConvergent a ↔ CauchySequence (PartialSum a) := by
   rw [SeriesConvergent]
@@ -21,7 +21,6 @@ def BolzanoCauchyCondition (a : ℕ → ℝ) :=
 theorem Image_Equivalent_To_Standard (a : ℕ → ℝ) :
   BolzanoCauchyCondition a ↔ CauchySequence (PartialSum a) := by
   constructor
-
   -- Direction 1: Image Condition → Standard Cauchy
   intro h_img ε hε
   obtain ⟨n₀, hn₀⟩ := h_img ε hε

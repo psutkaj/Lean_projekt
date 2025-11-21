@@ -1,4 +1,4 @@
-import Mathlib
+import LEANprj._01Sets.defs
 open Classical
 
 -- omezenost

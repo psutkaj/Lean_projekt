@@ -1,5 +1,5 @@
-import LEANprj.Sequences.Theorems.MonoBddImpliesConv
-import LEANprj.Sequences.Theorems.ExMonoSubsequence
+import LEANprj._02Sequences.Theorems.MonoBddImpliesConv
+import LEANprj._02Sequences.Theorems.ExMonoSubsequence
 
 theorem BolzanoWeierstrass (a : ℕ → ℝ) (ha_bdd : BoundedSequence a) : ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ Convergent (Subsequence a k) := by
   obtain ⟨k, hk_inc, hk_mono⟩ := monoSubsequence a

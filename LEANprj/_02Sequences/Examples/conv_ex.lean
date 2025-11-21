@@ -1,7 +1,7 @@
-import LEANprj.Sequences.defs
+import LEANprj._02Sequences.defs
 
-example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergentTo a 1 := by
-  unfold ConvergentTo
+example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergesTo a 1 := by
+  unfold ConvergesTo
   intro ε ε_pos
   use 0
   intro n hn
@@ -10,14 +10,14 @@ example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergentTo a 1 := by
   linarith
 
 -- AI generated
-theorem posl1 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := by
+theorem posl1 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergesTo a 0 := by
   intros ε ε_pos
   obtain ⟨N, hN⟩ := exists_nat_gt (1 / ε)
   use N
   intros n hn_gt_N
   rw [ha]
   simp only [sub_zero]
-  have hn_gt_N_cast : (n : ℝ) ≥ (N : ℝ) := Nat.cast_le.2 (Nat.le_of_lt hn_gt_N)
+  have hn_gt_N_cast : (n : ℝ) ≥ (N : ℝ) := by exact Nat.cast_le.mpr hn_gt_N
   have n_gt : (n : ℝ) > 1 / ε := by
     calc
       (n : ℝ) ≥ (N : ℝ) := hn_gt_N_cast
@@ -31,8 +31,8 @@ theorem posl1 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a
   simpa using this
 
 -- vlastni postup
-theorem posl2 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergentTo a 0 := by
-  unfold ConvergentTo
+theorem posl2 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergesTo a 0 := by
+  unfold ConvergesTo
   intros ε ε_pos
   let N := ⌈1/ε⌉.toNat + 1
   use N

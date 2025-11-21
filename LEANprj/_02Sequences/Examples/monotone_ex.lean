@@ -1,4 +1,4 @@
-import LEANprj.Sequences.defs
+import LEANprj._02Sequences.defs
 
 example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = n) : StrictlyIncreasingSequence a := by
   unfold StrictlyIncreasingSequence

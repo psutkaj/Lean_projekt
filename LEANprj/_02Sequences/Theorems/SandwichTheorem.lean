@@ -1,4 +1,4 @@
-import LEANprj.Sequences.defs
+import LEANprj._02Sequences.defs
 
 theorem Sandwich
   (a b c : ℕ → ℝ) (q : ℝ)
