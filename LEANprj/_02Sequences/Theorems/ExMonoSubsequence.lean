@@ -2,7 +2,7 @@ import LEANprj._02Sequences.defs
 open Classical
 
 
-def StrictlyIncreasingSequenceN (a : ℕ → ℕ) := ∀ n : ℕ, a (n + 1) > a n
+
 private def Peak (a : ℕ → ℝ) (n : ℕ) : Prop := ∀ {m : ℕ}, n < m → a m ≤ a n
 
 lemma peak_iff (a : ℕ → ℝ) (n : ℕ) : Peak a n ↔ ∀ m > n, a m ≤ a n := by

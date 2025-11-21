@@ -14,6 +14,7 @@ def DecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≤ a n
 def StrictlyDecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) < a n
 def MonotonicSequence (a : ℕ → ℝ) := IncreasingSequence a ∨ DecreasingSequence a
 def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a ∨ StrictlyDecreasingSequence a
+def StrictlyIncreasingSequenceN (a : ℕ → ℕ) := ∀ n : ℕ, a (n + 1) > a n
 
 -- zavedu jako axiom uplnosti Realnych cisel
 axiom exists_point_in_nested_intervals
