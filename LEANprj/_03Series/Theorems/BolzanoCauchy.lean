@@ -1,4 +1,4 @@
-import LEANprj._03Series.defs
+import LEANprj.defs
 import LEANprj._02Sequences.Theorems.CauchyEqConv
 
 theorem BolzanoCauchySeries (a : ℕ → ℝ) : SeriesConvergent a ↔ CauchySequence (PartialSum a) := by

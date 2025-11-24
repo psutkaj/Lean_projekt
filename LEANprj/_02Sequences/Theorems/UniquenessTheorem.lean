@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.defs
+import LEANprj.defs
 
 theorem Uniqueness
   (a : ℕ → ℝ) (p q : ℝ) (h₁ : ConvergesTo a p) (h₂ : ConvergesTo a q) : p = q :=

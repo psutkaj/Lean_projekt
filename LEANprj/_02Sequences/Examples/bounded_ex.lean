@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.defs
+import LEANprj.defs
 
 example (a : ℕ → ℝ) (c : ℝ) (h : ∀ n : ℕ, a n = c) : BoundedSequence a := by
   unfold BoundedSequence

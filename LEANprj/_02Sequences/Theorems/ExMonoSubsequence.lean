@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.defs
+import LEANprj.defs
 open Classical
 
 

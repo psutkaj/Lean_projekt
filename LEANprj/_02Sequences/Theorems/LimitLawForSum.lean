@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.defs
+import LEANprj.defs
 
 theorem limit_add
   {a b : ℕ → ℝ} {c d : ℝ}

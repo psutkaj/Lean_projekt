@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.defs
+import LEANprj.defs
 
 theorem nested_uniqueness (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)

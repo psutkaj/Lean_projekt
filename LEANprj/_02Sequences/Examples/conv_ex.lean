@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.defs
+import LEANprj.defs
 
 example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergesTo a 1 := by
   unfold ConvergesTo
