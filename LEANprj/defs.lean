@@ -47,6 +47,7 @@ def IsInf (A : Set ℝ) (i : ℝ) : Prop := ∀ x ∈ A, i ≤ x ∧ ∀ ε > 0,
 -- konvergence a n → q
 def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
+def Divergent (a : ℕ → ℝ) := ¬Convergent a
 
 def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, n > n₀ ∧ m > n₀ → |a n - a m| < ε
 

@@ -1,17 +1,16 @@
 import LEANprj.defs
 
-lemma SubsequenceConvEq
-    {a : ℕ → ℝ} {L : ℝ}
-    (hconv : ConvergesTo a L)
-    (k : ℕ → ℕ)
-    (hk : StrictlyIncreasingSequenceN k) :
-    ConvergesTo (Subsequence a k) L := by
+lemma SubsequenceConvEq {a : ℕ → ℝ} {L : ℝ} (hconv : ConvergesTo a L) (k : ℕ → ℕ) (hk : StrictlyIncreasingSequenceN k) : ConvergesTo (Subsequence a k) L := by
   intro ε ε_pos
   obtain ⟨n₀, hn₀⟩ := hconv ε ε_pos
   use n₀
   intro n hn_geq
+  have inc_le_of_le : ∀ {n m : ℕ}, n < m → k n < k m := by
+    intro n m hnm
+    induction m
+
   have hkN : k n ≥ n₀ := by
     calc
-      k n ≥ k n₀ := by sorry
+      k n ≥ k n₀ := by exact hk n₀; sorry
       _ ≥ n₀ := by sorry
   sorry
