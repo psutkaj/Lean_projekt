@@ -54,4 +54,6 @@ def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 
 def SeriesConvergesTo (a : ℕ → ℝ) (s : ℝ) : Prop := ConvergesTo (PartialSum a) s
 def SeriesConvergent (a : ℕ → ℝ) : Prop := ∃ s : ℝ, SeriesConvergesTo a s
 
-def CompactSet (M : Set ℝ) : Prop := ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ∈ M) → ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
+def CompactSet (M : Set ℝ) : Prop := ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ∈ M) → ∃ (k : ℕ → ℕ), StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
+def ClosedSet (M : Set ℝ) : Prop := ∀ (a : ℕ → ℝ) (L : ℝ), (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
+def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| < c
