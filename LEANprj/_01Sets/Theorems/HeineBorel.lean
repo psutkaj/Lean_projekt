@@ -1,5 +1,6 @@
 import LEANprj.defs
 import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
+import LEANprj._02Sequences.Theorems.SubsequenceConvEq
 
 theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M := by
   unfold BoundedSet ClosedSet CompactSet
@@ -26,5 +27,8 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
     constructor
     ·
       sorry
-    ·
+    · intros a L hn ha_conv
+      obtain ⟨k, hk_inc, l, hl, lM⟩ := compactM a hn
+      have h_leqL : l = L := by
+        have hk_conv' := SubsequenceConvEq hconv k hk_incsorry
       sorry
