@@ -7,7 +7,7 @@ theorem BolzanoCauchySeries (a : ℕ → ℝ) : SeriesConvergent a ↔ CauchySeq
   rw [← Convergent]
   exact Iff.symm (CauchyEqConv (PartialSum a))
 
-
+#print axioms BolzanoCauchySeries
 -- (Assuming your previous definitions of PartialSum and CauchySequence are loaded)
 
 /--

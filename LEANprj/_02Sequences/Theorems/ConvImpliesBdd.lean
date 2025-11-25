@@ -3,7 +3,7 @@ open Classical
 noncomputable section
 
 
-theorem convImpBdd (a : ℕ → ℝ) (a_conv : Convergent a) : BoundedSequence a := by
+theorem convImpBdd {a : ℕ → ℝ} (a_conv : Convergent a) : BoundedSequence a := by
   unfold BoundedSequence
   unfold Convergent ConvergesTo at a_conv
   obtain ⟨q, hq⟩ := a_conv

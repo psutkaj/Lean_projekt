@@ -25,6 +25,17 @@ axiom exists_point_in_nested_intervals
   (shrink : ∀ n, u (n + 1) - l (n + 1) ≤ u n - l n) :
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
+lemma StrictlyIncreasingSequenceN_ge_id (k : ℕ → ℕ) (hk : StrictlyIncreasingSequenceN k) :
+  ∀ n, k n ≥ n := by
+  intro n
+  induction n with
+  | zero => exact Nat.zero_le _
+  | succ n ih =>
+    have : k (n + 1) ≥ k n + 1 := Nat.succ_le_of_lt (hk n)
+    calc
+      k (n + 1) ≥ k n + 1 := this
+      _ ≥ n + 1 := by linarith
+
 lemma inc_lt_of_ltN (k : ℕ → ℕ) (hk_inc : StrictlyIncreasingSequenceN k) : ∀ {n m : ℕ}, n < m → k n < k m := by
     intro n m h
     induction m, h using Nat.le_induction with
@@ -32,7 +43,6 @@ lemma inc_lt_of_ltN (k : ℕ → ℕ) (hk_inc : StrictlyIncreasingSequenceN k) :
       exact hk_inc n
     | succ m' _ ih =>
       exact Nat.lt_trans ih (hk_inc m')
-
 
 lemma inc_le_of_le {a : ℕ → ℝ} (hinc : IncreasingSequence a) : ∀ {n m : ℕ}, n ≤ m → a n ≤ a m := by
   intro n m hnm

@@ -14,16 +14,8 @@ lemma SubsequenceConvEq {a : ℕ → ℝ} {L : ℝ} (hconv : ConvergesTo a L) (k
     · have : i < j := by exact Nat.lt_of_le_of_ne hij h
       have : k i < k j := by exact inc_lt_of_ltN k hk this
       exact Nat.le_of_succ_le this
-  have k_ge_n : ∀ m, k m ≥ m := by
-    intro m
-    induction' m with m ih
-    · simp
-    · have : k (m + 1) ≥ k m + 1 := Nat.succ_le_of_lt (hk m)
-      calc
-        k (m + 1) ≥ k m + 1 := this
-        _ ≥ m + 1 := by linarith
   have : k n ≥ k n₀ := by exact k_inc hn_geq
   have kn_ge_n0 : k n ≥ n₀ := by
-    have : k n ≥ n := k_ge_n n
-    exact Nat.le_trans hn_geq (k_ge_n n)
+    have : k n ≥ n := StrictlyIncreasingSequenceN_ge_id k hk n
+    exact Nat.le_trans hn_geq (StrictlyIncreasingSequenceN_ge_id k hk n)
   exact hn₀ (k n) kn_ge_n0

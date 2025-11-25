@@ -2,48 +2,48 @@ import LEANprj.defs
 import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
 import LEANprj._02Sequences.Theorems.SubsequenceConvEq
 import LEANprj._02Sequences.Theorems.UniquenessTheorem
+import LEANprj._02Sequences.Theorems.ConvImpliesBdd
 
 lemma construct_unbounded_sequence
     (M : Set ℝ)
     (hnot : ¬ BoundedSet M) :
-    ∃ a : ℕ → ℝ, (∀ n, a n ∈ M) ∧ (∀ N, ∃ n ≥ N, |a n| ≥ N) :=
+    ∃ a : ℕ → ℝ, (∀ n, a n ∈ M) ∧ (¬ BoundedSequence a) :=
 by
   classical
-  have : ∀ N > 0, ∃ m ∈ M, |m| ≥ N := by
+  have : ∀ N : ℕ, ∃ m ∈ M, |m| ≥ N := by
     intro N
     by_contra hC
-    -- hC říká: ∀ m∈M, |m| < N
-    -- tedy množina je omezená konstantou N
     push_neg at hC
-    have : BoundedSet M := by use N
+    have : BoundedSet M := by
+      unfold BoundedSet
+      use N + 1
+      constructor
+      · linarith
+      · intro m hmM
+        calc
+          |m| < (N : ℝ) := by exact hC m hmM
+          _ < (N : ℝ) + 1 := by linarith
     exact hnot this
-
-  -- teď sestrojíme posloupnost a n tak, že |a n| ≥ n
   choose a haM haBig using this
-
-  refine ⟨a, ?_, ?_⟩
+  use a
+  constructor
   · intro n; exact (haM n)
-  · intro N
-    refine ⟨N, le_rfl, haBig N⟩
+  · unfold BoundedSequence
+    push_neg
+    intro K K_pos
+    use Nat.ceil K
+    have : (Nat.ceil K : ℝ) ≥ K := Nat.le_ceil K
+    calc
+      |(a (Nat.ceil K))| ≥ (Nat.ceil K : ℝ) := haBig (Nat.ceil K)
+      _ ≥ K := this
 
-lemma unbounded_subsequence_contradiction
-    {a : ℕ → ℝ}
-    (ha_unbounded : ∀ N, ∃ n ≥ N, |a n| ≥ N)
-    (hbounded_sub : ∀ n, |a n| ≤ 1000) :
-    False :=
-by
-  -- vezmi N = 1001
-  have := ha_unbounded 1001
-  rcases this with ⟨n, hn, hbig⟩
-  have hsmall := hbounded_sub n
-  have : (1000 : ℝ) < 1001 := by decide
-  have := le_trans hsmall (by decide)
-  linarith
-
+theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M := by
+  sorry
 
 theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M := by
   unfold BoundedSet ClosedSet CompactSet
   constructor
+  -- omezena a uzavrena -> kompaktni
   · intro a
     cases' a with bddM clsM
     intro a ha
@@ -62,10 +62,17 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
         exact ha (k n)
       · exact hL
     exact ⟨k, hk_inc, L, hL, LinM⟩
+  -- kompaktni -> omezena a uzavrena
   · intro compactM
     constructor
+    -- kompaktni -> omezena
     ·
+
+
+
+
       sorry
+    -- kompaktni -> uzavrena
     · intros a L hn ha_conv
       obtain ⟨k, hk_inc, l, hl, lM⟩ := compactM a hn
       have h_leqL : l = L := by
