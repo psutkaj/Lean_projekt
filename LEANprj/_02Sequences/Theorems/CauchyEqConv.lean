@@ -51,8 +51,8 @@ lemma cauchy_with_convergent_subseq_limit {a : ℕ → ℝ} (hC : CauchySequence
     _ < ε / 2 + ε / 2 := by exact add_lt_add h_cauchy h_sub_k₀
     _ = ε := by ring
 
-theorem cauchy_imp_convergent (a : ℕ → ℝ) (h : CauchySequence a) : Convergent a := by
-  have ha_bdd : BoundedSequence a := by exact cauchySequence_bounded h
+lemma cauchy_imp_convergent (a : ℕ → ℝ) (h : CauchySequence a) : Convergent a := by
+  have ha_bdd : BoundedSequence a := by exact CauchyImpliesBounded h
   obtain ⟨k, hk, conv_sub⟩ := BolzanoWeierstrass a ha_bdd
   obtain ⟨L, hL⟩ := cauchy_with_convergent_subseq_limit h hk conv_sub
   use L

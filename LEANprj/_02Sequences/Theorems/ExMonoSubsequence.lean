@@ -31,7 +31,7 @@ lemma exists_mem_P_gt_of_infinite (P : Set ℕ) (hInf : P.Infinite) (t : ℕ) : 
 
 
 -- Věta: Z každé posloupnosti v ℝ lze vybrat monotonní podposloupnost.
-theorem monoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) := by
+theorem ExMonoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) := by
   intro a
   -- zavedeme mnozinu Peaks
   let P : Set ℕ := {n | Peak a n}
