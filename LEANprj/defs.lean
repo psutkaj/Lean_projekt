@@ -49,7 +49,11 @@ def CompactSet (M : Set ℝ) : Prop := ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n 
 def ClosedSet (M : Set ℝ) : Prop := ∀ (a : ℕ → ℝ) (L : ℝ), (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| < c
 
----------- pomocna lemmata ----------
+def LimitFunction (f : ℝ → ℝ) (x₀ b : ℝ) := ∀ ε > 0, ∃ δ > 0, ∀ x : ℝ, 0 < |x - x₀| ∧ |x - x₀| < δ → |f x - b| < ε
+def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := LimitFunction f x₀ (f x₀)
+
+
+---------------------------------- pomocna lemmata ----------------------------------
 
 lemma StrictlyIncreasingSequenceN_ge_id (k : ℕ → ℕ) (hk : StrictlyIncreasingSequenceN k) :
   ∀ n, k n ≥ n := by
@@ -102,7 +106,7 @@ lemma DivInfUnbdd {a : ℕ → ℝ} (hdiv : DivergentToInf a) : ¬ BoundedSequen
   linarith
 
 lemma IncUnbddDivgToInf {a : ℕ → ℝ} (ha_inc : IncreasingSequence a) (ha_unbdd : ¬ BoundedSequence a) : DivergentToInf a := by
- classical
+  classical
   intro M M_pos
   have h_unbdd' : ∀ K > 0, ∃ n, |a n| ≥ K := by
     intro K K_pos
@@ -139,7 +143,7 @@ lemma IncUnbddDivgToInf {a : ℕ → ℝ} (ha_inc : IncreasingSequence a) (ha_un
   have : |a 0| ≥ 0 := abs_nonneg (a 0)
   linarith
 
-  lemma construct_unbounded_sequence
+lemma construct_unbounded_sequence
     (M : Set ℝ)
     (hnot : ¬ BoundedSet M) :
     ∃ a : ℕ → ℝ, (∀ n, a n ∈ M) ∧ (¬ BoundedSequence a) :=
