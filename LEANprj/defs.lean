@@ -26,7 +26,7 @@ axiom exists_point_in_nested_intervals
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
 -- podposloupnost posloupnosi a s indexovou fci k
-def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := λ n => a (k n)
+def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := a ∘ k
 
 -- overeni zda s (i) je sup (inf)
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := ∀ x ∈ A, x ≤ s ∧ ∀ ε > 0, ∃ x ∈ A, s - ε < x
@@ -49,9 +49,10 @@ def CompactSet (M : Set ℝ) : Prop := ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n 
 def ClosedSet (M : Set ℝ) : Prop := ∀ (a : ℕ → ℝ) (L : ℝ), (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| < c
 
-def LimitFunction (f : ℝ → ℝ) (x₀ b : ℝ) := ∀ ε > 0, ∃ δ > 0, ∀ x : ℝ, 0 < |x - x₀| ∧ |x - x₀| < δ → |f x - b| < ε
-def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := LimitFunction f x₀ (f x₀)
-
+def HeineLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) := ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
+def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) := ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), 0 < |x - x₀| ∧ |x - x₀| < δ → |f x - b| < ε
+def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
+def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f x
 
 ---------------------------------- pomocna lemmata ----------------------------------
 
