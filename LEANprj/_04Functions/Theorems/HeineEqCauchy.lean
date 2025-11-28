@@ -1,5 +1,4 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.SandwichTheorem
 
 lemma HeineImpCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : HeineLimitFunction f x₀ b → CauchyLimitFunction f x₀ b := by
   unfold HeineLimitFunction CauchyLimitFunction

@@ -1,4 +1,6 @@
 import LEANprj.defs
+import LEANprj._02Sequences.Theorems.AlgebraLimitSeq
+import LEANprj._04Functions.Theorems.HeineEqCauchy
 
 theorem LimitAddFunction {f g : ℝ → ℝ} (x₀ b c : ℝ) (h₁ : CauchyLimitFunction f x₀ b) (h₂ : CauchyLimitFunction g x₀ c) : CauchyLimitFunction (f + g) x₀ (b + c) := by
   unfold CauchyLimitFunction at *
@@ -73,11 +75,16 @@ theorem LimitSubFunction {f g : ℝ → ℝ} (x₀ b c : ℝ) (h₁ : CauchyLimi
     _ < ε + ε := by exact add_lt_add ha hb
     _ = ε₀ := by ring
 
+theorem LimitMulFunction {f g : ℝ → ℝ} (x₀ b c : ℝ) (h₁ : CauchyLimitFunction f x₀ b) (h₂ : CauchyLimitFunction g x₀ c) : CauchyLimitFunction (f * g) x₀ (b * c) := by
+  rw [←HeineEqCauchy (f * g) x₀ (b * c)]
+  intros s hs s_conv
+  have h_f_seq := CauchyImpHeine f x₀ b h₁ s hs s_conv
+  have h_g_seq := CauchyImpHeine g x₀ c h₂ s hs s_conv
+  exact LimitMulSequence (f ∘ s) (g ∘ s) b c h_f_seq h_g_seq
 
-
-theorem LimitSequenceMul (a b : ℕ → ℝ) (A B : ℝ) :
-  ConvergesTo a A → ConvergesTo b B → ConvergesTo (a * b) (A * B) := by
-  intros convA convB
-  unfold ConvergesTo at *
-  intro ε ε_pos
-  sorry
+theorem LimitDivFunction {f g : ℝ → ℝ} (x₀ b c : ℝ) (h_cne : c ≠ 0) (h₁ : CauchyLimitFunction f x₀ b) (h₂ : CauchyLimitFunction g x₀ c) : CauchyLimitFunction (f / g) x₀ (b / c) := by
+  rw [←HeineEqCauchy]
+  intros s hs s_conv
+  have h_f_seq := CauchyImpHeine f x₀ b h₁ s hs s_conv
+  have h_g_seq := CauchyImpHeine g x₀ c h₂ s hs s_conv
+  exact LimitDivSequence (f ∘ s) (g ∘ s) b c h_cne h_f_seq h_g_seq

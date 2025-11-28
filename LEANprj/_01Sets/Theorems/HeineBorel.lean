@@ -1,7 +1,7 @@
 import LEANprj.defs
 import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
 import LEANprj._02Sequences.Theorems.SubsequenceConvEq
-import LEANprj._02Sequences.Theorems.UniquenessTheorem
+import LEANprj._02Sequences.Theorems.UniquenessSeq
 import LEANprj._02Sequences.Theorems.ConvImpliesBdd
 import LEANprj._02Sequences.Theorems.ExMonoSubsequence
 
@@ -77,6 +77,6 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
       obtain ⟨k, hk_inc, l, hl, lM⟩ := compactM a hn
       have h_leqL : l = L := by
         have hk_conv' := SubsequenceConvEq ha_conv k hk_inc
-        apply Uniqueness (Subsequence a k) l L hl hk_conv'
+        apply UniquenessSeq (Subsequence a k) l L hl hk_conv'
       rw [← h_leqL]
       exact lM
