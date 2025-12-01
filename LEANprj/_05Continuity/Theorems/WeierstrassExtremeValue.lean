@@ -1,2 +1,6 @@
 import LEANprj.defs
+import LEANprj._05Continuity.Theorems.AlgebraContinuousFun
 import LEANprj._05Continuity.Theorems.IntermediateValue
+import LEANprj._04Functions.Theorems.Uniqueness
+import LEANprj._04Functions.Theorems.SandwichFun
+import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
