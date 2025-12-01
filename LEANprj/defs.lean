@@ -1,13 +1,10 @@
 import Mathlib
 open Classical
 
--- omezenost
 def LowerBoundedSequence (a : ℕ → ℝ) := ∃ l : ℝ, ∀ n : ℕ, a n > l
 def UpperBoundedSequence (a : ℕ → ℝ) := ∃ u : ℝ, ∀ n : ℕ, a n < u
 def BoundedSequence (a : ℕ → ℝ) := ∃ K > 0, ∀ n : ℕ, |a n| < K
 
-
--- monotonie
 def IncreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≥ a n
 def StrictlyIncreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) > a n
 def DecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≤ a n
@@ -16,7 +13,6 @@ def MonotonicSequence (a : ℕ → ℝ) := IncreasingSequence a ∨ DecreasingSe
 def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a ∨ StrictlyDecreasingSequence a
 def StrictlyIncreasingSequenceN (a : ℕ → ℕ) := ∀ n : ℕ, a (n + 1) > a n
 
--- zavedu jako axiom uplnosti Realnych cisel
 axiom exists_point_in_nested_intervals
   (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)
@@ -25,14 +21,11 @@ axiom exists_point_in_nested_intervals
   (shrink : ∀ n, u (n + 1) - l (n + 1) ≤ u n - l n) :
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
--- podposloupnost posloupnosi a s indexovou fci k
 def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := a ∘ k
 
--- overeni zda s (i) je sup (inf)
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := ∀ x ∈ A, x ≤ s ∧ ∀ ε > 0, ∃ x ∈ A, s - ε < x
 def IsInf (A : Set ℝ) (i : ℝ) : Prop := ∀ x ∈ A, i ≤ x ∧ ∀ ε > 0, ∃ x ∈ A, x < i + ε
 
--- konvergence a n → q
 def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
 def Divergent (a : ℕ → ℝ) := ¬Convergent a
@@ -41,7 +34,7 @@ def DivergentToNegInf (a : ℕ → ℝ) := ∀ m < 0, ∃ n₀, ∀ n ≥ n₀, 
 
 def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, n > n₀ ∧ m > n₀ → |a n - a m| < ε
 
-def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 1), a k
+def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 1) , a k
 def SeriesConvergesTo (a : ℕ → ℝ) (s : ℝ) : Prop := ConvergesTo (PartialSum a) s
 def SeriesConvergent (a : ℕ → ℝ) : Prop := ∃ s : ℝ, SeriesConvergesTo a s
 
