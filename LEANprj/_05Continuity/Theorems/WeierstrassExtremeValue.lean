@@ -5,13 +5,6 @@ import LEANprj._04Functions.Theorems.UniquenessFun
 import LEANprj._04Functions.Theorems.SandwichFun
 import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
 
-lemma ContinuousImageBounded
-  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b)
-  (h_cont : ∀ x ∈ Set.Icc a b, FunctionContinuousAt f x) :
-  ∃ B : ℝ, ∀ x ∈ Set.Icc a b, |f x| ≤ B := by
-
-  sorry
-
 theorem WeierstrassBdd
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
