@@ -47,6 +47,8 @@ def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) := ∀ ε > 0, 
 def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
 def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f x
 def FunctionContinuousOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∀ x ∈ M, FunctionContinuousAt f x
+def FunctionBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x| < K
+
 
 
 ---------------------------------- pomocna lemmata ----------------------------------

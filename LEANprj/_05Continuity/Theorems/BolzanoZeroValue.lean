@@ -14,7 +14,7 @@ theorem BolzanoZeroValue
     use b
     intro x xM
     exact xM.2.1
-  obtain ⟨c,hc_sup, _⟩ := exists_unique_supremum M M_nonempty M_bdd
+  obtain ⟨c, hc_sup, _⟩ := exists_unique_supremum M M_nonempty M_bdd
   unfold IsSup at hc_sup
   have h_UB : ∀ x ∈ M, x ≤ c := λ x hx ↦ (hc_sup x hx).1
   have h_Approx : ∀ ε > 0, ∃ x ∈ M, c - ε < x := (hc_sup a ha_in_M).2
