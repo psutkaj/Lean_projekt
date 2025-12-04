@@ -81,10 +81,35 @@ theorem WeierstrassBdd
       have lower_bound : c - ε = (b + c)/2 := by ring
       have upper_bound_lt_a : (b + c)/2 > b := by linarith
       linarith
-
-
-
-  sorry
+  have h_cont_at_c : FunctionContinuousAt f c := h_cont c hc_in_Int
+  have h_f_conv : ConvergesTo (f ∘ (x_seq ∘ k)) (f c) := by
+    intro ε hε
+    obtain ⟨δ, hδ_pos, hδ⟩ := h_cont_at_c ε hε
+    obtain ⟨N, hN⟩ := hk_conv δ hδ_pos
+    use N
+    intro n hn
+    specialize hN n hn
+    rw [Subsequence] at hN
+    simp at hN
+    apply hδ
+    exact hN
+  obtain ⟨N, hN⟩ := h_f_conv 1 Real.zero_lt_one
+  obtain ⟨m, hm⟩ := exists_nat_gt (|f c|)
+  let n := max N m
+  specialize hN n (le_max_left N m)
+  dsimp at hN
+  have h_triangle : |f (x_seq (k n))| - |f c| ≤ |f (x_seq (k n)) - f c| := abs_sub_abs_le_abs_sub _ _
+  have h_val_bound : |f (x_seq (k n))| < |f c| + 1 := by
+    rw [abs_sub_comm] at hN
+    linarith
+  have h_seq_bound : |f (x_seq (k n))| ≥ n + 1 := by
+    have : k n ≥ n := StrictlyIncreasingSequenceN_ge_id k hk_inc n
+    have : |f (x_seq (k n))| ≥ k n + 1 := (h_x_seq_prop (k n)).2
+    linarith
+  have h_n_large : n > |f c| := by
+    have : n ≥ m := le_max_right N m
+    linarith
+  linarith
 
 axiom WeierstrassMax
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
