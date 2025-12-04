@@ -1,6 +1,6 @@
 import LEANprj.defs
 
-theorem Sandwich
+theorem SandwichSeq
   (a b c : ℕ → ℝ) (q : ℝ)
   (h₁ : a ≤ b) (h₂ : b ≤ c) (h₃ : ConvergesTo a q) (h₄ : ConvergesTo c q) :
   ConvergesTo b q :=
@@ -41,3 +41,28 @@ by
     -- úprava předchozího na požadovaný tvar
   exact ⟨hb_lower2, hb_upper2⟩
     -- cíl je přesně jako kombinace hb_lower2 a hb_upper2
+
+
+theorem LimitOrderLe (a b  : ℕ → ℝ) (p q : ℝ)
+  (h₁ : a ≤ b) (h₂ : ConvergesTo a p) (h₃ : ConvergesTo b q) : p ≤ q := by
+  by_contra hnle
+  push_neg at hnle
+  let ε := (p - q) / 2
+  have ε_pos : ε > 0 := by have : p - q > 0 := by linarith;; dsimp [ε]; exact half_pos this
+  obtain ⟨n₁, hn₁⟩ := h₂ ε ε_pos
+  obtain ⟨n₂, hn₂⟩ := h₃ ε ε_pos
+  let n₀ := max n₁ n₂
+  have hn₁le : n₀ ≥ n₁ := le_max_left _ _
+  have hn₂le : n₀ ≥ n₂ := le_max_right _ _
+  specialize hn₁ n₀ hn₁le
+  specialize hn₂ n₀ hn₂le
+  specialize h₁ n₀
+  rw [abs_lt] at hn₁ hn₂
+  have : b n₀ < a n₀ := by calc a n₀
+    _ > p - ε := by linarith
+    _ = p - (p - q) / 2 := by dsimp [ε]
+    _ = (p + q) / 2 := by ring
+    _ = q + (p - q) / 2 := by ring
+    _ = q + ε := by ring
+    _ > b n₀ := by linarith
+  linarith
