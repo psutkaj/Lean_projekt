@@ -39,6 +39,7 @@ lemma mid_le_right {l u : ℝ} (h : l ≤ u) : mid l u ≤ u := by
 -- exsitence a jednoznacnost suprema
 -- kazda neprazdna, shora omezena mnozina ma prave jedno supremum
 theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u): ∃! s : ℝ, IsSup A s := by
+
   -- z nonempty A si vytahnu l₀ () a hl₀
   obtain ⟨l₀, hl₀⟩ := hA
   -- z horni omezenosti si vytahnu u₀ () a hl₀
@@ -514,10 +515,10 @@ theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l
       · intro x hx
         obtain ⟨a, ha, rfl⟩ := hx
 
-      · have : t ≤ a := (ht a ha).1
+        have : t ≤ a := (ht).1 a ha
         linarith
       · intro ε hε
-        obtain ⟨b, hb_mem, hb_close⟩ := (ht a ha).2 ε hε
+        obtain ⟨b, hb_mem, hb_close⟩ := (ht).2 ε hε
         use -b, ⟨b, hb_mem, rfl⟩
         linarith
     linarith
