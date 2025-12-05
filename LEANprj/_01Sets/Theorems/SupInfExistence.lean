@@ -418,9 +418,9 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
   -- overime, ze s je opravdu supremum a vyhovuje nasi definici suprema
   have hsSup : IsSup A s := by
     unfold IsSup
-    intro x hx
     constructor
-    · exact upper_s x hx
+    · intro x hx
+      exact upper_s x hx
     · intro ε hε
       -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
       obtain ⟨N, hN⟩ := gap_to_0 ε hε
@@ -455,7 +455,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
       set ε := (t - z) / 2
       have ε_pos : ε > 0 := half_pos h_pos
       have hA_local : A.Nonempty := ⟨l₀, hl₀⟩
-      obtain ⟨a, ha_mem, ha_close⟩ := (htSup l₀ hl₀).2 ε ε_pos
+      obtain ⟨a, ha_mem, ha_close⟩ := (htSup).2 ε ε_pos
       have : z < a := by
         have : t - ε = t - (t - z) / 2 := rfl
         have : t - (t - z) / 2 = (t + z) / 2 := by ring
@@ -464,7 +464,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
         linarith
       exact (not_lt_of_ge (hz a ha_mem)) this
     exact t_least s upper_s
-  · have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup a ha).1
+  · have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup).1 a ha
     exact least t t_upper
 
 
@@ -496,13 +496,13 @@ theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l
   use -s
   constructor
   · -- ukazame ze splnuji nasi definici infima
-    intro a ha
     constructor
-    · have : -a ∈ negA := ⟨a, ha, rfl⟩
-      have : -a ≤ s := (hs (-a) this).1
+    · intro a ha
+      have : -a ∈ negA := ⟨a, ha, rfl⟩
+      have : -a ≤ s := (hs).1 (-a) this
       linarith
     · intro ε hε
-      obtain ⟨x, hx_mem, hx_close⟩ := (hs (-a) ⟨a, ha, rfl⟩).2 ε hε
+      obtain ⟨x, hx_mem, hx_close⟩ := (hs).2 ε hε
       obtain ⟨b, hb_mem, rfl⟩ := hx_mem
       use b, hb_mem
       linarith
@@ -510,9 +510,10 @@ theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l
     intro t ht
     have : -t = s := by
       apply hunique
-      intro x hx
-      obtain ⟨a, ha, rfl⟩ := hx
       constructor
+      · intro x hx
+        obtain ⟨a, ha, rfl⟩ := hx
+
       · have : t ≤ a := (ht a ha).1
         linarith
       · intro ε hε

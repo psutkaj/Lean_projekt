@@ -6,7 +6,7 @@ import LEANprj._04Functions.Theorems.SandwichFun
 import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
 
 theorem WeierstrassBdd
-  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
+  (f : ℝ → ℝ) (a b : ℝ) (_h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
   FunctionBddOnSet Int f := by
   by_contra h_unbdd
@@ -91,8 +91,12 @@ theorem WeierstrassBdd
     specialize hN n hn
     rw [Subsequence] at hN
     simp at hN
-    apply hδ
-    exact hN
+    by_cases h_eq : x_seq (k n) = c
+    · rw [← h_eq]; simp; exact hε
+    · apply hδ
+      constructor
+      · rw [abs_pos]; exact sub_ne_zero.mpr h_eq
+      · exact hN
   obtain ⟨N, hN⟩ := h_f_conv 1 Real.zero_lt_one
   obtain ⟨m, hm⟩ := exists_nat_gt (|f c|)
   let n := max N m
@@ -101,20 +105,126 @@ theorem WeierstrassBdd
   have h_triangle : |f (x_seq (k n))| - |f c| ≤ |f (x_seq (k n)) - f c| := abs_sub_abs_le_abs_sub _ _
   have h_val_bound : |f (x_seq (k n))| < |f c| + 1 := by
     rw [abs_sub_comm] at hN
+    have : |f (x_seq (k n))| ≤ |f c| + |f (x_seq (k n)) - f c| := by linarith
+    have : |f (x_seq (k n)) - f c| = |f c - f (x_seq (k n))| := by exact abs_sub_comm (f (x_seq (k n))) (f c)
+    have : |f c| + |f (x_seq (k n)) - f c| < |f c| + 1 := by linarith
     linarith
   have h_seq_bound : |f (x_seq (k n))| ≥ n + 1 := by
     have : k n ≥ n := StrictlyIncreasingSequenceN_ge_id k hk_inc n
     have : |f (x_seq (k n))| ≥ k n + 1 := (h_x_seq_prop (k n)).2
-    linarith
+    have : k n + 1 ≥ n + 1 := by linarith
+    trans k n + 1
+    · (expose_names; exact this_2)
+    · simp; linarith
   have h_n_large : n > |f c| := by
-    have : n ≥ m := le_max_right N m
+    have : (n : ℝ) ≥ m := Nat.cast_le.mpr (le_max_right N m)
     linarith
   linarith
 
-axiom WeierstrassMax
+theorem WeierstrassMax'
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
-  ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M
+  ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M := by
+  classical
+  -- The interval Int = [a,b] is nonempty
+  have h_nonempty : Int.Nonempty := by
+    have ha_mem_Icc : a ∈ Set.Icc a b := ⟨le_rfl, h_ab⟩
+    have ha_mem_Int : a ∈ Int := by simpa [hInt] using ha_mem_Icc
+    exact ⟨a, ha_mem_Int⟩
+  -- Consider the image S = f(Int)
+  let S : Set ℝ := f '' Int
+  have hS_nonempty : S.Nonempty := by
+    rcases h_nonempty with ⟨x, hx⟩
+    exact ⟨f x, ⟨x, hx, rfl⟩⟩
+    -- f is bounded on Int, hence S is bounded above
+  have h_bdd : FunctionBddOnSet Int f :=
+    WeierstrassBdd f a b h_ab Int hInt h_cont
+  rcases h_bdd with ⟨K, hK_pos, hK⟩
+  have hS_bddAbove : BddAbove S := by
+    refine ⟨K, ?_⟩
+    intro y hy
+    rcases hy with ⟨x, hxInt, rfl⟩
+    have hfLt : |f x| < K := hK x hxInt
+    have hfLe : f x ≤ |f x| := le_abs_self _
+    exact le_trans hfLe (le_of_lt hfLt)
+  -- Let M0 be the supremum of S
+  let M0 : ℝ := sSup S
+
+  -- Every point of S is ≤ M0
+  have h_le_M0 : ∀ y ∈ S, y ≤ M0 := by
+    intro y hy
+    exact le_csSup hS_bddAbove hy
+  -- For each n, choose xₙ ∈ Int with f xₙ > M0 - 1/(n+1)
+  have h_approx : ∀ n : ℕ, ∃ x ∈ Int, M0 - (1 : ℝ) / (n+1) < f x := by
+    intro n
+    -- this will use the definition/properties of sSup on S
+    sorry
+  choose x hxInt hx_lt using h_approx
+
+  --choose x hxInt hx_lt using h_approx
+  -- Now x : ℕ → ℝ, with x n ∈ Int and M0 - 1/(n+1) < f (x n) for all n
+  have hx_in_Icc : ∀ n, x n ∈ Set.Icc a b := by
+    intro n
+    simpa [hInt] using hxInt n
+  -- The sequence x is bounded, since it stays in [a, b]
+  have hx_bdd : BoundedSequence x := by
+    -- for example, one can bound |x n| by max (|a|) (|b|) + 1
+    sorry
+  -- Apply Bolzano–Weierstrass to obtain a convergent subsequence of x
+  obtain ⟨φ, hφ_inc, c, hconv⟩ := BolzanoWeierstrass x hx_bdd
+  have hconv' : ConvergesTo (x ∘ φ) c := by
+    simpa [Subsequence] using hconv
+  -- The subsequence x ∘ φ still lies in Int
+  have hxφ_Int : ∀ n, x (φ n) ∈ Int := by
+    intro n
+    exact hxInt (φ n)
+  -- Hence its limit point c lies in Int (indeed in [a,b])
+  have hc_Int : c ∈ Int := by
+    -- use that Int = [a,b] is closed and contains all x (φ n),
+    -- together with the convergence hconv'
+    sorry
+  sorry
+
+theorem WeierstrassMax
+  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
+  (h_cont : FunctionContinuousOnSet Int f) :
+  ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M := by
+  let S := {f y | y ∈ Int}
+  have S_nonempty : S.Nonempty := by
+    use f a
+    dsimp [S]
+    use a
+    constructor
+    rw [hInt]
+    simpa
+    rfl
+  have S_bdd : BoundedSet S := by
+    unfold BoundedSet
+    obtain ⟨c, c_pos, hc⟩ := WeierstrassBdd f a b h_ab Int hInt h_cont
+    use c, c_pos
+    intro m hm
+    dsimp [S] at hm
+    obtain ⟨y, y_in_int, hy⟩ := hm
+    rw [←hy]
+    exact hc y y_in_int
+  have S_upper_bdd : ∃ u : ℝ, ∀ a ∈ S, a ≤ u := by
+    obtain ⟨c, c_pos, hc⟩ := S_bdd
+    use c
+    intro a aS
+    specialize hc a aS
+    trans |a|
+    · exact le_abs_self a
+    · exact le_of_lt hc
+
+  obtain ⟨M, IsSupM, UniqueM⟩ := exists_unique_supremum S S_nonempty S_upper_bdd
+  unfold IsSup at IsSupM
+  let ε : ℕ → ℝ := λ n ↦ 1 / n
+  have not_upper_bd : ∃ y ∈ S, ∀ n : ℕ, M - ε n < y := by
+
+    sorry
+  have :∀ n : ℕ, M - ε n <
+
+  sorry
 
 theorem WeierstrassMin
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
