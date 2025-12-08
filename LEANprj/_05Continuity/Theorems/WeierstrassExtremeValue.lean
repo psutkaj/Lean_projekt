@@ -218,12 +218,14 @@ theorem WeierstrassMax
 
   obtain ⟨M, IsSupM, UniqueM⟩ := exists_unique_supremum S S_nonempty S_upper_bdd
   unfold IsSup at IsSupM
-  let ε : ℕ → ℝ := λ n ↦ 1 / n
-  have not_upper_bd : ∃ y ∈ S, ∀ n : ℕ, M - ε n < y := by ----- tohle taky
+  let ε : ℕ → ℝ := λ n ↦ 1 / (n + 1)
+  have not_upper_bd : ∃ y ∈ S, ∀ n : ℕ, M - ε n < y := by
+    cases' IsSupM with upper_bd lowest_upper
+    have : ∀ n : ℕ, ε n > 0 := by dsimp [ε]; intro n; simp; linarith
+    obtain ⟨d, hd⟩ := lowest_upper ε this
 
     sorry
-  have :∀ n : ℕ, M - ε n < 0 := by ---- tohle musim dodelat
-    sorry
+
   sorry
 
 theorem WeierstrassMin

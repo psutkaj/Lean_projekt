@@ -14,7 +14,7 @@ lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bd
   have hsup : IsSup A s := by
     exact SupSeq_IsSup a (Exists.intro K fun n => lt_of_abs_lt (K_bd n))
   have hexn : ∃ n, s - ε < a n := by
-    obtain ⟨_, hε⟩ := hsup (a 0) (by tauto)
+    obtain ⟨_, hε⟩ := hsup
     obtain ⟨x, hxA, hxgt⟩ := hε ε ε_pos
     obtain ⟨n, rfl⟩ := hxA
     exact ⟨n, hxgt⟩
@@ -24,8 +24,8 @@ lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bd
   have : a N ≤ a m := by exact inc_le_of_le ha_inc hm
   have lower' : s - ε < a m := by exact lt_of_le_of_lt' this hN
   have upper' : a m ≤ s := by
-    obtain ⟨le_s, s_lt⟩ := hsup (a m) (by tauto)
-    exact le_s
+    obtain ⟨le_s, s_lt⟩ := hsup
+    exact le_s (a m) (by dsimp[A]; simp)
   have : |a m - s| < ε := by
     have h₁ : s - a m < ε := by linarith
     have h₂ : s - a m ≥ 0 := by linarith

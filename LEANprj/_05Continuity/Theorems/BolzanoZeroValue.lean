@@ -16,11 +16,11 @@ theorem BolzanoZeroValue
     exact xM.2.1
   obtain ⟨c, hc_sup, _⟩ := exists_unique_supremum M M_nonempty M_bdd
   unfold IsSup at hc_sup
-  have h_UB : ∀ x ∈ M, x ≤ c := λ x hx ↦ (hc_sup x hx).1
-  have h_Approx : ∀ ε > 0, ∃ x ∈ M, c - ε < x := (hc_sup a ha_in_M).2
+  have h_UB : ∀ x ∈ M, x ≤ c := λ x hx ↦ (hc_sup).1 x hx
+  have h_Approx : ∀ ε > 0, ∃ x ∈ M, c - ε < x := (hc_sup).2
   have c_in_Icc : c ∈ Set.Icc a b := by
     constructor
-    · exact (hc_sup a (ha_in_M)).1
+    · exact (hc_sup).1 a ha_in_M
     · by_contra hne
       push_neg at hne
       let ε := c - b
