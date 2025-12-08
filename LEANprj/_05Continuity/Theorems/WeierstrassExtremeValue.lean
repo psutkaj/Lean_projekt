@@ -215,17 +215,19 @@ theorem WeierstrassMax
     trans |a|
     · exact le_abs_self a
     · exact le_of_lt hc
-
   obtain ⟨M, IsSupM, UniqueM⟩ := exists_unique_supremum S S_nonempty S_upper_bdd
   unfold IsSup at IsSupM
-  let ε : ℕ → ℝ := λ n ↦ 1 / (n + 1)
-  have not_upper_bd : ∃ y ∈ S, ∀ n : ℕ, M - ε n < y := by
+  let ε : ℕ → ℝ := λ n ↦ 1 / (n + 1 : ℝ)
+  have ε_pos : ∀ n : ℕ, ε n > 0 := by intro n; dsimp[ε]; simp; linarith
+  have not_upper_bd : ∀ n : ℕ, ∃ y ∈ S,  M - ε n < y := by
+    intro n
     cases' IsSupM with upper_bd lowest_upper
-    have : ∀ n : ℕ, ε n > 0 := by dsimp [ε]; intro n; simp; linarith
-    obtain ⟨d, hd⟩ := lowest_upper ε this
+    exact lowest_upper (ε n) (ε_pos n)
+  choose y y_in_S y_close using not_upper_bd
+  have upper_bd : ∀ n : ℕ, f (y n) ≤ M := by
+    intro n
 
     sorry
-
   sorry
 
 theorem WeierstrassMin
