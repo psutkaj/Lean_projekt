@@ -124,7 +124,7 @@ by
 
 
 
-lemma upperBddIsBdd (a : ℕ → ℝ) (h_upper : UpperBoundedSequence a) (h_lower : LowerBoundedSequence a) : BoundedSequence a := by
+lemma upperLowerBddIsBdd (a : ℕ → ℝ) (h_upper : UpperBoundedSequence a) (h_lower : LowerBoundedSequence a) : BoundedSequence a := by
 rcases h_upper with ⟨u, hu⟩
 rcases h_lower with ⟨l, hl⟩
 let K := max (|l|) (|u|) + 1
@@ -165,4 +165,4 @@ lemma Bounded_iff_Upper_and_Lower (a : ℕ → ℝ) :
     · use K; intro n; linarith [abs_le.mp (hK n)]
     · use -K; intro n; linarith [abs_le.mp (hK n)]
   · intro h
-    exact upperBddIsBdd a h.1 h.2
+    exact upperLowerBddIsBdd a h.1 h.2

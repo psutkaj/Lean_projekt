@@ -30,7 +30,7 @@ theorem ExistPointInNestedInterval
     · calc l (d + 1)
       _ ≥ l d := inc_l d
       _ ≥ l 0 - 1:= hd
-  have l_bdd : BoundedSequence l := by exact upperBddIsBdd l l_up_bdd l_lo_bdd
+  have l_bdd : BoundedSequence l := by exact upperLowerBddIsBdd l l_up_bdd l_lo_bdd
   have l_cauchy : CauchySequence l := by exact IncBddImpliesCauchy l inc_l l_bdd
   have l_conv : Convergent l := by exact (CauchyEqConv l).mp l_cauchy
   obtain ⟨s, l_conv_s⟩ := l_conv
