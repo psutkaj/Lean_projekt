@@ -121,85 +121,15 @@ theorem WeierstrassBdd
     linarith
   linarith
 
--- theorem WeierstrassMax'
---   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
---   (h_cont : FunctionContinuousOnSet Int f) :
---   ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M := by
---   classical
---   -- The interval Int = [a,b] is nonempty
---   have h_nonempty : Int.Nonempty := by
---     have ha_mem_Icc : a ∈ Set.Icc a b := ⟨le_rfl, h_ab⟩
---     have ha_mem_Int : a ∈ Int := by simpa [hInt] using ha_mem_Icc
---     exact ⟨a, ha_mem_Int⟩
---   -- Consider the image S = f(Int)
---   let S : Set ℝ := f '' Int
---   have hS_nonempty : S.Nonempty := by
---     rcases h_nonempty with ⟨x, hx⟩
---     exact ⟨f x, ⟨x, hx, rfl⟩⟩
---     -- f is bounded on Int, hence S is bounded above
---   have h_bdd : FunctionBddOnSet Int f :=
---     WeierstrassBdd f a b h_ab Int hInt h_cont
---   rcases h_bdd with ⟨K, hK_pos, hK⟩
---   have hS_bddAbove : BddAbove S := by
---     refine ⟨K, ?_⟩
---     intro y hy
---     rcases hy with ⟨x, hxInt, rfl⟩
---     have hfLt : |f x| < K := hK x hxInt
---     have hfLe : f x ≤ |f x| := le_abs_self _
---     exact le_trans hfLe (le_of_lt hfLt)
---   -- Let M0 be the supremum of S
---   let M0 : ℝ := sSup S
-
---   -- Every point of S is ≤ M0
---   have h_le_M0 : ∀ y ∈ S, y ≤ M0 := by
---     intro y hy
---     exact le_csSup hS_bddAbove hy
---   -- For each n, choose xₙ ∈ Int with f xₙ > M0 - 1/(n+1)
---   have h_approx : ∀ n : ℕ, ∃ x ∈ Int, M0 - (1 : ℝ) / (n+1) < f x := by
---     intro n
---     -- this will use the definition/properties of sSup on S
---     sorry
---   choose x hxInt hx_lt using h_approx
-
---   --choose x hxInt hx_lt using h_approx
---   -- Now x : ℕ → ℝ, with x n ∈ Int and M0 - 1/(n+1) < f (x n) for all n
---   have hx_in_Icc : ∀ n, x n ∈ Set.Icc a b := by
---     intro n
---     simpa [hInt] using hxInt n
---   -- The sequence x is bounded, since it stays in [a, b]
---   have hx_bdd : BoundedSequence x := by
---     -- for example, one can bound |x n| by max (|a|) (|b|) + 1
---     sorry
---   -- Apply Bolzano–Weierstrass to obtain a convergent subsequence of x
---   obtain ⟨φ, hφ_inc, c, hconv⟩ := BolzanoWeierstrass x hx_bdd
---   have hconv' : ConvergesTo (x ∘ φ) c := by
---     simpa [Subsequence] using hconv
---   -- The subsequence x ∘ φ still lies in Int
---   have hxφ_Int : ∀ n, x (φ n) ∈ Int := by
---     intro n
---     exact hxInt (φ n)
---   -- Hence its limit point c lies in Int (indeed in [a,b])
---   have hc_Int : c ∈ Int := by
---     -- use that Int = [a,b] is closed and contains all x (φ n),
---     -- together with the convergence hconv'
---     sorry
---   sorry
-
-theorem Continuous_Implies_Sequential
+theorem ContinuousImpliesSequential
   (f : ℝ → ℝ) (c : ℝ) (h_cont : FunctionContinuousAt f c)
   (x : ℕ → ℝ) (h_conv : ConvergesTo x c) :
   ConvergesTo (f ∘ x) (f c) := by
-  -- Důkaz je přímočarý:
-  -- 1. Vezmi libovolné ε > 0.
   intro ε hε
-  -- 2. Díky spojitosti f (h_cont) existuje δ > 0.
   obtain ⟨δ, hδ_pos, h_f_delta⟩ := h_cont ε hε
-  -- 3. Díky konvergenci x (h_conv) existuje n₀, od kterého jsou x_n blíže než δ.
   obtain ⟨n₀, h_x_delta⟩ := h_conv δ hδ_pos
-  -- 4. Spoj to dohromady.
   use n₀
   intro n hn
-  -- x_n je blízko c (o δ), takže f(x_n) musí být blízko f(c) (o ε).
   simp
   by_cases h_xn_eq_c : x n = c
   · rw [h_xn_eq_c]
@@ -313,7 +243,7 @@ theorem WeierstrassMax
   intro d d_in_Int
   have h_cont_c : FunctionContinuousAt f c := h_cont c c_in_Int
   have h_lim_continuity : ConvergesTo (f ∘ (Subsequence x k)) (f c) := by
-    apply Continuous_Implies_Sequential f c h_cont_c
+    apply ContinuousImpliesSequential f c h_cont_c
     exact hc
   have h_lim_construction : ConvergesTo (f ∘ (Subsequence x k)) M := by
     intro ε ε_pos

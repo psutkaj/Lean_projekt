@@ -3,8 +3,6 @@ import LEANprj._02Sequences.Theorems.IncBddImpliesCauchy
 import LEANprj._00Axioms.CauchyEqConv
 import LEANprj.lemmas
 
-
-
 theorem ExistPointInNestedInterval
   (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)
@@ -55,7 +53,6 @@ theorem ExistPointInNestedInterval
       _ = l n := by rw [←hε]; ring
     have h_lower : l n ≤ l k := inc_le_of_le inc_l (le_max_left n n₀)
     linarith
-
   · have : ∀ k : ℕ, l k ≤ u n := by
       intro k
       by_cases h : k > n

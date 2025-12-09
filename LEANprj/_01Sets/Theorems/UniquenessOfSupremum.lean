@@ -2,480 +2,424 @@ import LEANprj._01Sets.Theorems.NestedIntervalUniqueness
 noncomputable section
 open Classical
 
-variable (A : Set ℝ) (l₀ u₀ : ℝ) (n : ℕ)
+section BisectionMethod
 
--- chci si vytvorit puleni intervalu, a aby ho rozeznavalo simp
+-- Kontext: Máme množinu A a počáteční meze l₀, u₀
+variable (A : Set ℝ) (l₀ u₀ : ℝ)
+
+-- 1. Definice středu (Midpoint)
+-- @[simp] znamená, že tactic 'simp' bude automaticky nahrazovat 'mid l u' za '(l+u)/2'
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
 
--- lemmata o delce intervalu po puleni
-lemma sub_mid (l u : ℝ) : u - mid l u = (u - l) / 2 := by simp; ring
-lemma mid_sub (l u : ℝ) : mid l u - l = (u - l) / 2 := by simp; ring
+-- 2. Krok půlení (Step)
+-- Toto je "rozhodovací motor".
+-- Pokud v pravé půlce (mid, u] něco je, jdeme doprava. Jinak doleva.
+def step (l u : ℝ) : ℝ × ℝ :=
+  if ∃ a ∈ A, mid l u < a then (mid l u, u) else (l, mid l u)
 
--- definuju krok puleni, beru bud levou nebo pravou cast, podle toho kde mam a ∈ A
-def step (l u : ℝ) : ℝ × ℝ := if _ : ∃ a : A, mid l u < a then (mid l u, u) else (l, mid l u)
-
--- definuju si posloupnost dvojic (lₙ, uₙ)
+-- 3. Rekurzivní definice posloupností (Sequences)
 def luNext : ℕ → ℝ × ℝ
   | 0 => (l₀, u₀)
   | n+1 => step A (luNext n).1 (luNext n).2
 
--- zadefinuju si posloupnosti pro samostatne lₙ, uₙ
+-- Projekce na jednotlivé posloupnosti
 def lSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).1
 def uSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).2
 
--- lemmata pro porovnani prvku s pulenim
-lemma left_le_mid {l u : ℝ} (h : l ≤ u) : l ≤ mid l u := by
-  unfold mid
-  have : l = (l + l) / 2 := by ring
-  have : l + l ≤ l + u := by linarith
-  linarith
+end BisectionMethod
 
-lemma mid_le_right {l u : ℝ} (h : l ≤ u) : mid l u ≤ u := by
-  unfold mid
-  have : (u + u) / 2 = u := by ring
-  have : u + l ≤ u + u := by linarith
-  linarith
+section GeometryLemmas
 
--- exsitence a jednoznacnost suprema
--- kazda neprazdna, shora omezena mnozina ma prave jedno supremum
+variable {l u : ℝ}
+
+-- Pokud l ≤ u, pak l ≤ mid ≤ u
+lemma l_le_mid (h : l ≤ u) : l ≤ mid l u := by
+  simp; linarith
+
+lemma mid_le_u (h : l ≤ u) : mid l u ≤ u := by
+  simp; linarith
+
+-- Vzdálenost se půlí
+lemma mid_dist_l (l u : ℝ) : mid l u - l = (u - l) / 2 := by
+  simp; ring
+
+lemma u_dist_mid (l u : ℝ) : u - mid l u = (u - l) / 2 := by
+  simp; ring
+
+end GeometryLemmas
+
+section SequenceProperties
+
+variable (A : Set ℝ) (l₀ u₀ : ℝ)
+-- Předpoklad: Na začátku je levý kraj menší než pravý
+variable (h_init : l₀ ≤ u₀)
+
+include h_init
+
+-- Lemma 1: Vnořenost se zachovává (lₙ ≤ uₙ pro všechna n)
+lemma lSeq_le_uSeq : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
+  intro n
+  induction n with
+  | zero => exact h_init -- Báze indukce: l₀ ≤ u₀
+  | succ n ih =>
+    -- Rozbalíme definice
+    dsimp [lSeq, uSeq, luNext, step]
+    -- Rozebereme podle toho, kam jsme se vydali (doprava nebo doleva)
+    split_ifs
+    · -- Jdeme doprava: nový interval je [mid, u]
+      -- mid ≤ u plyne z toho, že l ≤ u (IH)
+      exact mid_le_u ih
+    · -- Jdeme doleva: nový interval je [l, mid]
+      -- l ≤ mid plyne z toho, že l ≤ u (IH)
+      exact l_le_mid ih
+
+-- Lemma 2: lSeq je rostoucí (IncreasingSequence)
+lemma lSeq_increasing : IncreasingSequence (lSeq A l₀ u₀) := by
+  intro n
+  dsimp [lSeq, uSeq, luNext, step]
+  -- Potřebujeme vědět, že staré l ≤ u (abychom mohli použít lemma o mid)
+  have h_le := lSeq_le_uSeq A l₀ u₀ h_init n
+  split_ifs
+  · -- Jdeme doprava: nové l je mid. mid ≥ staré l.
+    exact l_le_mid h_le
+  · -- Jdeme doleva: nové l je staré l.
+    exact le_refl _
+
+-- Lemma 3: uSeq je klesající (DecreasingSequence)
+lemma uSeq_decreasing : DecreasingSequence (uSeq A l₀ u₀) := by
+  intro n
+  dsimp [lSeq, uSeq, luNext, step]
+  have h_le := lSeq_le_uSeq A l₀ u₀ h_init n
+  split_ifs
+  · -- Jdeme doprava: u se nemění
+    exact le_refl _
+  · -- Jdeme doleva: nové u je mid. mid ≤ staré u.
+    exact mid_le_u h_le
+
+omit h_init
+
+-- Lemma 4: Délka intervalu se přesně půlí
+lemma gap_halves (n : ℕ) :
+  uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
+  dsimp [lSeq, uSeq, luNext, step]
+  split_ifs
+  · -- Doprava: u - mid
+    simp
+    ring
+  · -- Doleva: mid - l
+    simp
+    ring
+
+-- Lemma 5: Explicitní vzorec pro délku intervalu (Geometric Series)
+lemma gap_formula (n : ℕ) :
+  uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
+  induction n with
+  | zero =>
+    simp [lSeq, uSeq, luNext]
+  | succ n ih =>
+    -- Využijeme Lemma 4 a indukční předpoklad
+    rw [gap_halves A l₀ u₀ n, ih]
+    field_simp
+    ring
+
+end SequenceProperties
+
+section ConvergenceLemmas
+
+variable (A : Set ℝ) (l₀ u₀ : ℝ) (h_init : l₀ ≤ u₀)
+include h_init
+
+-- Lemma 6: Délka intervalu jde k nule (Shrink to Zero)
+lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
+  intro ε ε_pos
+
+  -- 1. PŘÍPRAVA: ZBAVENÍ SE ABSOLUTNÍ HODNOTY
+  -- Víme, že intervaly jsou korektní (u₀ ≥ l₀), takže délka je nezáporná.
+  -- To nám dovolí zjednodušit |x| na x.
+  have gap_nonneg : u₀ - l₀ ≥ 0 := by linarith
+  have gap_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
+    intro n
+    simp [div_nonneg gap_nonneg] -- Čitatel ≥ 0, jmenovatel > 0 -> zlomek ≥ 0
+
+  -- 2. ROZBOR PŘÍPADŮ (Nulová vs. Nenulová délka)
+  -- Pokud je počáteční interval nulový (bod), je důkaz triviální.
+  by_cases hGap : u₀ - l₀ = 0
+  · -- PŘÍPAD A: Interval má nulovou délku
+    use 0
+    intros n n_pos
+    rw [gap_formula A l₀ u₀ n] -- Dosadíme vzorec pro délku
+    rw [hGap]                  -- Dosadíme 0 za (u₀ - l₀)
+    simp                       -- 0 / cokoliv = 0
+    linarith                   -- 0 < ε (což víme z ε_pos)
+
+  · -- PŘÍPAD B: Interval má kladnou délku (To je ta hlavní část)
+    -- Nejprve formálně dokážeme, že délka je ostře kladná.
+    have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
+
+    -- Toto je naše cílová hodnota pro Archiméda.
+    -- Potřebujeme, aby 2^N bylo větší než toto číslo.
+    have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
+
+    -- 3. POMOCNÉ LEMMA: N ≤ 2^N (Bernoulliho nerovnost)
+    -- Potřebujeme spojit "lineární" svět přirozených čísel (kde funguje Archimédés)
+    -- s "exponenciálním" světem mocnin dvojky.
+    have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
+      intro N
+      induction' N with k ih
+      · -- Báze: 0 ≤ 2^0 = 1 (Platí)
+        simp
+      · -- Krok: Pokud k ≤ 2^k, pak k+1 ≤ 2^(k+1)
+        have one_le : (1 : ℝ) ≤ 2 ^ k := by exact one_le_pow₀ (by linarith)
+        calc (↑k.succ : ℝ) = (k : ℝ) + 1 := by simp [Nat.succ_eq_add_one]
+             _ ≤ 2 ^ k + 2 ^ k := by exact add_le_add ih one_le -- k ≤ 2^k a 1 ≤ 2^k
+             _ = 2 * 2 ^ k := by ring
+             _ = 2 ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
+
+    -- 4. APLIKACE ARCHIMÉDOVY VLASTNOSTI
+    -- Protože reálná čísla nejdou do nekonečna, existuje přirozené číslo N,
+    -- které je větší než náš podíl (u₀ - l₀) / ε.
+    obtain ⟨N, hN⟩ := exists_nat_gt ((u₀ - l₀) / ε)
+
+    -- 5. TRANZITIVITA (Spojení Archiméda a Mocnin)
+    -- Víme, že N > podíl.
+    -- Víme, že 2^N ≥ N.
+    -- Tedy 2^N > podíl.
+    have pow_gt_gap_div : (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
+
+    -- Důkazy kladnosti pro dělení (technické detaily)
+    have pow_2_N_pos : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
+    have posRight : 0 < ε / 2 ^ N := div_pos ε_pos pow_2_N_pos
+
+    -- 6. ALGEBRAICKÁ ÚPRAVA (Base Case)
+    -- Upravíme nerovnost 2^N > ... tak, aby vypadala jako náš cíl.
+    -- Získáme: (u₀ - l₀) / 2^N < ε
+    have base : (u₀ - l₀) / 2^N < ε := by
+      calc
+        (u₀ - l₀) / 2^N = (u₀ - l₀) / 2^N * ε / ε := by field_simp
+        _ = ((u₀ - l₀) / ε) * (ε / (2^N)) := by ring
+        _ < (2 ^ N) * (ε / (2^N)) := by exact mul_lt_mul_of_pos_right pow_gt_gap_div posRight
+        _ = ε := by field_simp
+
+    -- 7. ZÁVĚR: MONOTONIE
+    -- Našli jsme N, pro které to platí.
+    -- Teď ukážeme, že pro každé n > N to platí taky (protože jmenovatel 2^n se jen zvětšuje).
+    use N
+    intros n hn -- n > N
+
+    -- Mocnina roste: 2^N < 2^n
+    have pow_inc : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
+
+    -- Zlomek klesá: 1/2^n < 1/2^N
+    have gap_dec : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos pow_2_N_pos (by norm_cast)
+
+    -- Absolutní hodnota se chová stejně (protože je to kladné)
+    have abs_gap_dec: |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
+      rw [gap_abs n, gap_abs N]
+      exact gap_dec
+
+    -- Finální výpočet
+    rw [gap_formula A l₀ u₀ n]
+    calc
+      |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := abs_gap_dec
+      _ < ε := by exact lt_of_eq_of_lt (gap_abs N) base
+
+end ConvergenceLemmas
+
+section CandidateLimit
+
+variable (A : Set ℝ) (l₀ u₀ : ℝ)
+-- Předpoklad: Na začátku je l₀ ≤ u₀
+variable (h_init : l₀ ≤ u₀)
+include h_init
+
+-- Zde je to lemma, které využívá NestedIntervalUniqueness
+lemma exists_intersection_point :
+  ∃ s : ℝ, (∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) ∧
+           (∀ ε > 0, ∃ n, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε) := by
+
+  -- 1. Shromáždíme důkazy (Inputs pro tvou větu)
+  -- Monotonie (z SequenceProperties)
+  have lInc : IncreasingSequence (lSeq A l₀ u₀) := lSeq_increasing A l₀ u₀ h_init
+  have uDec : DecreasingSequence (uSeq A l₀ u₀) := uSeq_decreasing A l₀ u₀ h_init
+
+  -- Separace (z SequenceProperties)
+  have sep : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := lSeq_le_uSeq A l₀ u₀ h_init
+
+  -- Smrskávání (z ConvergenceLemmas)
+  have shrink : ∀ ε > 0, ∃ N, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε :=
+    gap_tendsto_zero A l₀ u₀ h_init
+
+  -- 2. VOLÁNÍ TVÉ VĚTY (The Core Usage)
+  -- Tady se to děje! Předáme jí naše posloupnosti a důkazy.
+  obtain ⟨s, hs_unique⟩ := NestedIntervalUniqueness
+    (lSeq A l₀ u₀) (uSeq A l₀ u₀)
+    lInc uDec sep shrink
+
+  -- 3. Zabalení výsledku
+  -- hs_unique má strukturu: (VlastnostPlatíPRO_s ∧ ∀ y, Vlastnost y → y = s)
+  -- My potřebujeme jen tu existenci (levou část) a přidáme k tomu důkaz smrskávání.
+  use s
+  constructor
+  · -- Důkaz, že s je v intervalech
+    exact hs_unique.1
+  · -- Důkaz, že se intervaly smrskávají (jen přeposíláme dál, hodí se pro supremum)
+    -- Tady pozor: shrink vrací ∃ N, ∀ n > N...
+    -- Ve výstupu lemmatu máme jednodušší: ∀ ε, ∃ n... < ε
+    -- To z shrinku plyne triviálně (vezmeme n = N + 1).
+    intro ε hε
+    obtain ⟨N, hN⟩ := shrink ε hε
+    use N + 1
+    exact hN (N + 1) (Nat.lt_succ_self N)
+
+end CandidateLimit
+
 theorem UniquenessOfSupremum
   (A : Set ℝ) (hA : A.Nonempty)
   (hUpperBdd : UpperBoundedSet A) :
   ∃! s : ℝ, IsSup A s := by
 
-  -- z nonempty A si vytahnu l₀ () a hl₀
+  -- 1. NASTAVENÍ (Setup)
   obtain ⟨l₀, hl₀⟩ := hA
-  -- z horni omezenosti si vytahnu u₀ () a hl₀
   obtain ⟨u₀, hu₀⟩ := hUpperBdd
-  -- vime, ze l₀ ≤ u₀
-  have h_l₀_leq_u₀ : l₀ ≤ u₀ := by exact hu₀ l₀ hl₀
+  -- Víme, že l₀ ≤ u₀ (protože v A něco je a u₀ je horní závora)
+  have h_init : l₀ ≤ u₀ := hu₀ l₀ hl₀
 
-  -- ukazeme, ze ∀ n ∈ ℕ : lₙ ≤ uₙ
-  have lₙ_leq_uₙ : ∀ n : ℕ, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
-    intro n
-    -- provedeme indukci podle n
-    induction' n with d hd
-    · simp [lSeq, uSeq, luNext]
-      exact h_l₀_leq_u₀
-    · simp [lSeq, uSeq, luNext]
-      let l_d := lSeq A l₀ u₀ d
-      let u_d := uSeq A l₀ u₀ d
-      let lu_d_next := step A l_d u_d
-      -- prepiseme do citelnejsi podoby za pomoci zavedenych promennych
-      change lu_d_next.1 ≤ lu_d_next.2
-      unfold lu_d_next step mid
-      simp
-      -- rozdelime na dve casti podle toho zda je if splnen nebo ne
-      split_ifs with h
-      · simp
-        -- z h si vezmeme svedka w ∈ A, plus jeho vlastnost
-        obtain ⟨w, hw, right⟩ := h
-        -- vime z mid_le_right
-        linarith
-      · simp
-        -- vime z left_le_mid
-        linarith
+  -- 2. INVARIANTY (Vlastnosti, které platí pro každé n)
 
-  -- ∀ n ∈ ℕ : uₙ je horni zavora mnoziny A
-  have uₙ_upperBound : ∀ n : ℕ, ∀ a ∈ A, a ≤ uSeq A l₀ u₀ n := by
-    intro n a ha
-    -- provedeme indukci podle n
-    induction' n with d hd
-    · unfold uSeq luNext
-      simp
-      exact hu₀ a ha
-    · unfold uSeq luNext step
-      simp
-      -- opet rozdelime if na dva pripady h a ¬h
+  -- Invariant A: V každém intervalu [lₙ, uₙ] leží nějaký prvek z A
+  -- (To potřebujeme pro axiom vnořených intervalů)
+
+  -- Oprava strategie: Nejprve dokážeme, že uₙ jsou vždy horní závory.
+  have h_u_upper : ∀ n, ∀ a ∈ A, a ≤ uSeq A l₀ u₀ n := by
+    intro n x hx
+    induction n with
+    | zero => exact hu₀ x hx
+    | succ n ih =>
+      dsimp [uSeq, luNext, step]
       split_ifs with h
-      · exact hd
-      · -- znegujeme vyraz v h
+      · -- Doprava: u se nemění, dědíme vlastnost
+        exact ih
+      · -- Doleva: u se posunulo na mid.
+        -- Podmínka h říká "NEEXISTUJE prvek > mid".
+        -- Tedy všechny prvky jsou ≤ mid.
         push_neg at h
-        -- a mame presne to co v h
-        exact h a ha
+        exact h x hx
 
-   -- lₙ je rostouci posloupnost
-  have lInc : IncreasingSequence (lSeq A l₀ u₀) := by
-    unfold IncreasingSequence
+  -- Teď můžeme snadno dokázat Invariant A (Contains A)
+  have h_contains_A_real : ∀ n, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
     intro n
-    set l := lSeq A l₀ u₀ n with hl
-    set u := uSeq A l₀ u₀ n with hu
-    -- pomocne have : o luNext nasledovnicich lu dvojic
-    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
-    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
-    -- resime podle pripadu zda plati hyp hRight, tj. zda ∃ a ∈ A : (l + u) / 2 < a, pomoci tohoto dokazeme urcit nasledovnika step
-    by_cases hRight : ∃ a : A, mid l u < a
-    · -- pomocne, ze naslednovnik lₙ je mid lu, tj ze pri puleni posouvam levou hranici a pravou nechavam
-      have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
-        simp [lSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          ring
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, l, u]
-      rw [h_l_succ]
-      exact left_le_mid (lₙ_leq_uₙ n)
-    · -- pomocne, ze nasledovni je v tomto pripade l, a tedy je levou hranici nechavam a klesam s pravou
-      have h_l_succ : lSeq A l₀ u₀ (n+1) = l := by
-        simp [lSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl]
-          unfold lSeq
-          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
-        · simp
-          rw [hl]
-          unfold lSeq
-          rfl
-      rw [h_l_succ]
+    induction n with
+    | zero => use l₀, hl₀; exact ⟨le_refl _, h_init⟩
+    | succ n ih =>
+      obtain ⟨a, ha, h_low, h_high⟩ := ih
+      dsimp [lSeq, uSeq, luNext, step]
+      split_ifs with h_split
+      · -- Doprava: h_split dává svědka w > mid
+        obtain ⟨w, hw_in, hw_gt⟩ := h_split
+        use w, hw_in
+        constructor
+        · exact le_of_lt hw_gt
+        · exact h_u_upper n w hw_in -- u se nemění
+      · -- Doleva: a (z indukce) musí být vlevo
+        use a, ha
+        constructor
+        · exact h_low -- l se nemění
+        · -- a ≤ mid, jinak by platilo h_split
+          push_neg at h_split
+          exact h_split a ha
 
-  -- uₙ je klesajici posloupnost, skoro stejne jako rostouci pro lₙ, jenom beru v jednotlivych pripadech intervaly naopak
-  have uDec : DecreasingSequence (uSeq A l₀ u₀) := by
-    unfold DecreasingSequence
-    intro n
-    set l := lSeq A l₀ u₀ n with hl
-    set u := uSeq A l₀ u₀ n with hu
-    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
-    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
-    by_cases hRight : ∃  a : A, mid l u < a
-    · have h_u_succ : uSeq A l₀ u₀ (n+1) = u := by
-        simp [uSeq, luNext, step]
-        split_ifs with h
-        · simp
-          exact hu
-        · simp
-          rw [hu]
-          unfold uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, l, u]
-      rw [h_u_succ]
-    · have h_u_succ : uSeq A l₀ u₀ (n+1) = mid l u := by
-        simp [uSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
-        · simp
-          rw [hu]
-          unfold uSeq
-          exact rfl
-      rw [h_u_succ]
-      exact mid_le_right (lₙ_leq_uₙ n)
+  -- 3. ZÍSKÁNÍ KANDIDÁTA (Použití tvého lemma exists_intersection_point)
+  -- Předpokládám, že máš toto lemma definované v sekci CandidateLimit
+  obtain ⟨s, hs_mem, hs_shrink⟩ := exists_intersection_point A l₀ u₀ h_init
 
-  have shrink : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
-    intro n
-    exact tsub_le_tsub (uDec n) (lInc n)
+ -- 4. DŮKAZ VLASTNOSTÍ SUPREMA
 
-  -- intervaly se v kazdem kroku zkracuji (puli)
-  have shrink_step : ∀ n : ℕ, uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
-    intro n
-    set l := lSeq A l₀ u₀ n with hl
-    set u := uSeq A l₀ u₀ n with hu
-    have : lSeq A l₀ u₀ n = (luNext A l₀ u₀ n).1 := rfl
-    have : uSeq A l₀ u₀ n = (luNext A l₀ u₀ n).2 := rfl
-    -- rozdelime si na dva pripady zda a je nad nebo pod mid l u a tim padem budeme vedet co je nasledovnik uₙ a lₙ
-    by_cases hRight : ∃ a : A, mid l u < a
-    · have h_l_succ : lSeq A l₀ u₀ (n+1) = mid l u := by
-        simp [lSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          ring
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, l, u]
-      have h_u_succ : uSeq A l₀ u₀ (n+1) = u := by
-        simp [uSeq, luNext, step]
-        split_ifs with h
-        · simp
-          exact hu
-        · simp
-          rw [hu]
-          unfold uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, l, u]
-      calc
-        uSeq A l₀ u₀ (n+1) - lSeq A l₀ u₀ (n+1) = u - mid l u := by simp_all only [mid, Subtype.exists, exists_prop, l, u]
-        _ = (u - l) / 2 := by exact sub_mid l u
-    · have h_l_succ : lSeq A l₀ u₀ (n+1) = l := by
-        simp [lSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl]
-          unfold lSeq
-          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
-        · simp
-          rw [hl]
-          unfold lSeq
-          exact hl
-      have h_u_succ : uSeq A l₀ u₀ (n+1) = mid l u := by
-        simp [uSeq, luNext, step]
-        split_ifs with h
-        · simp
-          rw [hl, hu]
-          unfold lSeq uSeq
-          simp_all only [mid, Subtype.exists, exists_prop, not_true_eq_false, l, u]
-        · simp
-          rw [hu]
-          unfold uSeq
-          exact rfl
-      calc
-        uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = mid l u - l := by simp_all only [mid, Subtype.exists, exists_prop, not_exists, not_and, not_lt, l, u]
-        _ = (u - l) / 2 := by exact mid_sub l u
-
- -- mezera se zmensuje / 2ⁿ
-  have gap_shrink : ∀ n : ℕ, uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
-    intro n
-    induction' n with d hd
-    · simp
-      rfl
-    · simp_all
-      ring
-
-  -- v kazdem kroce je rozdil libovolnych dvou prvku z intervalu (lₙ, uₙ) v absolutni hodnote mensi nebo roven uₙ - lₙ (gap)
-  have abs_le_gap (s t : ℝ) (hs : ∀ n, lSeq A l₀ u₀ n ≤ s ∧ s ≤ uSeq A l₀ u₀ n) (ht : ∀ n, lSeq A l₀ u₀ n ≤ t ∧ t ≤ uSeq A l₀ u₀ n) : ∀ n : ℕ, |s - t| ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := by
-    intro n
-    set l := lSeq A l₀ u₀ n with hl
-    set u := uSeq A l₀ u₀ n with hu
-    have l_leq_s : l ≤ s := (hs n).1
-    have s_leq_u : s ≤ u := (hs n).2
-    have l_leq_t : l ≤ t := (ht n).1
-    have t_leq_u : t ≤ u := (ht n).2
-    exact abs_sub_le_of_le_of_le l_leq_s s_leq_u l_leq_t t_leq_u
-
-
- -- mezera inervalu jde s rostoucim n k nule
-  have gap_to_0 : ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |(u₀ - l₀) / 2^n| < ε := by
-    intros ε ε_pos
-    -- vime, ze mezera je ≥ 0 a tedy se rovna svoji abs hodnote
-    have gap_nonneg : u₀ - l₀ ≥ 0 := by linarith
-    have gap_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
-      intro n
-      simp [div_nonneg gap_nonneg]
-    -- rozebereme podle pripadu kdyz mezera je nulova nebo ne
-    by_cases hGap : u₀ - l₀ = 0
-    · use 0
-      intros n n_pos
-      rw [hGap]
-      simp
-      linarith
-    · have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
-      have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
-      -- pom tvrzeni ze n ≤ 2^n
-      have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
-        intro N
-        induction' N with k ih
-        · simp
-        · have one_le : (1 : ℝ) ≤ 2 ^ k := by exact one_le_pow₀ (by linarith)
-          calc (↑k.succ : ℝ) = (k : ℝ) + 1 := by simp [Nat.succ_eq_add_one]
-            _ ≤ 2 ^ k + 2 ^ k := by exact add_le_add ih one_le
-            _ = 2 * 2 ^ k := by ring
-            _ = 2 ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
-      -- vybereme si N > (u₀ - l₀) / ε
-      obtain ⟨N, hN⟩ := exists_nat_gt ((u₀ - l₀) / ε)
-      -- mezera je mensi nez 2^N
-      have pow_gt_gap_div :  (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
-      have pow_2_N_pos : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
-      have posRight : 0 < ε / 2 ^ N := div_pos ε_pos pow_2_N_pos
-      -- pro pevne zvolene N je mensi nez ε
-      have base : (u₀ - l₀) / 2^N < ε := by
-        calc
-          (u₀ - l₀) / 2^N = (u₀ - l₀) / 2^N * ε / ε := by field_simp
-          _ = ((u₀ - l₀) / ε) * (ε / (2^N)) := by ring
-          _ < (2 ^ N) * (ε / (2^N)) := by exact mul_lt_mul_of_pos_right pow_gt_gap_div posRight
-          _ = ε := by field_simp
-      use N
-      intros n hn
-      -- mocnina rostouci
-      have pow_inc : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
-      -- mezera klesajici
-      have gap_dec : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos pow_2_N_pos (by norm_cast)
-      have abs_gap_dec: |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
-        rw [gap_abs n, gap_abs N]
-        exact gap_dec
-      calc
-        |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := abs_gap_dec
-        _ < ε := by exact lt_of_eq_of_lt (gap_abs N) base
-
-  -- potrebujeme jen dokazat pro obecnou uSeq - lSeq aby slo pouzit ve vete o jednoznacnosti prvku
-  have shrink_to_zero : ∀ ε > 0, ∃ n₀ : ℕ, ∀ n > n₀, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
-    intros ε ε_pos
-    obtain ⟨n₀, hn₀⟩ := gap_to_0 ε ε_pos
-    use n₀
-    intro n hn
-    rw [gap_shrink n]
-    exact hn₀ n hn
-
--- v kazdem intervalu nasi posloupnosti je nejaky prvek mnoziny A
-  have nestedNonempty : ∀ n : ℕ, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
-    intro n
-    -- indukci podle n
-    induction' n with d hd
-    · -- pouzijeme napr l₀ pro n = 0
-      use l₀
-      constructor
-      · exact hl₀
-      · constructor
-        · simp [lSeq, luNext]
-        · simp [uSeq, luNext]
-          exact hu₀ l₀ hl₀
-    · -- vytahnu si z hd a ∈ A, l_d ≤ a ∧ a ≤ u_d
-      obtain ⟨a, ha, ha_l, ha_u⟩ := hd
-      unfold lSeq uSeq luNext step
-      simp
-      split_ifs with h
-      · -- z h si vytahnu w ∈ A a ze w > mid luNext
-        obtain ⟨w, hwA, hw_gt_mid⟩ := h
-        use w
-        -- mam 3 cile, do prvniho a tretiho doplnim, a druhy si necham prazdny pomoci ?_ a nasledne ho dokazu
-        refine ⟨hwA, ?_, uₙ_upperBound d w hwA⟩
-        -- prepiseme na ekvivalentni tvar
-        change mid (luNext A l₀ u₀ d).1 (luNext A l₀ u₀ d).2 ≤ w
-        -- pomocna have
-        have : lSeq A l₀ u₀ d = (luNext A l₀ u₀ d).1 := rfl
-        have : uSeq A l₀ u₀ d = (luNext A l₀ u₀ d).2 := rfl
-        exact le_of_lt hw_gt_mid
-      · -- znegujeme vyraz v h
-        push_neg at h
-        use a
-        -- opet mame tri cile, takze doplnime za prvni dva a treti dokazeme pod tim
-        refine ⟨ha, ha_l, ?_⟩
-        -- ukazeme definicne ekvivalentni vyraz
-        show a ≤ mid (lSeq A l₀ u₀ d) (uSeq A l₀ u₀ d)
-        exact h a ha
-
-
-  -- z jednoznacnosti prvku v pruniku si vezmu s - kandidat na supremum
-  obtain ⟨s, hs⟩ := NestedIntervalUniqueness (lSeq A l₀ u₀) (uSeq A l₀ u₀) lInc uDec lₙ_leq_uₙ shrink_to_zero
-
-  -- zbyva dokazat, ze s je horní závora množiny A
-  have upper_s : ∀ a ∈ A, a ≤ s := by
-    intro a ha
-    -- sporem predpokladejme a > s
-    by_contra hnot
-    have hgt : s < a := by exact lt_of_not_ge hnot
-    have hpos : 0 < a - s := sub_pos.mpr hgt
-    set ε := (a - s) / 2 with hε
-    have ε_pos : 0 < ε := by simpa [hε] using half_pos hpos
-    -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
-    obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
-    -- vezmeme rovnou N+1, ať máme > N
-    have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
-      have := hN (N+1) (Nat.lt_succ_self N)
-      rw [gap_shrink (N+1)]
-      have h_pos : u₀ - l₀ ≥ 0 := by linarith
-      have le_abs : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
-      exact lt_of_le_of_lt le_abs this
-    -- vztahy k N+1:
-    have a_le_u : a ≤ uSeq A l₀ u₀ (N+1) := uₙ_upperBound (N+1) a ha
-    have l_le_s : lSeq A l₀ u₀ (N+1) ≤ s := (hs.1 (N+1)).1
-    have s_le_u : s ≤ uSeq A l₀ u₀ (N+1) := (hs.1 (N+1)).2
-    -- odhad rozdílu a - s přes délku intervalu
-    have as_le_us : a - s ≤ uSeq A l₀ u₀ (N+1) - s := by linarith
-    have us_le_gap : uSeq A l₀ u₀ (N+1) - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith
-    have as_le_gap : a - s ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by exact le_trans as_le_us us_le_gap
-    -- dokazeme spor
-    have as_lt_ε : a - s < ε := lt_of_le_of_lt as_le_gap gap_small
-    have as_not_lt_ε: ¬ a - s < (a - s) / 2 := by exact not_lt_of_ge (half_le_self (le_of_lt hpos))
-    exact as_not_lt_ε as_lt_ε
-
-  -- a ze s je nejmensi horni zavora, dokazeme podobne jako horni zavora
-  have least : ∀ z, (∀ a ∈ A, a ≤ z) → s ≤ z := by
-    intro z zUpperBound
-    -- sporem z > s
-    by_contra hgt
-    have : s > z := by exact lt_of_not_ge hgt
-    have h_pos : 0 < s - z := by exact sub_pos.mpr this
-    set ε := (s - z) / 2 with h_ε
-    have ε_pos : ε > 0 := by exact half_pos h_pos
-    -- vezmeme si prvek z neprazdnosti vnorenych inetrvalu
-    choose a haA hla hau using nestedNonempty
-    have l_le_z : ∀ n, lSeq A l₀ u₀ n ≤ z := by exact fun n => Std.le_trans (hla n) (zUpperBound (a n) (haA n))
-    obtain ⟨N, hN⟩ := gap_to_0 ε ε_pos
-    have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
-      have := hN (N+1) (Nat.lt_succ_self N)
-      rw [gap_shrink]
-      have : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := by exact le_abs_self ((u₀ - l₀) / 2 ^ (N + 1))
-      expose_names
-      exact lt_of_le_of_lt this this_2
-    have lN_le_s : lSeq A l₀ u₀ N ≤ s := (hs.1 N).1
-    have s_le_uN : s ≤ uSeq A l₀ u₀ N := (hs.1 N).2
-    have sl_le_gap : s - lSeq A l₀ u₀ N ≤ uSeq A l₀ u₀ N - lSeq A l₀ u₀ N := by linarith
-    set lN := lSeq A l₀ u₀ (N+1) with hl
-    set uN := uSeq A l₀ u₀ (N+1) with hu
-    have l_le_s : lN ≤ s := by simpa [hl] using (hs.1 (N+1)).1
-    have s_le_u : s ≤ uN := by simpa [hu] using (hs.1 (N+1)).2
-
-    have sl_le_ul : s - lN ≤ uN - lN := sub_le_sub_right s_le_u lN
-
-    have : s - lN < ε := by exact lt_of_le_of_lt sl_le_ul gap_small
-    have : lN > s - ε := by exact sub_lt_comm.mp this
-    have s_sub_eps_eq_z : s - ε = z + ε := by rw [h_ε]; ring
-    have : lN > z := by linarith
-    exact (not_lt_of_ge (l_le_z (N+1))) this
-
-  -- overime, ze s je opravdu supremum a vyhovuje nasi definici suprema
+  -- KROK A: Nejprve si dokážeme a pojmenujeme fakt, že s je Supremum
   have hsSup : IsSup A s := by
     unfold IsSup
     constructor
-    · intro x hx
-      exact upper_s x hx
-    · intro ε hε
-      -- z konvergence mezery k nule si vezmeme index N od ktereho plati, ze je posl mensi nez tento novy ε
-      obtain ⟨N, hN⟩ := gap_to_0 ε hε
-      -- vezmeme si prvek z neprazdnosti vnorenych inetrvalu
-      obtain ⟨a, ha_mem, ha_lower, ha_upper⟩ := nestedNonempty (N+1)
-      use a, ha_mem
-      have gap_small : uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) < ε := by
-        have := hN (N+1) (Nat.lt_succ_self N)
-        rw [gap_shrink]
-        have : (u₀ - l₀) / 2 ^ (N + 1) ≤ |(u₀ - l₀) / 2 ^ (N + 1)| := le_abs_self _
-        expose_names
-        exact lt_of_le_of_lt this this_1
-      have s_in_interval : lSeq A l₀ u₀ (N+1) ≤ s ∧ s ≤ uSeq A l₀ u₀ (N+1) := hs.1 (N+1)
-      have : s - lSeq A l₀ u₀ (N+1) ≤ uSeq A l₀ u₀ (N+1) - lSeq A l₀ u₀ (N+1) := by linarith [s_in_interval.2]
-      have : s - lSeq A l₀ u₀ (N+1) < ε := lt_of_le_of_lt this gap_small
-      have : lSeq A l₀ u₀ (N+1) > s - ε := by linarith
-      linarith [ha_lower]
+    · -- A1. Horní závora (∀ x ∈ A, x ≤ s)
+      intro x hx
+      -- Sporem: Kdyby x > s
+      by_contra h_contra
+      push_neg at h_contra
+      -- Rozdíl x - s je kladný
+      let ε := x - s
+      have ε_pos : ε > 0 := sub_pos.mpr h_contra
 
-  -- a zbyva nam ukazat jednoznacnost suprema
+      -- Interval se smrskne pod ε
+      obtain ⟨n, hn_gap⟩ := hs_shrink ε ε_pos
+
+      -- Víme x ≤ uₙ (u je horní závora) a lₙ ≤ s (s je v průniku)
+      -- Spor vznikne z délky intervalu
+      have h_calc : x - s < x - s := calc
+        x - s ≤ uSeq A l₀ u₀ n - s := sub_le_sub_right (h_u_upper n x hx) s
+        _     ≤ uSeq A l₀ u₀ n - lSeq A l₀ u₀ n := sub_le_sub_left (hs_mem n).1 _
+        _     < ε := by exact lt_of_abs_lt hn_gap
+        _     = x - s := rfl
+      linarith
+
+    · -- A2. Nejmenší horní závora / Aproximace (∀ ε > 0, ∃ x ∈ A, s - ε < x)
+      intro ε hε
+      -- Interval se smrskne pod ε
+      obtain ⟨n, hn_gap⟩ := hs_shrink ε hε
+
+      -- V tomto intervalu [lₙ, uₙ] musí být nějaký prvek 'a' (z Invariantu A)
+      obtain ⟨a, ha_in, ha_l, ha_u⟩ := h_contains_A_real n
+      use a, ha_in
+
+      -- Důkaz: s - ε < lₙ ≤ a
+      calc s - ε < s - (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) := by simp; exact lt_of_abs_lt hn_gap
+           _     = lSeq A l₀ u₀ n + (s - uSeq A l₀ u₀ n) := by ring
+           _     ≤ lSeq A l₀ u₀ n := by
+               have : s - uSeq A l₀ u₀ n ≤ 0 := by simp; exact (hs_mem n).2
+               linarith
+           _     ≤ a := ha_l
+
+  -- KROK B: Teď použijeme hsSup pro existenci i jednoznačnost
   refine ⟨s, hsSup, ?_⟩
-  intro t htSup
-  -- ukazeme ze t, ktere je take supremem je rovno s
-  -- a uzijeme t ≤ s ∧ s ≤ t
+
+  -- Část Jednoznačnosti
+  intro y hy
+  -- hy je důkaz, že y je TAKÉ supremum (IsSup A y)
+
   apply le_antisymm
-  · -- ukazeme, ze t je nejnizsi horni zavora
-    have t_least : ∀ z, (∀ a ∈ A, a ≤ z) → t ≤ z := by
-      intro z hz
-      by_contra hgt
-      push_neg at hgt
-      have : z < t := hgt
-      have h_pos : 0 < t - z := sub_pos.mpr this
-      set ε := (t - z) / 2
-      have ε_pos : ε > 0 := half_pos h_pos
-      have hA_local : A.Nonempty := ⟨l₀, hl₀⟩
-      obtain ⟨a, ha_mem, ha_close⟩ := (htSup).2 ε ε_pos
-      have : z < a := by
-        have : t - ε = t - (t - z) / 2 := rfl
-        have : t - (t - z) / 2 = (t + z) / 2 := by ring
-        have : t - ε = (t + z) / 2 := by rw [this]
-        have : (t + z) / 2 < a := by linarith [ha_close]
-        linarith
-      exact (not_lt_of_ge (hz a ha_mem)) this
-    exact t_least s upper_s
-  · have t_upper : ∀ a ∈ A, a ≤ t := fun a ha => (htSup).1 a ha
-    exact least t t_upper
+  · -- Důkaz y ≤ s (Zcela symetricky)
+    apply le_of_not_gt
+    intro h_gt -- y > s
+    let ε := y - s
+    have hε : ε > 0 := sub_pos.mpr h_gt
 
+    -- Použijeme vlastnost aproximace PRO Y
+    obtain ⟨x, hx_in, hx_close⟩ := hy.2 ε hε
 
+    -- x > y - ε = y - (y - s) = s
+    have h_x_gt_s : s < x := by linarith
 
+    -- Ale s je horní závora (z hsSup.1)
+    have h_x_le_s : x ≤ s := hsSup.1 x hx_in
 
--- existence a jednoznacnost infima
--- kazda neprazdna, zdola omezena mnozina ma prave jedno infimum
+    linarith
+  · -- Důkaz s ≤ y
+    -- Sporem s > y. Tedy s - y = ε > 0.
+    apply le_of_not_gt
+    intro h_gt
+    let ε := s - y -- (Opraveno: musí to být s - y, aby to bylo kladné)
+    have hε : ε > 0 := sub_pos.mpr h_gt
+
+    -- Použijeme vlastnost aproximace PRO S (protože s je nahoře)
+    -- hsSup.2 říká: existuje x v A, které je těsně pod s
+    obtain ⟨x, hx_in, hx_close⟩ := hsSup.2 ε hε
+
+    -- x > s - ε = s - (s - y) = y
+    have h_x_gt_y : y < x := by linarith
+
+    -- Ale y je horní závora (z hy.1), takže x ≤ y
+    have h_x_le_y : x ≤ y := hy.1 x hx_in
+
+    -- Spor: y < x ≤ y
+    linarith
+
 theorem UniquenessOfInfimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : LowerBoundedSet A): ∃! s : ℝ, IsInf A s := by
   -- znegujeme mnozinu a ukazeme ze ma supremum (-infimum)
   let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
@@ -528,7 +472,7 @@ theorem UniquenessOfInfimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : LowerBo
 
 -- #print axioms UniquenessOfSupremum
 -- #print axioms UniquenessOfInfimum
-end
+
 
 -- definitions of Sup Inf SupSeq InfSeq
 private def rangeNonempty (a : ℕ → ℝ) : (Set.range a).Nonempty := ⟨a 0, ⟨0, rfl⟩⟩

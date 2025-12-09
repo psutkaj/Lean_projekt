@@ -3,39 +3,39 @@ import LEANprj.lemmas
 open Classical
 
 lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
-  unfold Convergent
-  unfold IncreasingSequence at ha_inc
-  unfold BoundedSequence at ha_bdd
-  obtain ⟨K, hK, K_bd⟩ := ha_bdd
-  let A : Set ℝ := Set.range a
-  let s : ℝ := SupSeq a (by use K; intro n; exact le_of_max_le_left (K_bd n) )
+  let A := Set.range a
+  have A_nonempty : A.Nonempty := by use a 0; tauto
+  have A_upper_bdd : UpperBoundedSet A := by
+    obtain ⟨k, k_pos, hk⟩ := ha_bdd
+    unfold UpperBoundedSet
+    use k
+    intro m hm
+    have : ∀ n : ℕ, a n ∈ A := by intro n; tauto
+    simp [A] at hm
+    obtain ⟨n, hn⟩ := hm
+    calc m
+    _ ≤ |m| := le_abs_self m
+    _ ≤ k := by rw [←hn]; exact hk n
+  obtain ⟨s, ⟨s_upper_bd, s_lub⟩, s_unique⟩ := UniquenessOfSupremum A A_nonempty A_upper_bdd
   use s
-  unfold ConvergesTo
   intro ε ε_pos
-  have hsup : IsSup A s := by
-    exact SupSeq_IsSup a (Exists.intro K fun n => le_of_max_le_left (K_bd n))
-  have hexn : ∃ n, s - ε < a n := by
-    obtain ⟨_, hε⟩ := hsup
-    obtain ⟨x, hxA, hxgt⟩ := hε ε ε_pos
-    obtain ⟨n, rfl⟩ := hxA
-    exact ⟨n, hxgt⟩
-  obtain ⟨N, hN⟩ := hexn
-  use N
-  intro m hm
-  have : a N ≤ a m := by exact inc_le_of_le ha_inc hm
-  have lower' : s - ε < a m := by exact lt_of_le_of_lt' this hN
-  have upper' : a m ≤ s := by
-    obtain ⟨le_s, s_lt⟩ := hsup
-    exact le_s (a m) (by dsimp[A]; simp)
-  have : |a m - s| < ε := by
-    have h₁ : s - a m < ε := by linarith
-    have h₂ : s - a m ≥ 0 := by linarith
-    have h₃ : s - a m = |s - a m| := by exact Eq.symm (abs_of_nonneg h₂)
-    calc
-      |a m - s| = |s - a m| := by exact abs_sub_comm (a m) s
-      |s - a m| = s - a m := by exact id (Eq.symm h₃)
-      _ < ε := by exact h₁
-  exact this
+  obtain ⟨x, xA, hx⟩ := s_lub ε ε_pos
+  simp [A] at xA
+  obtain ⟨n₀, hn₀⟩ := xA
+  use n₀
+  intro n hn
+  have : a n₀ ≤ a n := by exact inc_le_of_le ha_inc hn
+  have : a n ≤ s := by exact s_upper_bd (a n) (by simp [A])
+  rw [abs_lt]
+  constructor
+  · have : s - ε < a n := by calc s - ε
+      _ < a n₀ := by rw [hn₀]; exact hx
+      _ ≤ a n := by (expose_names; exact this_1)
+    exact lt_tsub_iff_left.mpr this
+  · have : a n - s ≤ 0 := by linarith
+    calc a n - s
+    _ ≤ 0 := by linarith
+    _ < ε := ε_pos
 
 lemma DecBddImpliesConv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
   unfold Convergent
@@ -79,7 +79,6 @@ lemma DecBddImpliesConv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bd
   exact hn₀ n₁ hn₁
 
 theorem MonoBddImpliesConv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
-  -- rozdelime na dva pripady podle monotonie
   rcases ha_mono with hinc | hdec
   · exact IncBddImpliesConv a hinc ha_bdd
   · exact DecBddImpliesConv a hdec ha_bdd
