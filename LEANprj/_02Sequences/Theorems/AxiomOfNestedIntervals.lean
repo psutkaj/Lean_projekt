@@ -4,6 +4,7 @@ import LEANprj._00Axioms.CauchyEqConv
 import LEANprj.lemmas
 
 
+
 theorem ExistPointInNestedInterval
   (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)
@@ -69,3 +70,5 @@ theorem ExistPointInNestedInterval
     intro ε ε_pos
     simp
     tauto
+
+#print axioms ExistPointInNestedInterval
