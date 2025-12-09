@@ -36,10 +36,12 @@ theorem ConvImpliesBdd {a : ℕ → ℝ} (a_conv : Convergent a) : BoundedSequen
       have : |q| + 1 < max K₁ (|q| + 1) + 1 := by
         have : |q| + 1 ≤ max K₁ (|q| + 1) := by exact le_max_right _ _
         exact lt_of_le_of_lt this (by linarith)
-      calc
+      have := calc
         |a n| < 1 + |q| := by (expose_names; exact this_1)
         _ = |q| + 1 := by ring
         _ < max K₁ (|q| + 1) + 1 := by linarith
+      dsimp [K]
+      exact le_of_lt this
     · -- a ze i zbytek (tj. prvky pred n₀) je omezeny stejnou konstantou
       have hnlt : n < n₀ := by linarith
       have hmem : |a n| ∈ S := by
@@ -54,4 +56,6 @@ theorem ConvImpliesBdd {a : ℕ → ℝ} (a_conv : Convergent a) : BoundedSequen
         have : K₁ ≤ max K₁ (|q| + 1) := by exact le_max_left K₁ (|q| + 1)
         have : K₁ < max K₁ (|q| + 1) + 1 := by exact lt_of_le_of_lt this (by linarith)
         exact this
-      exact lt_of_le_of_lt h_le_K₁ K₁_le_K
+      calc |a n|
+      _ ≤ K₁ := by exact h_le_K₁
+      _ ≤ K := by exact le_of_lt K₁_le_K

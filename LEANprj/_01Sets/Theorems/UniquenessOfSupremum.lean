@@ -38,7 +38,10 @@ lemma mid_le_right {l u : ℝ} (h : l ≤ u) : mid l u ≤ u := by
 
 -- exsitence a jednoznacnost suprema
 -- kazda neprazdna, shora omezena mnozina ma prave jedno supremum
-theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u): ∃! s : ℝ, IsSup A s := by
+theorem UniquenessOfSupremum
+  (A : Set ℝ) (hA : A.Nonempty)
+  (hUpperBdd : UpperBoundedSet A) :
+  ∃! s : ℝ, IsSup A s := by
 
   -- z nonempty A si vytahnu l₀ () a hl₀
   obtain ⟨l₀, hl₀⟩ := hA
@@ -348,7 +351,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
 
 
   -- z jednoznacnosti prvku v pruniku si vezmu s - kandidat na supremum
-  obtain ⟨s, hs⟩ := nested_uniqueness (lSeq A l₀ u₀) (uSeq A l₀ u₀) lInc uDec lₙ_leq_uₙ shrink shrink_to_zero
+  obtain ⟨s, hs⟩ := NestedIntervalUniqueness (lSeq A l₀ u₀) (uSeq A l₀ u₀) lInc uDec lₙ_leq_uₙ shrink_to_zero
 
   -- zbyva dokazat, ze s je horní závora množiny A
   have upper_s : ∀ a ∈ A, a ≤ s := by
@@ -473,7 +476,7 @@ theorem exists_unique_supremum (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ 
 
 -- existence a jednoznacnost infima
 -- kazda neprazdna, zdola omezena mnozina ma prave jedno infimum
-theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l : ℝ, ∀ a ∈ A, l ≤ a): ∃! s : ℝ, IsInf A s := by
+theorem UniquenessOfInfimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : LowerBoundedSet A): ∃! s : ℝ, IsInf A s := by
   -- znegujeme mnozinu a ukazeme ze ma supremum (-infimum)
   let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
 
@@ -491,7 +494,7 @@ theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l
     exact neg_le_neg_iff.mpr (hl a ha)
 
   -- uzijeme existence suprema
-  obtain ⟨s, hs, hunique⟩ := exists_unique_supremum negA hNegA hNegUpperBdd
+  obtain ⟨s, hs, hunique⟩ := UniquenessOfSupremum negA hNegA hNegUpperBdd
 
   -- infimum je tedy -s
   use -s
@@ -523,17 +526,17 @@ theorem exists_unique_infimum (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l
         linarith
     linarith
 
---#print axioms exists_unique_supremum
---#print axioms exists_unique_infimum
+-- #print axioms UniquenessOfSupremum
+-- #print axioms UniquenessOfInfimum
 end
 
 -- definitions of Sup Inf SupSeq InfSeq
 private def rangeNonempty (a : ℕ → ℝ) : (Set.range a).Nonempty := ⟨a 0, ⟨0, rfl⟩⟩
 
-noncomputable def Sup (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : ∃ u : ℝ, ∀ a ∈ A, a ≤ u) : ℝ :=
-  Classical.choose (exists_unique_supremum A hA hUpperBdd)
-noncomputable def Inf (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : ∃ l : ℝ, ∀ a ∈ A, l ≤ a) : ℝ :=
-  Classical.choose (exists_unique_infimum A hA hLowerBdd)
+noncomputable def Sup (A : Set ℝ) (hA : A.Nonempty) (hUpperBdd : UpperBoundedSet A) : ℝ :=
+  Classical.choose (UniquenessOfSupremum A hA hUpperBdd)
+noncomputable def Inf (A : Set ℝ) (hA : A.Nonempty) (hLowerBdd : LowerBoundedSet A) : ℝ :=
+  Classical.choose (UniquenessOfInfimum A hA hLowerBdd)
 
 noncomputable def SupSeq (a : ℕ → ℝ) (ha_upper_bdd : UpperBoundedSequence a) := Sup (Set.range a) (rangeNonempty a) (by
   obtain ⟨u, hu⟩ := ha_upper_bdd
@@ -541,7 +544,7 @@ noncomputable def SupSeq (a : ℕ → ℝ) (ha_upper_bdd : UpperBoundedSequence 
   intro b hb
   obtain ⟨n, hn⟩ := hb
   rw [← hn]
-  exact le_of_lt (hu n)
+  exact hu n
 )
 noncomputable def InfSeq (a : ℕ → ℝ) (ha_lower_bdd : LowerBoundedSequence a) := Inf (Set.range a) (rangeNonempty a) (by
   obtain ⟨l, hl⟩ := ha_lower_bdd
@@ -549,32 +552,32 @@ noncomputable def InfSeq (a : ℕ → ℝ) (ha_lower_bdd : LowerBoundedSequence 
   intro b hb
   obtain ⟨n, hn⟩ := hb
   rw [←hn]
-  exact le_of_lt (hl n)
+  exact hl n
 )
 
 
 lemma Sup_isSup (A : Set ℝ) (hA : A.Nonempty) (hB : ∃ u : ℝ, ∀ a ∈ A, a ≤ u) : IsSup A (Sup A hA hB) := by
-  exact (Classical.choose_spec (exists_unique_supremum A hA hB)).1
+  exact (Classical.choose_spec (UniquenessOfSupremum A hA hB)).1
 
 lemma Inf_IsInf (A : Set ℝ) (hA : A.Nonempty) (hB : ∃ u : ℝ, ∀ a ∈ A, a ≥ u) : IsInf A (Inf A hA hB) := by
-  exact (Classical.choose_spec (exists_unique_infimum A hA hB)).1
+  exact (Classical.choose_spec (UniquenessOfInfimum A hA hB)).1
 
 lemma SupSeq_IsSup (a : ℕ → ℝ) (ha_upper_bdd : UpperBoundedSequence a) : IsSup (Set.range a) (SupSeq a ha_upper_bdd) := by
-  exact (Classical.choose_spec (exists_unique_supremum (Set.range a) (rangeNonempty a) (by
+  exact (Classical.choose_spec (UniquenessOfSupremum (Set.range a) (rangeNonempty a) (by
   obtain ⟨u, hu⟩ := ha_upper_bdd
   use u
   intro b hb
   obtain ⟨n, hn⟩ := hb
   rw [← hn]
-  exact le_of_lt (hu n)
+  exact hu n
 ))).1
 
 lemma InfSeq_IsInf (a : ℕ → ℝ) (ha_lower_bdd : LowerBoundedSequence a) : IsInf (Set.range a) (InfSeq a ha_lower_bdd) := by
-  exact (Classical.choose_spec (exists_unique_infimum (Set.range a) (rangeNonempty a) (by
+  exact (Classical.choose_spec (UniquenessOfInfimum (Set.range a) (rangeNonempty a) (by
   obtain ⟨l, hl⟩ := ha_lower_bdd
   use l
   intro b hb
   obtain ⟨n, hn⟩ := hb
   rw [←hn]
-  exact le_of_lt (hl n)
+  exact hl n
 ))).1

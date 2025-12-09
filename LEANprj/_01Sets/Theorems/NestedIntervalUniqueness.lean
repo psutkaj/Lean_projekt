@@ -1,14 +1,14 @@
 import LEANprj.defs
+import LEANprj._00Axioms.ExistsPointInNestedIntervals
 
-theorem nested_uniqueness (l u : ℕ → ℝ)
+theorem NestedIntervalUniqueness (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)
   (dec_u : DecreasingSequence u)
   (sep : ∀ n, l n ≤ u n)
-  (shrink : ∀ n, u (n + 1) - l (n + 1) ≤ u n - l n)
   (shrink_to_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |u n - l n| < ε) :
   ∃! s : ℝ, ∀ n : ℕ, l n ≤ s ∧ s ≤ u n := by
   -- vime, ze tento prvek existuje z axiomu, takze si ho oznacme t
-  obtain ⟨t, ht⟩ := exists_point_in_nested_intervals l u inc_l dec_u sep shrink
+  obtain ⟨t, ht⟩ := ExistsPointInNestedIntervals l u inc_l dec_u sep
   -- a musime tedy ukazat jen jednoznacnost
   refine ⟨t, ht, ?_⟩
   intro y hy

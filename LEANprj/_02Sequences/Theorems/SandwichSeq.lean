@@ -43,7 +43,7 @@ by
     -- cíl je přesně jako kombinace hb_lower2 a hb_upper2
 
 
-theorem LimitOrderLe (a b  : ℕ → ℝ) (p q : ℝ)
+lemma LimitOrderLe (a b  : ℕ → ℝ) (p q : ℝ)
   (h₁ : a ≤ b) (h₂ : ConvergesTo a p) (h₃ : ConvergesTo b q) : p ≤ q := by
   by_contra hnle
   push_neg at hnle

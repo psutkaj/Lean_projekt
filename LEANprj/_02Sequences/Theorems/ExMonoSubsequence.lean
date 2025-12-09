@@ -167,4 +167,4 @@ theorem ExMonoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, Strictly
 
     exact ⟨k, k_strict_inc, h_inc⟩
 
--- #print axioms monoSubsequence
+-- #print axioms ExMonoSubsequence

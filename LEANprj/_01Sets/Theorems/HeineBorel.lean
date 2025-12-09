@@ -1,9 +1,8 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
-import LEANprj._02Sequences.Theorems.SubsequenceConvEq
+import LEANprj.lemmas
+import LEANprj._02Sequences.Theorems.BolzanoWeierstrassConvSub
 import LEANprj._02Sequences.Theorems.UniquenessSeq
 import LEANprj._02Sequences.Theorems.ConvImpliesBdd
-import LEANprj._02Sequences.Theorems.ExMonoSubsequence
 
 theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M := by
   intro h_compact
@@ -60,7 +59,7 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
       intro n
       have : a n ∈ M := ha n
       exact c_bound (a n) (ha n)
-    obtain ⟨k, ⟨hk_inc, ⟨L, hL⟩⟩⟩ := BolzanoWeierstrass a ha_bdd
+    obtain ⟨k, ⟨hk_inc, ⟨L, hL⟩⟩⟩ := BolzanoWeierstrassConvSub a ha_bdd
     have LinM : L ∈ M := by
       apply clsM (Subsequence a k) L
       · intro n
@@ -76,7 +75,7 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
     · intros a L hn ha_conv
       obtain ⟨k, hk_inc, l, hl, lM⟩ := compactM a hn
       have h_leqL : l = L := by
-        have hk_conv' := SubsequenceConvEq ha_conv k hk_inc
+        have hk_conv' := SubsequenceConvergesToSame ha_conv k hk_inc
         apply UniquenessSeq (Subsequence a k) l L hl hk_conv'
       rw [← h_leqL]
       exact lM

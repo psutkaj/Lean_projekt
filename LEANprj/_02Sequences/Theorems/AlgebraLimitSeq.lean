@@ -49,10 +49,10 @@ theorem LimitMulSequence (a b : ℕ → ℝ) (c d : ℝ) (h₁ : ConvergesTo a c
   obtain ⟨K₁, K₁_pos, hK₁⟩ := h_bound_a
   let K₂ := |d| + 1
   have K₂_pos : K₂ > 0 := by exact lt_add_of_le_of_pos (abs_nonneg d) zero_lt_one
-  let ε_a := ε / (2 * K₂)
-  let ε_b := ε / (2 * K₁)
-  have h_εa_pos : ε_a > 0 := div_pos ε_pos (mul_pos two_pos K₂_pos)
-  have h_εb_pos : ε_b > 0 := div_pos ε_pos (mul_pos two_pos K₁_pos)
+  let ε_a := ε / (3 * K₂)
+  let ε_b := ε / (3 * K₁)
+  have h_εa_pos : ε_a > 0 := div_pos ε_pos (mul_pos three_pos K₂_pos)
+  have h_εb_pos : ε_b > 0 := div_pos ε_pos (mul_pos three_pos K₁_pos)
   obtain ⟨n₁, h_close_a⟩ := h₁ ε_a h_εa_pos
   obtain ⟨n₂, h_close_b⟩ := h₂ ε_b h_εb_pos
   use max n₁ n₂
@@ -63,15 +63,16 @@ theorem LimitMulSequence (a b : ℕ → ℝ) (c d : ℝ) (h₁ : ConvergesTo a c
   _ = |a n * (b n - d) + d * (a n - c)| := by ring_nf
   _ ≤ |a n * (b n - d)| + |d * (a n - c)| := by exact abs_add_le (a n * (b n - d)) (d * (a n - c))
   _ = |a n| * |b n - d| + |d| * |a n - c| := by simp
-  _ < K₁ * ε_b + K₂ * ε_a := by
+  _ ≤ K₁ * ε_b + K₂ * ε_a := by
     gcongr
     · exact hK₁ n
-    · exact h_close_b n hn₂
+    · exact le_of_lt (h_close_b n hn₂)
     · linarith
-    · exact h_close_a n hn₁
-  _ = K₁ * (ε / (2 * K₁)) + K₂ * (ε / (2 * K₂)) := by dsimp
-  _ = ε / 2 + ε / 2 := by field_simp
-  _ = ε := by simp
+    · exact le_of_lt (h_close_a n hn₁)
+  _ = K₁ * (ε / (3 * K₁)) + K₂ * (ε / (3 * K₂)) := by dsimp
+  _ = ε / 3 + ε / 3 := by field_simp
+  _ = 2 / 3 * ε := by ring
+  _ < ε := by linarith
 
 lemma LimitSequenceInv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) : ConvergesTo (b⁻¹) d⁻¹ := by
   have d_pos : |d| > 0 := by exact abs_pos.mpr hd_ne

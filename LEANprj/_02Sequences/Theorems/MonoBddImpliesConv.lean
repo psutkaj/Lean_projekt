@@ -1,4 +1,5 @@
-import LEANprj._01Sets.Theorems.SupInfExistence
+import LEANprj._01Sets.Theorems.UniquenessOfSupremum
+import LEANprj.lemmas
 open Classical
 
 lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
@@ -7,12 +8,12 @@ lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bd
   unfold BoundedSequence at ha_bdd
   obtain ⟨K, hK, K_bd⟩ := ha_bdd
   let A : Set ℝ := Set.range a
-  let s : ℝ := SupSeq a (by use K; intro n; exact lt_of_abs_lt (K_bd n) )
+  let s : ℝ := SupSeq a (by use K; intro n; exact le_of_max_le_left (K_bd n) )
   use s
   unfold ConvergesTo
   intro ε ε_pos
   have hsup : IsSup A s := by
-    exact SupSeq_IsSup a (Exists.intro K fun n => lt_of_abs_lt (K_bd n))
+    exact SupSeq_IsSup a (Exists.intro K fun n => le_of_max_le_left (K_bd n))
   have hexn : ∃ n, s - ε < a n := by
     obtain ⟨_, hε⟩ := hsup
     obtain ⟨x, hxA, hxgt⟩ := hε ε ε_pos

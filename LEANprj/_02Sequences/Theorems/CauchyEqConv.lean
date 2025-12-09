@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
+import LEANprj._02Sequences.Theorems.BolzanoWeierstrassConvSub
 import LEANprj._02Sequences.Theorems.CauchyImpliesBounded
 
 
@@ -53,7 +53,7 @@ lemma cauchy_with_convergent_subseq_limit {a : ℕ → ℝ} (hC : CauchySequence
 
 lemma cauchy_imp_convergent (a : ℕ → ℝ) (h : CauchySequence a) : Convergent a := by
   have ha_bdd : BoundedSequence a := by exact CauchyImpliesBounded h
-  obtain ⟨k, hk, conv_sub⟩ := BolzanoWeierstrass a ha_bdd
+  obtain ⟨k, hk, conv_sub⟩ := BolzanoWeierstrassConvSub a ha_bdd
   obtain ⟨L, hL⟩ := cauchy_with_convergent_subseq_limit h hk conv_sub
   use L
 

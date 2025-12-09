@@ -85,13 +85,13 @@ theorem CauchyImpliesBounded {a : ℕ → ℝ} (h : CauchySequence a) : BoundedS
     have : |a n| ≤ M0 := hM0 n hcase
     calc |a n| ≤ M0 := this
          _ ≤ max M0 (|a (N + 1)| + 1) := le_max_left _ _
-         _ < max M0 (|a (N + 1)| + 1) + 1 := by linarith
+         _ ≤ max M0 (|a (N + 1)| + 1) + 1 := by linarith
   · -- tail case: n > N+1
     have hn : N + 1 < n := Nat.lt_of_not_ge hcase
     have : |a n| ≤ |a (N + 1)| + 1 := h_tail n hn
     calc |a n| ≤ |a (N + 1)| + 1 := this
          _ ≤ max M0 (|a (N + 1)| + 1) := le_max_right _ _
-         _ < max M0 (|a (N + 1)| + 1) + 1 := by linarith
+         _ ≤ max M0 (|a (N + 1)| + 1) + 1 := by linarith
 
 
 -- -- GPT 5.1 bez personalizace

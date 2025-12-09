@@ -1,9 +1,6 @@
 import LEANprj.defs
-import LEANprj._05Continuity.Theorems.AlgebraContinuousFun
-import LEANprj._05Continuity.Theorems.IntermediateValue
-import LEANprj._04Functions.Theorems.UniquenessFun
-import LEANprj._04Functions.Theorems.SandwichFun
-import LEANprj._02Sequences.Theorems.BolzanoWeierstrass
+import LEANprj._02Sequences.Theorems.BolzanoWeierstrassConvSub
+import LEANprj._02Sequences.Theorems.SandwichSeq
 
 theorem WeierstrassBdd
   (f : ℝ → ℝ) (a b : ℝ) (_h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
@@ -13,7 +10,10 @@ theorem WeierstrassBdd
   unfold FunctionBddOnSet at h_unbdd
   push_neg at h_unbdd
   let x_seq : ℕ → ℝ := λ n => Classical.choose (h_unbdd (n + 1) (by linarith))
-  have h_x_seq_prop : ∀ n, x_seq n ∈ Int ∧ |f (x_seq n)| ≥ n + 1 := fun n => Classical.choose_spec (h_unbdd (n + 1) (by linarith))
+  have h_x_seq_prop : ∀ n, x_seq n ∈ Int ∧ |f (x_seq n)| ≥ n + 1 := by
+    intro n
+    obtain ⟨h_mem, h_lt⟩ := Classical.choose_spec (h_unbdd (n + 1) (by linarith))
+    exact ⟨h_mem, le_of_lt h_lt⟩
   have h_x_seq_bounded : BoundedSequence x_seq := by
     unfold BoundedSequence
     let K := max (|a| + |b| + 1) 1
@@ -23,27 +23,27 @@ theorem WeierstrassBdd
     rw [hInt] at h
     simp at h
     cases' h with h_left h_right
-    rw [abs_lt]
+    rw [abs_le]
     dsimp [K]
     constructor
     · calc -max (|a| + |b| + 1) 1
       _ ≤ - (|a| + |b| + 1) := neg_le_neg (le_max_left _ _)
-      _ < -|a| := by
+      _ ≤ -|a| := by
         simp
-        refine neg_lt_iff_pos_add'.mpr ?_
+        refine neg_le.mp ?_
         have : |b| ≥ 0 := abs_nonneg b
-        calc 0 < 1 := Real.zero_lt_one
-        _ ≤ |b| + 1 := by exact le_add_of_nonneg_left this
+        calc -1 ≤ 0 := by linarith
+        _ ≤ |b| := this
       _ ≤ a := by exact neg_abs_le a
       _ ≤ x_seq n := h_left
     · calc x_seq n
         _ ≤ b := h_right
-        _ < |b| + 1 := by
+        _ ≤ |b| + 1 := by
           have : b ≤ |b| := le_abs_self b
           linarith
         _ ≤ |a| + |b| + 1 := by simp
         _ ≤ K := by dsimp [K]; simp
-  obtain ⟨k, hk_inc, c, hk_conv⟩ := BolzanoWeierstrass x_seq h_x_seq_bounded
+  obtain ⟨k, hk_inc, c, hk_conv⟩ := BolzanoWeierstrassConvSub x_seq h_x_seq_bounded
   have hc_in_Int : c ∈ Int := by
     rw [hInt]
     simp
@@ -239,8 +239,8 @@ theorem WeierstrassMax
     specialize hc a aS
     trans |a|
     · exact le_abs_self a
-    · exact le_of_lt hc
-  obtain ⟨M, IsSupM, UniqueM⟩ := exists_unique_supremum S S_nonempty S_upper_bdd
+    · exact hc
+  obtain ⟨M, IsSupM, UniqueM⟩ := UniquenessOfSupremum S S_nonempty S_upper_bdd
   unfold IsSup at IsSupM
   cases' IsSupM with upper_bd lowest_upper
   let ε : ℕ → ℝ := λ n ↦ 1 / (n + 1 : ℝ)
@@ -269,10 +269,10 @@ theorem WeierstrassMax
 
       specialize x_in_Int n
       simp at x_in_Int
-      rw [abs_lt]
+      rw [abs_le]
       constructor
       · calc - (max (|a|) (|b|) + 1)
-        _ < - max (|a|) (|b|) := by linarith
+        _ ≤ - max (|a|) (|b|) := by linarith
         _ ≤ - |a| := neg_le_neg (le_max_left _ _)
         _ ≤ a := neg_abs_le a
         _ ≤ x n := x_in_Int.1
@@ -280,8 +280,8 @@ theorem WeierstrassMax
         _ ≤ b := x_in_Int.2
         _ ≤ |b| := le_abs_self b
         _ ≤ max (|a|) (|b|) := le_max_right _ _
-        _ < max (|a|) (|b|) + 1 := by linarith
-  obtain ⟨k, hk_inc, hk_conv⟩ := BolzanoWeierstrass x x_bdd
+        _ ≤ max (|a|) (|b|) + 1 := by linarith
+  obtain ⟨k, hk_inc, hk_conv⟩ := BolzanoWeierstrassConvSub x x_bdd
   obtain ⟨c, hc⟩ := hk_conv
   have c_in_Int : c ∈ Int := by
     rw [hInt]
@@ -405,3 +405,5 @@ theorem WeierstrassExtremeValue
   (∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M) ∧
   (∃ m ∈ Int, ∀ x ∈ Int, f m ≤ f x) := by
   exact ⟨WeierstrassBdd f a b h_ab Int hInt h_cont, WeierstrassMax f a b h_ab Int hInt h_cont, WeierstrassMin f a b h_ab Int hInt h_cont⟩
+
+#print axioms WeierstrassExtremeValue
