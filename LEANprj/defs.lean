@@ -13,8 +13,6 @@ def DecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≤ a n
 def StrictlyDecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) < a n
 def MonotonicSequence (a : ℕ → ℝ) := IncreasingSequence a ∨ DecreasingSequence a
 def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a ∨ StrictlyDecreasingSequence a
-
--- Pomocná pro indexy podposloupností
 def StrictlyIncreasingSequenceN (k : ℕ → ℕ) := ∀ n : ℕ, k n < k (n + 1)
 
 -- 3. PODPOSLOUPNOSTI
