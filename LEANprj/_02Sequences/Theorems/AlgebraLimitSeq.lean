@@ -21,6 +21,39 @@ by
     _ < ε / 2 + ε / 2 := add_lt_add ha_appl hb_appl
     _ = ε := by ring
 
+
+theorem LimitAddSequence'
+  {a b : ℕ → ℝ} {c d : ℝ}
+  (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
+  ConvergesTo (a + b) (c + d) := by
+  intro ε hε
+  have hε2 : ε / 2 > 0 := by linarith
+  obtain ⟨Na, hNa⟩ := ha (ε/2) hε2
+  obtain ⟨Nb, hNb⟩ := hb (ε/2) hε2
+  use max Na Nb
+  intro n hn
+  simp [Pi.add_apply]
+  calc |(a n + b n) - (c + d)|
+      = |(a n - c) + (b n - d)| := by ring_nf
+    _ ≤ |a n - c| + |b n - d| := abs_add _ _
+    _ < ε/2 + ε/2 := add_lt_add (hNa n (le_of_max_le_left hn)) (hNb n (le_of_max_le_right hn))
+    _ = ε := by ring
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 theorem LimitSubSequence
   {a b : ℕ → ℝ} {c d : ℝ}
   (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
@@ -102,3 +135,13 @@ lemma LimitSequenceInv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne
 
 theorem LimitDivSequence (a b : ℕ → ℝ) (c d : ℝ) (h_d_nonzero : d ≠ 0) (h₁ : ConvergesTo a c) (h₂ : ConvergesTo b d) : ConvergesTo (a / b) (c / d) := by
   exact LimitMulSequence a b⁻¹ c d⁻¹ h₁ (LimitSequenceInv b d h₂ h_d_nonzero)
+
+
+
+
+
+
+
+
+
+#print axioms LimitAddSequence

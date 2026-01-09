@@ -168,3 +168,149 @@ theorem ExMonoSubsequence : ∀ (a : ℕ → ℝ), ∃ k : ℕ → ℕ, Strictly
     exact ⟨k, k_strict_inc, h_inc⟩
 
 -- #print axioms ExMonoSubsequence
+
+theorem ExMonoSubsequence' :
+    ∀ (a : ℕ → ℝ),
+      ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) :=
+by
+  classical
+  intro a
+
+  -- Peaks: indices n such that all later values are ≤ a n
+  let P : Set ℕ := {n : ℕ | ∀ m : ℕ, n < m → a m ≤ a n}
+
+  --------------------------------------------------------------------
+  -- Lemma: infinite P ⊆ ℕ ⇒ ∃ k strictly increasing with k n ∈ P
+  -- (this one is nondependent, because step doesn't need an invariant)
+  --------------------------------------------------------------------
+  have infinite_nat_has_strictInc_seq :
+      ∀ P : Set ℕ, Set.Infinite P →
+        ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ ∀ n : ℕ, k n ∈ P := by
+    intro P hPinf
+
+    have h_unbdd : ¬ BddAbove P := by
+      intro hbdd
+      rcases hbdd with ⟨B, hB⟩
+      have hsub : P ⊆ Set.Icc (0 : ℕ) B := by
+        intro n hn
+        exact ⟨Nat.zero_le n, hB hn⟩
+      have hfinIcc : Set.Finite (Set.Icc (0 : ℕ) B) := by
+        simpa using (Set.finite_Icc (0 : ℕ) B)
+      have hfinP : Set.Finite P := hfinIcc.subset hsub
+      exact hPinf hfinP
+
+    have step : ∀ N : ℕ, ∃ n : ℕ, n ∈ P ∧ N < n := by
+      intro N
+      by_contra hcontra
+      have hbdd : BddAbove P := by
+        refine ⟨N, ?_⟩
+        intro n hn
+        by_contra hnot
+        have hnlt : N < n := Nat.lt_of_not_ge hnot
+        exact hcontra ⟨n, hn, hnlt⟩
+      exact h_unbdd hbdd
+
+    let k : ℕ → ℕ :=
+      Nat.rec (Classical.choose (step 0))
+        (fun _ kn => Classical.choose (step kn))
+
+    have hk_mem : ∀ n : ℕ, k n ∈ P := by
+      intro n
+      induction n with
+      | zero =>
+          simpa [k] using (Classical.choose_spec (step 0)).1
+      | succ n ih =>
+          have : k (n + 1) = Classical.choose (step (k n)) := by
+            simp [k, Nat.rec, Nat.succ_eq_add_one]
+          simpa [this] using (Classical.choose_spec (step (k n))).1
+
+    have hk_strict : StrictlyIncreasingSequenceN k := by
+      intro n
+      have hlt : k n < Classical.choose (step (k n)) :=
+        (Classical.choose_spec (step (k n))).2
+      have : k (n + 1) = Classical.choose (step (k n)) := by
+        simp [k, Nat.rec, Nat.succ_eq_add_one]
+      simpa [this] using hlt
+
+    exact ⟨k, hk_strict, hk_mem⟩
+
+  --------------------------------------------------------------------
+  -- Main proof split on P infinite/finite
+  --------------------------------------------------------------------
+  by_cases hPinf : Set.Infinite P
+  · -- Infinite peaks ⇒ decreasing subsequence
+    rcases infinite_nat_has_strictInc_seq P hPinf with ⟨k, hk_strict, hkP⟩
+    refine ⟨k, hk_strict, Or.inr ?_⟩
+    intro n
+    have hkPn : k n ∈ P := hkP n
+    have hknlt : k n < k (n + 1) := hk_strict n
+    have : a (k (n + 1)) ≤ a (k n) := hkPn (k (n + 1)) hknlt
+    simpa [Subsequence, Function.comp] using this
+
+  · -- Finite peaks ⇒ build increasing subsequence with dependent recursion
+    have hPfin : Set.Finite P := Set.not_infinite.mp hPinf
+    rcases hPfin.bddAbove with ⟨B, hB⟩
+    let N : ℕ := B + 1
+
+    have hN_not_peak : ∀ n : ℕ, n ≥ N → n ∉ P := by
+      intro n hn hnP
+      have hnle : n ≤ B := hB hnP
+      have : n < B + 1 := Nat.lt_succ_of_le hnle
+      exact (Nat.not_lt_of_ge hn) this
+
+    have step_ex : ∀ n : ℕ, n ≥ N → ∃ m : ℕ, n < m ∧ a n < a m := by
+      intro n hn
+      have hnP : n ∉ P := hN_not_peak n hn
+      have : ∃ m : ℕ, n < m ∧ ¬ (a m ≤ a n) := by
+        simpa [P] using hnP
+      rcases this with ⟨m, hnm, hnotle⟩
+      exact ⟨m, hnm, lt_of_not_ge hnotle⟩
+
+    -- Dependent recursion carrying invariant N ≤ k n:
+    let F : ℕ → {t : ℕ // N ≤ t} :=
+      Nat.rec ⟨N, le_rfl⟩ (fun _ prev =>
+        let kn : ℕ := prev.1
+        let hkn : N ≤ kn := prev.2
+        let m : ℕ := Classical.choose (step_ex kn hkn)
+        have hkm : kn < m := (Classical.choose_spec (step_ex kn hkn)).1
+        have hNm : N ≤ m := le_trans hkn (Nat.le_of_lt hkm)
+        ⟨m, hNm⟩)
+
+    let k : ℕ → ℕ := fun n => (F n).1
+
+    have hk_step :
+        ∀ n : ℕ, k n < k (n + 1) ∧ a (k n) < a (k (n + 1)) := by
+      intro n
+      -- unfold one step of F at succ
+      -- F (n+1) is built using choose (step_ex (k n) (F n).2)
+      have hFn : F n = ⟨k n, (F n).2⟩ := by
+        rfl
+      -- compute F (n+1) by simp
+      -- easiest: just unfold k,F and use Nat.rec equations
+      -- We do it by rewriting k (n+1) to the chosen m
+      have hk_succ :
+          k (n + 1) =
+            Classical.choose (step_ex (k n) (F n).2) := by
+        -- simp knows Nat.rec at succ
+        simp [k, F, Nat.rec, Nat.succ_eq_add_one]
+      have hspec := Classical.choose_spec (step_ex (k n) (F n).2)
+      refine ⟨?_, ?_⟩
+      · -- k n < k (n+1)
+        simpa [hk_succ] using hspec.1
+      · -- a (k n) < a (k (n+1))
+        simpa [hk_succ] using hspec.2
+
+    have hk_strict : StrictlyIncreasingSequenceN k := by
+      intro n
+      exact (hk_step n).1
+
+    have h_incr : IncreasingSequence (Subsequence a k) := by
+      intro n
+      have : a (k n) < a (k (n + 1)) := (hk_step n).2
+      simpa [Subsequence, Function.comp] using (le_of_lt this)
+
+    exact ⟨k, hk_strict, Or.inl h_incr⟩
+
+
+
+-- #print axioms ExMonoSubsequence
