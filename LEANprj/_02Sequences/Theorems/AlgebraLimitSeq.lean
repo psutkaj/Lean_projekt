@@ -40,20 +40,6 @@ theorem LimitAddSequence'
     _ = ε := by ring
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 theorem LimitSubSequence
   {a b : ℕ → ℝ} {c d : ℝ}
   (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
