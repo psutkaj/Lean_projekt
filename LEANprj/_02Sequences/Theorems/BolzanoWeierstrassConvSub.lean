@@ -8,6 +8,7 @@ theorem BolzanoWeierstrassConvSub (a : ℕ → ℝ) (ha_bdd : BoundedSequence a)
     refine ⟨K, hK, ?_⟩
     intro n
     exact hkn (k n)
+  
   refine ⟨k, hk_inc, ?_⟩
   exact MonoBddImpliesConv (Subsequence a k) hk_mono sub_bdd
 
@@ -30,7 +31,6 @@ theorem BolzanoWeierstrassConvSub' (a : ℕ → ℝ) (ha_bdd : BoundedSequence a
       exact MonoBddImpliesConv (Subsequence a k) (Or.inl h_increasing) subseq_bdd
     | inr h_decreasing =>
       exact MonoBddImpliesConv (Subsequence a k) (Or.inr h_decreasing) subseq_bdd
-
   exists k
 
 
