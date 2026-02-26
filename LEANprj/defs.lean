@@ -22,7 +22,7 @@ def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := a ∘ k
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := (∀ x ∈ A, x ≤ s) ∧ (∀ ε > 0, ∃ x ∈ A, s - ε < x)
 def IsInf (A : Set ℝ) (i : ℝ) : Prop := (∀ x ∈ A, i ≤ x) ∧ (∀ ε > 0, ∃ x ∈ A, x < i + ε)
 
--- 5. KONVERGENCE POSLOUPNOSTÍ
+-- 5. KONVERGENCE POSLOUPNOSTÍu
 def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
 def Divergent (a : ℕ → ℝ) := ¬Convergent a

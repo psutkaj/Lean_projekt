@@ -18,11 +18,8 @@ theorem easy : 2 + 2 = 4 :=
 
 #check easy
 
-theorem hard : FermatLastTheorem :=
-  have a := 1
-  have a := 2
-  have a := 3
-  have a := 4
+theorem hard : FermatLastTheorem := by
+
   sorry
 
 #check hard
@@ -32,3 +29,5 @@ example
   x + 1 < y + 1 := by
   simp
   exact h
+
+
