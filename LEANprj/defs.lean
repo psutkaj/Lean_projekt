@@ -29,7 +29,7 @@ def Divergent (a : ℕ → ℝ) := ¬Convergent a
 def DivergentToInf (a : ℕ → ℝ) := ∀ m > 0, ∃ n₀, ∀ n ≥ n₀, a n > m
 def DivergentToNegInf (a : ℕ → ℝ) := ∀ m < 0, ∃ n₀, ∀ n ≥ n₀, a n < m
 
-def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, n > n₀ ∧ m > n₀ → |a n - a m| < ε
+def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, (n > n₀ ∧ m > n₀) → |a n - a m| < ε
 
 -- 6. ŘADY
 def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 1), a k
@@ -52,7 +52,7 @@ def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| �
 def HeineLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
   ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
 def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), 0 < |x - x₀| ∧ |x - x₀| < δ → |f x - b| < ε
+  ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
 
 def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
 def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f x

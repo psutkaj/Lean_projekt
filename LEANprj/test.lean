@@ -31,3 +31,50 @@ example
   exact h
 
 
+theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
+  apply And.intro
+  · sorry
+
+  case right => sorry
+
+example
+  (P Q R S: Prop) (hSQ : S = Q)
+  (hR : R) (hRQ : R → Q) :
+  P → S :=
+by
+  intro hP
+  rw [hSQ]
+  apply hRQ
+  exact hR
+
+
+
+
+example (P : Prop) (hP : P) : P := by
+
+  exact hP
+
+
+example
+  (h : ∃ x : ℝ, x < 0) :
+  ∃ u : ℝ, -u ≥ 0 := by
+  obtain ⟨z, hz⟩ := h
+  have z_nonneg : z ≤ 0 := by linarith
+  use z
+  simp
+  exact z_nonneg
+
+
+example
+  (a b c : ℝ)
+  (ha : a < b) (hb : b < c) :
+  a < c := by
+  linarith
+
+example (a b : ℝ) :
+  (a + b)^2 = a^2 + 2*a*b + b^2 := by
+  calc (a + b)^2
+  _ = (a + b) * (a + b) := by ring
+  _ = a * (a + b) + b * (a + b) := by ring
+  _ = a * a + b * a + a * b + b * b := by ring
+  _ = a^2 + 2*a*b + b^2 := by ring
