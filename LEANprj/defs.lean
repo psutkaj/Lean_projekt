@@ -1,8 +1,9 @@
 import Mathlib
 
+def Sequence := ℕ → ℝ
 
 -- 1. POSLOUPNOSTI (Omezenost)
-def LowerBoundedSequence (a : ℕ → ℝ) := ∃ l : ℝ, ∀ n : ℕ, l ≤ a n
+def LowerBoundedSequence (a : Sequence) := ∃ l : ℝ, ∀ n : ℕ, l ≤ a n
 def UpperBoundedSequence (a : ℕ → ℝ) := ∃ u : ℝ, ∀ n : ℕ, a n ≤ u
 def BoundedSequence (a : ℕ → ℝ) := ∃ K > 0, ∀ n : ℕ, |a n| ≤ K
 

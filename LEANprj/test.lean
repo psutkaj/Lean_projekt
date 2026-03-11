@@ -33,9 +33,10 @@ example
 
 theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p := by
   apply And.intro
-  · sorry
-
-  case right => sorry
+  · exact hp
+  constructor
+  · exact hq
+  · exact hp
 
 example
   (P Q R S: Prop) (hSQ : S = Q)
@@ -78,3 +79,9 @@ example (a b : ℝ) :
   _ = a * (a + b) + b * (a + b) := by ring
   _ = a * a + b * a + a * b + b * b := by ring
   _ = a^2 + 2*a*b + b^2 := by ring
+
+
+def a : Sequence := λ n ↦ n
+def b : Sequence := λ n ↦ n^n
+def c : Sequence := λ n ↦ (-1)^n
+noncomputable def d : Sequence := λ n ↦ n / n
