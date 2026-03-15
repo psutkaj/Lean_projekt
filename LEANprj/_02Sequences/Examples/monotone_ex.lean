@@ -17,3 +17,17 @@ example (a : ℕ → ℝ) (ha: ∀ n : ℕ, a n = (n / (n + 1))) : StrictlyIncre
   linarith
   linarith
   nlinarith
+
+noncomputable def d : Sequence := λ n ↦ n / (n + 1)
+example :
+  StrictlyIncreasingSequence d :=
+by
+  unfold StrictlyIncreasingSequence
+  intro n
+  dsimp [d]
+
+  refine (div_lt_div_iff₀ ?_ ?_).mpr ?_
+  · linarith
+  · linarith
+  · norm_cast
+    nlinarith
