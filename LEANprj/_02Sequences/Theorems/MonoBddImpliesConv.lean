@@ -2,7 +2,12 @@ import LEANprj._01Sets.Theorems.UniquenessOfSupremum
 import LEANprj.lemmas
 open Classical
 
-lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
+lemma inc_bdd_imp_conv
+  (a : ℕ → ℝ)
+  (ha_inc : IncreasingSequence a)
+  (ha_bdd : BoundedSequence a) :
+  Convergent a :=
+by
   let A := Set.range a
   have A_nonempty : A.Nonempty := by use a 0; tauto
   have A_upper_bdd : UpperBoundedSet A := by
@@ -16,7 +21,7 @@ lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bd
     calc m
     _ ≤ |m| := le_abs_self m
     _ ≤ k := by rw [←hn]; exact hk n
-  obtain ⟨s, ⟨s_upper_bd, s_lub⟩, s_unique⟩ := UniquenessOfSupremum A A_nonempty A_upper_bdd
+  obtain ⟨s, ⟨s_upper_bd, s_lub⟩, s_unique⟩ := uniqueness_supremum A A_nonempty A_upper_bdd
   use s
   intro ε ε_pos
   obtain ⟨x, xA, hx⟩ := s_lub ε ε_pos
@@ -24,20 +29,20 @@ lemma IncBddImpliesConv (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bd
   obtain ⟨n₀, hn₀⟩ := xA
   use n₀
   intro n hn
-  have : a n₀ ≤ a n := by exact inc_le_of_le ha_inc hn
-  have : a n ≤ s := by exact s_upper_bd (a n) (by simp [A])
+  have h₁ : a n₀ ≤ a n := by exact inc_le_of_le ha_inc hn
+  have h₂ : a n ≤ s := by exact s_upper_bd (a n) (by simp [A])
   rw [abs_lt]
   constructor
   · have : s - ε < a n := by calc s - ε
       _ < a n₀ := by rw [hn₀]; exact hx
-      _ ≤ a n := by (expose_names; exact this_1)
+      _ ≤ a n := h₁
     exact lt_tsub_iff_left.mpr this
   · have : a n - s ≤ 0 := by linarith
     calc a n - s
     _ ≤ 0 := by linarith
     _ < ε := ε_pos
 
-lemma DecBddImpliesConv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
+lemma dec_bdd_imp_conv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
   unfold Convergent
   unfold DecreasingSequence at ha_dec
   unfold BoundedSequence at ha_bdd
@@ -60,7 +65,7 @@ lemma DecBddImpliesConv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bd
     rw [this]
     exact K_bd n
 
-  have : Convergent b := by exact IncBddImpliesConv b b_inc b_bdd
+  have : Convergent b := by exact inc_bdd_imp_conv b b_inc b_bdd
   obtain ⟨q, hq⟩ := this
   use -q
   unfold ConvergesTo
@@ -78,7 +83,7 @@ lemma DecBddImpliesConv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bd
   rw [← b_eq_neg_a n₁]
   exact hn₀ n₁ hn₁
 
-theorem MonoBddImpliesConv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
+theorem mono_bdd_imp_conv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
   rcases ha_mono with hinc | hdec
-  · exact IncBddImpliesConv a hinc ha_bdd
-  · exact DecBddImpliesConv a hdec ha_bdd
+  · exact inc_bdd_imp_conv a hinc ha_bdd
+  · exact dec_bdd_imp_conv a hdec ha_bdd

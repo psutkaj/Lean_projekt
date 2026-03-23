@@ -1,6 +1,6 @@
 import LEANprj.defs
 
-example (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergesTo a 1 := by
+theorem aaa (a : ℕ → ℝ)  (ha :∀ n : ℕ, a n = 1 ) : ConvergesTo a 1 := by
   unfold ConvergesTo
   intro ε ε_pos
   use 0
@@ -41,7 +41,6 @@ theorem posl2 (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1 / n) : ConvergesTo a 
   rw [ha]
   have n_geq_N : N ≤ n := by linarith
   have n_geq_N_cast : (N : ℝ) ≤ (n : ℝ) := by exact Nat.cast_le.mpr n_geq_N
-  have div_ε_pos: 1/ε > 0 := by simp; exact ε_pos
   have N_pos: N > 0 := by exact Nat.zero_lt_succ ⌈1 / ε⌉.toNat
   have N_nonzero : N ≠ 0 := by by_contra hN; linarith
   have N_cast_pos: (N : ℝ) > 0 := by exact Nat.cast_pos'.mpr N_pos
