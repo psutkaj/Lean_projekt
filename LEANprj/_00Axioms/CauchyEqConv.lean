@@ -1,5 +1,5 @@
 import LEANprj.defs
 
 axiom CauchyEqConv
-  (a : ℕ → ℝ) :
+  (a : Sequence) :
   CauchySequence a ↔ Convergent a

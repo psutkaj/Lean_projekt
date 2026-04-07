@@ -3,14 +3,13 @@ import LEANprj._02Sequences.Theorems.IncBddImpliesCauchy
 import LEANprj._00Axioms.CauchyEqConv
 import LEANprj.lemmas
 
-theorem ExistPointInNestedInterval
+theorem ex_point_in_NI
   (l u : ℕ → ℝ)
   (inc_l : IncreasingSequence l)
   (dec_u : DecreasingSequence u)
   (sep : ∀ n, l n ≤ u n) :
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n := by
   have l_up_bdd : UpperBoundedSequence l := by
-    unfold UpperBoundedSequence
     use u 0 + 1
     intro n
     calc l n
@@ -65,7 +64,6 @@ theorem ExistPointInNestedInterval
         · exact sep n
     apply LimitOrderLe l (λ k ↦ (u n)) s (u n) this l_conv_s (?_)
     intro ε ε_pos
-    simp
-    tauto
+    simp_all
 
-#print axioms ExistPointInNestedInterval
+#print axioms ex_point_in_NI

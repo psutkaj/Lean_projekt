@@ -1,6 +1,6 @@
 import LEANprj.defs
 
-theorem SandwichSeq
+theorem sandwich_seq
   (a b c : ℕ → ℝ) (q : ℝ)
   (h₁ : a ≤ b) (h₂ : b ≤ c) (h₃ : ConvergesTo a q) (h₄ : ConvergesTo c q) :
   ConvergesTo b q :=

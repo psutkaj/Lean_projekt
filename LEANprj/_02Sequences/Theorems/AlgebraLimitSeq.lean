@@ -22,24 +22,6 @@ by
     _ = ε := by ring
 
 
-theorem LimitAddSequence'
-  {a b : ℕ → ℝ} {c d : ℝ}
-  (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
-  ConvergesTo (a + b) (c + d) := by
-  intro ε hε
-  have hε2 : ε / 2 > 0 := by linarith
-  obtain ⟨Na, hNa⟩ := ha (ε/2) hε2
-  obtain ⟨Nb, hNb⟩ := hb (ε/2) hε2
-  use max Na Nb
-  intro n hn
-  simp [Pi.add_apply]
-  calc |(a n + b n) - (c + d)|
-      = |(a n - c) + (b n - d)| := by ring_nf
-    _ ≤ |a n - c| + |b n - d| := abs_add _ _
-    _ < ε/2 + ε/2 := add_lt_add (hNa n (le_of_max_le_left hn)) (hNb n (le_of_max_le_right hn))
-    _ = ε := by ring
-
-
 theorem LimitSubSequence
   {a b : ℕ → ℝ} {c d : ℝ}
   (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
@@ -61,10 +43,16 @@ by
     _ < ε / 2 + ε / 2 := add_lt_add ha_appl hb_appl
     _ = ε := by ring
 
-theorem LimitMulSequence (a b : ℕ → ℝ) (c d : ℝ) (h₁ : ConvergesTo a c) (h₂ : ConvergesTo b d) : ConvergesTo (a * b) (c * d) := by
+
+theorem lim_mul_seq
+  (a b : ℕ → ℝ) (c d : ℝ)
+  (h₁ : ConvergesTo a c)
+  (h₂ : ConvergesTo b d) :
+  ConvergesTo (a * b) (c * d) :=
+by
   unfold ConvergesTo at *
   intro ε ε_pos
-  have h_bound_a : BoundedSequence a := ConvImpliesBdd (by use c; exact h₁)
+  have h_bound_a : BoundedSequence a := conv_implies_bdd (by use c; exact h₁)
   obtain ⟨K₁, K₁_pos, hK₁⟩ := h_bound_a
   let K₂ := |d| + 1
   have K₂_pos : K₂ > 0 := by exact lt_add_of_le_of_pos (abs_nonneg d) zero_lt_one
@@ -79,8 +67,8 @@ theorem LimitMulSequence (a b : ℕ → ℝ) (c d : ℝ) (h₁ : ConvergesTo a c
   have hn₁ : n ≥ n₁ := le_of_max_le_left hn
   have hn₂ : n ≥ n₂ := le_of_max_le_right hn
   calc |a n * b n - c * d|
-  _ = |a n * (b n - d) + d * (a n - c)| := by ring_nf
-  _ ≤ |a n * (b n - d)| + |d * (a n - c)| := by exact abs_add_le (a n * (b n - d)) (d * (a n - c))
+  _ = |a n * (b n - d) + d * (a n - c)| := by ring
+  _ ≤ |a n * (b n - d)| + |d * (a n - c)| := by exact abs_add_le _ _
   _ = |a n| * |b n - d| + |d| * |a n - c| := by simp
   _ ≤ K₁ * ε_b + K₂ * ε_a := by
     gcongr
@@ -93,7 +81,7 @@ theorem LimitMulSequence (a b : ℕ → ℝ) (c d : ℝ) (h₁ : ConvergesTo a c
   _ = 2 / 3 * ε := by ring
   _ < ε := by linarith
 
-lemma LimitSequenceInv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) : ConvergesTo (b⁻¹) d⁻¹ := by
+lemma LimitSequenceInv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) : ConvergesTo (λ n ↦ (b n)⁻¹) d⁻¹ := by
   have d_pos : |d| > 0 := by exact abs_pos.mpr hd_ne
   obtain ⟨n₁, h_lower_bd⟩ := hb (|d| / 2) (by linarith)
   intro ε ε_pos

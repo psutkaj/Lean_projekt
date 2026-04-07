@@ -24,7 +24,7 @@ def Subsequence (a : Sequence) (k : ℕ → ℕ) : Sequence := a ∘ k
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := (∀ x ∈ A, x ≤ s) ∧ (∀ ε > 0, ∃ x ∈ A, s - ε < x)
 def IsInf (A : Set ℝ) (i : ℝ) : Prop := (∀ x ∈ A, i ≤ x) ∧ (∀ ε > 0, ∃ x ∈ A, x < i + ε)
 
--- 5. KONVERGENCE POSLOUPNOSTÍu
+-- 5. KONVERGENCE POSLOUPNOSTÍ
 def ConvergesTo (a : Sequence) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : Sequence) := ∃ q : ℝ, ConvergesTo a q
 def Divergent (a : Sequence) := ¬Convergent a
@@ -51,12 +51,12 @@ def LowerBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, c ≤ m
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| ≤ c
 
 -- 8. LIMITY FUNKCÍ A SPOJITOST
-def HeineLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
+def HeineLimitFunction (f : Function) (x₀ : ℝ) (b : ℝ) :=
   ∀ (a : Sequence), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
-def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
+def CauchyLimitFunction (f : Function) (x₀ : ℝ) (b : ℝ) :=
   ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
 
-def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
-def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f x
-def FunctionContinuousOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∀ x ∈ M, FunctionContinuousAt f x
-def FunctionBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x| ≤ K
+def FunctionContinuousAt (f : Function) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
+def FunctionContinuous (f : Function) := ∀ x : ℝ, FunctionContinuousAt f x
+def FunctionContinuousOnSet (M : Set ℝ) (f : Function) := ∀ x ∈ M, FunctionContinuousAt f x
+def FunctionBddOnSet (M : Set ℝ) (f : Function) := ∃ K > 0, ∀ x ∈ M, |f x| ≤ K
