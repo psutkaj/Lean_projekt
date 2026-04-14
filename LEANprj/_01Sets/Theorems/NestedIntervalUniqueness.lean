@@ -1,54 +1,52 @@
 import LEANprj.defs
-import LEANprj._00Axioms.ExistsPointInNestedIntervals
 
-theorem NestedIntervalUniqueness (l u : ℕ → ℝ)
-  (inc_l : IncreasingSequence l)
-  (dec_u : DecreasingSequence u)
-  (sep : ∀ n, l n ≤ u n)
-  (shrink_to_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |u n - l n| < ε) :
-  ∃! s : ℝ, ∀ n : ℕ, l n ≤ s ∧ s ≤ u n := by
-  obtain ⟨t, ht⟩ := ExistsPointInNestedIntervals l u inc_l dec_u sep
-  use t, ht
-  intro y hy
+theorem ni_uniqueness (l u : ℕ → ℝ) :
+  (IncreasingSequence l) →
+  (DecreasingSequence u) →
+  (∀ n, l n ≤ u n) →
+  (∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n) →
+  (∀ ε > 0, ∃ N : ℕ, ∀ n > N, |u n - l n| < ε) →
+  ∃! s : ℝ, ∀ n : ℕ, l n ≤ s ∧ s ≤ u n :=
+by
+  intro inc_l dec_u sep ex_nip shrink_to_zero
+  obtain ⟨s, hs⟩ := ex_nip
+  use s, hs
+  intro t ht
   by_contra hne
   push_neg at hne
-  have : |t - y| > 0 := by
+  have : |s - t| > 0 := by
     simp
     push_neg
     exact sub_ne_zero_of_ne (id (Ne.symm hne))
-  obtain ⟨n₀, hn₀⟩ := shrink_to_zero |t - y| this
-  have : ∀ n > n₀, |u n - l n| ≥ |t - y| := by
+  obtain ⟨n₀, hn₀⟩ := shrink_to_zero |s - t| this
+  have : ∀ n > n₀, |u n - l n| ≥ |s - t| := by
     intro n hn
     have nonneg : u n - l n ≥ 0 := by simp; exact sep n
-    have : u n ≥ t := (ht n).2
-    have : u n - t ≥ 0 := sub_nonneg_of_le this
-    have : y ≥ l n := (hy n).1
-    have : y - l n ≥ 0 := sub_nonneg_of_le this
-    have : u n ≥ y := (hy n).2
-    have : u n - y ≥ 0 := sub_nonneg_of_le this
-    have : t ≥ l n := (ht n).1
-    have : t - l n ≥ 0 := sub_nonneg_of_le this
-    have geq_ty : u n - l n ≥ t - y := by
+    have := (hs n).2
+    have := (ht n).1
+    have := (hs n).1
+    have := (ht n).2
+    have geq_ty : u n - l n ≥ s - t := by
       calc u n - l n
-      _ = (u n - t) + (t - y) + (y - l n) := by ring
-      _ ≥ 0 + (t - y) + 0 := by gcongr
-      _ = t - y := by ring
-    have geq_yt : u n - l n ≥ y - t := by
+      _ = (u n - s) + (s - t) + (t - l n) := by ring
+      _ ≥ 0 + (s - t) + 0 := by gcongr; linarith; linarith
+      _ = s - t := by ring
+    have geq_yt : u n - l n ≥ t - s := by
       calc u n - l n
-      _ = (u n - y) + (y - t) + (t - l n) := by ring
-      _ ≥ 0 + (y - t) + 0 := by gcongr
-      _ = y - t := by ring
+      _ = (u n - t) + (t - s) + (s - l n) := by ring
+      _ ≥ 0 + (t - s) + 0 := by gcongr; linarith; linarith
+      _ = t - s := by ring
     have eq₁: |u n - l n| = u n - l n := abs_of_nonneg nonneg
-    have abs_eq : |t - y| = |y - t| := abs_sub_comm t y
-    by_cases h : t > y
-    · have : t - y > 0 := sub_pos.mpr h
-      have eq₂: |t - y| = t - y := abs_of_pos this
+    have abs_eq : |s - t| = |t - s| := abs_sub_comm s t
+    by_cases h : s > t
+    · have : s - t > 0 := sub_pos.mpr h
+      have eq₂: |s - t| = s - t := abs_of_pos this
       rw [eq₁,eq₂]
       exact geq_ty
     · push_neg at h
-      have : y > t := by exact lt_of_le_of_ne h (id (Ne.symm hne))
-      have : y - t > 0 := sub_pos.mpr this
-      have eq₂: |y - t| = y - t := abs_of_pos this
+      have : t > s := by exact lt_of_le_of_ne h (id (Ne.symm hne))
+      have : t - s > 0 := sub_pos.mpr this
+      have eq₂: |t - s| = t - s := abs_of_pos this
       rw [eq₁,abs_eq,eq₂]
       exact geq_yt
   specialize hn₀ (n₀ + 1) (by linarith)
