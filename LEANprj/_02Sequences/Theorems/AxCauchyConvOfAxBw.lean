@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.Theorems.BWOfMonoConv
+import LEANprj._02Sequences.Theorems.AxBwOfAxMonoConv
 import LEANprj._02Sequences.Theorems.BddOfCauchy
 import LEANprj.lemmas
 
@@ -66,7 +66,7 @@ by
     _ = ε := by linarith
 
 
-theorem cauchy_conv_of_bw :
+theorem axCauchyConv_of_axBw :
   AxBW → AxCauchyConv :=
 by
   intro AxBW a
@@ -75,4 +75,4 @@ by
     exact convergesTo_of_cauchy a AxBW ha
   · intro ha
     exact cauchy_of_convergesTo a ha
-#print axioms cauchy_conv_of_bw
+#print axioms axCauchyConv_of_axBw

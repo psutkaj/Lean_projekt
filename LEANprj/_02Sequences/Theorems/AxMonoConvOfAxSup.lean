@@ -1,4 +1,4 @@
-import LEANprj._01Sets.Theorems.SupUnique
+import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 import LEANprj.lemmas
 open Classical
 
@@ -84,7 +84,7 @@ lemma convergesTo_of_bdd_dec
   rw [← b_eq_neg_a n₁]
   exact hn₀ n₁ hn₁
 
-theorem convergesTo_of_bdd_mono :
+theorem axMonoConv_of_axSup :
   AxSup →
   AxMonoConv := by
   intro AxSup a a_mono a_bdd

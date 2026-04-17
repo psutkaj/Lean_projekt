@@ -2,7 +2,7 @@ import LEANprj._02Sequences.Theorems.Sandwich
 import LEANprj._02Sequences.Theorems.CauchyOfIncBdd
 import LEANprj.lemmas
 
-theorem exists_nip_of_cauchy_conv :
+theorem axNip_of_axCauchyConv :
   AxCauchyConv → AxNIP := by
   intro ax_cauchy l u l_inc u_dec sep
   have l_up_bdd : UpperBoundedSequence l := by
@@ -62,4 +62,4 @@ theorem exists_nip_of_cauchy_conv :
     intro ε ε_pos
     simp_all
 
-#print axioms exists_nip_of_cauchy_conv
+#print axioms axNip_of_axCauchyConv

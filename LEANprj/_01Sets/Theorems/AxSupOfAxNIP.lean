@@ -169,7 +169,7 @@ end ConvergenceLemmas
 
 
 -- 6. HLAVNÍ VĚTA: EXISTENCE A JEDNOZNAČNOST SUPREMA
-theorem sup_unique :
+theorem axSup_of_axNip :
   AxNIP → AxSup :=
 by
   dsimp [AxNIP]
@@ -286,7 +286,7 @@ theorem inf_unique : AxNIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedS
     obtain ⟨a, ha, rfl⟩ := xNeg
     exact neg_le_neg_iff.mpr (hl a ha)
 
-  obtain ⟨s, hs, s_unique⟩ := sup_unique AxNIP negA hNegA hNegUpperBdd
+  obtain ⟨s, hs, s_unique⟩ := axSup_of_axNip AxNIP negA hNegA hNegUpperBdd
 
   use -s
   constructor
@@ -314,4 +314,4 @@ theorem inf_unique : AxNIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedS
         linarith
     linarith
 
-#print axioms sup_unique
+#print axioms axSup_of_axNip

@@ -16,7 +16,7 @@ theorem BolzanoZeroValue
     use b
     intro x xM
     exact xM.2.1
-  obtain ⟨c, hc_sup, _⟩ := sup_unique ax_NIP M M_nonempty M_bdd
+  obtain ⟨c, hc_sup, _⟩ := axSup_of_axNip ax_NIP M M_nonempty M_bdd
   unfold IsSup at hc_sup
   have h_UB : ∀ x ∈ M, x ≤ c := λ x hx ↦ (hc_sup).1 x hx
   have h_Approx : ∀ ε > 0, ∃ x ∈ M, c - ε < x := (hc_sup).2

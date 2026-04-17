@@ -1,19 +1,19 @@
-import LEANprj._02Sequences.Theorems.ExistsNIPOfCauchyConv
-import LEANprj._02Sequences.Theorems.ConvergesToOfBddMono
-import LEANprj._02Sequences.Theorems.BWOfMonoConv
-import LEANprj._02Sequences.Theorems.CauchyConvOfBW
+import LEANprj._02Sequences.Theorems.AxNIPOfAxCauchyConv
+import LEANprj._02Sequences.Theorems.AxMonoConvOfAxSup
+import LEANprj._02Sequences.Theorems.AxBwOfAxMonoConv
+import LEANprj._02Sequences.Theorems.AxCauchyConvOfAxBw
 
 
-theorem ax_sup_iff_ax_bw :
+theorem axSup_iff_axBw :
   AxSup ↔ AxBW :=
 by
   constructor
   · intro ax_sup
-    apply bw_of_monoconv
-    apply convergesTo_of_bdd_mono
+    apply axBw_of_axMonoConv
+    apply axMonoConv_of_axSup
     exact ax_sup
   · intro ax_bw
-    apply sup_unique
-    apply exists_nip_of_cauchy_conv
-    apply cauchy_conv_of_bw
+    apply axSup_of_axNip
+    apply axNip_of_axCauchyConv
+    apply axCauchyConv_of_axBw
     exact ax_bw

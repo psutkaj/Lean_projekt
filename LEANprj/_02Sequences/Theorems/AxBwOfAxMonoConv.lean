@@ -1,6 +1,6 @@
 import LEANprj._02Sequences.Theorems.ExistsMonoSubseq
 
-theorem bw_of_monoconv :
+theorem axBw_of_axMonoConv :
   AxMonoConv → AxBW :=
 by
   intro AxMonoConv a a_bdd
@@ -13,4 +13,4 @@ by
     exact hKn (k n)
   exact AxMonoConv (Subsequence a k) k_mono sub_bdd
 
-#print axioms bw_of_monoconv
+#print axioms axBw_of_axMonoConv
