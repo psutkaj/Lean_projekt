@@ -1,14 +1,10 @@
-import LEANprj._02Sequences.Theorems.SandwichSeq
-import LEANprj._02Sequences.Theorems.IncBddImpliesCauchy
-import LEANprj._00Axioms.CauchyEqConv
+import LEANprj._02Sequences.Theorems.Sandwich
+import LEANprj._02Sequences.Theorems.CauchyOfIncBdd
 import LEANprj.lemmas
 
-theorem ex_point_in_NI
-  (l u : ℕ → ℝ)
-  (inc_l : IncreasingSequence l)
-  (dec_u : DecreasingSequence u)
-  (sep : ∀ n, l n ≤ u n) :
-  ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n := by
+theorem exists_nip_of_cauchy_conv :
+  AxCauchyConv → AxNIP := by
+  intro ax_cauchy l u l_inc u_dec sep
   have l_up_bdd : UpperBoundedSequence l := by
     use u 0 + 1
     intro n
@@ -18,7 +14,7 @@ theorem ex_point_in_NI
       induction' n with d hd
       · linarith
       · trans u d
-        · exact dec_u d
+        · exact u_dec d
         · exact hd
     _ ≤ u 0 + 1 := by linarith
   have l_lo_bdd : LowerBoundedSequence l := by
@@ -27,11 +23,11 @@ theorem ex_point_in_NI
     induction' n with d hd
     · linarith
     · calc l (d + 1)
-      _ ≥ l d := inc_l d
+      _ ≥ l d := l_inc d
       _ ≥ l 0 - 1:= hd
   have l_bdd : BoundedSequence l := by exact upperLowerBddIsBdd l l_up_bdd l_lo_bdd
-  have l_cauchy : CauchySequence l := by exact IncBddImpliesCauchy l inc_l l_bdd
-  have l_conv : Convergent l := by exact (CauchyEqConv l).mp l_cauchy
+  have l_cauchy : CauchySequence l := by exact cauchy_of_inc_bdd l l_inc l_bdd
+  have l_conv : Convergent l := by exact (ax_cauchy l).mp l_cauchy
   obtain ⟨s, l_conv_s⟩ := l_conv
   use s
   intro n
@@ -50,20 +46,20 @@ theorem ex_point_in_NI
       calc l k
       _ < ε + s := by linarith
       _ = l n := by rw [←hε]; ring
-    have h_lower : l n ≤ l k := inc_le_of_le inc_l (le_max_left n n₀)
+    have h_lower : l n ≤ l k := inc_le_of_le l_inc (le_max_left n n₀)
     linarith
   · have : ∀ k : ℕ, l k ≤ u n := by
       intro k
       by_cases h : k > n
       · trans u k
         · exact sep k
-        · exact dec_le_of_le dec_u (by linarith)
+        · exact dec_le_of_le u_dec (by linarith)
       · push_neg at h
         trans l n
-        · exact inc_le_of_le inc_l h
+        · exact inc_le_of_le l_inc h
         · exact sep n
     apply LimitOrderLe l (λ k ↦ (u n)) s (u n) this l_conv_s (?_)
     intro ε ε_pos
     simp_all
 
-#print axioms ex_point_in_NI
+#print axioms exists_nip_of_cauchy_conv

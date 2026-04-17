@@ -39,7 +39,7 @@ lemma prefix_bounded (a : ℕ → ℝ) :
         have : |a N.succ| ≤ max M0 |a N.succ| := le_max_right _ _
         simp
 
-theorem cauchy_implies_bdd {a : ℕ → ℝ} (h : CauchySequence a) : BoundedSequence a := by
+theorem bdd_of_cauchy {a : ℕ → ℝ} (h : CauchySequence a) : BoundedSequence a := by
   -- take ε = 1 in the definition of CauchySequence
   have hpos : (0 : ℝ) < 1 := by exact zero_lt_one
   obtain ⟨N, hN⟩ := h 1 hpos

@@ -1,12 +1,14 @@
 import LEANprj.defs
-import LEANprj._01Sets.Theorems.UniquenessOfSupremum
+import LEANprj._01Sets.Theorems.SupUnique
 import LEANprj._05Continuity.Theorems.ContinuityKeepsSgn
 
 theorem BolzanoZeroValue
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b)
   (h_cont : ∀ x ∈ Set.Icc a b, FunctionContinuousAt f x)
   (h_fa : f a < 0) (h_fb : f b > 0) :
+  AxNIP →
   ∃ c ∈ Set.Icc a b, f c = 0 := by
+  intro ax_NIP
   let M := {x | a ≤ x ∧ x ≤ b ∧ f x < 0}
   have ha_in_M : a ∈ M := by simp [M, h_ab, h_fa]
   have M_nonempty : M.Nonempty := by use a
@@ -14,7 +16,7 @@ theorem BolzanoZeroValue
     use b
     intro x xM
     exact xM.2.1
-  obtain ⟨c, hc_sup, _⟩ := UniquenessOfSupremum M M_nonempty M_bdd
+  obtain ⟨c, hc_sup, _⟩ := sup_unique ax_NIP M M_nonempty M_bdd
   unfold IsSup at hc_sup
   have h_UB : ∀ x ∈ M, x ≤ c := λ x hx ↦ (hc_sup).1 x hx
   have h_Approx : ∀ ε > 0, ∃ x ∈ M, c - ε < x := (hc_sup).2

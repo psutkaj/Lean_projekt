@@ -1,7 +1,7 @@
 import LEANprj.defs
 
-theorem UniquenessSeq
-  (a : Sequence) (p q : ℝ) (h₁ : ConvergesTo a p) (h₂ : ConvergesTo a q) :
+theorem convergesTo_unique
+  (a : ℕ → ℝ) (p q : ℝ) (h₁ : ConvergesTo a p) (h₂ : ConvergesTo a q) :
   p = q  :=
 by
   by_contra hne

@@ -1,17 +1,19 @@
-import LEANprj._01Sets.Theorems.UniquenessOfSupremum
+import LEANprj._01Sets.Theorems.SupUnique
 import LEANprj.lemmas
 open Classical
 
-lemma inc_bdd_imp_conv
-  (a : ℕ → ℝ)
-  (ha_inc : IncreasingSequence a)
-  (ha_bdd : BoundedSequence a) :
+lemma convergesTo_of_bdd_inc
+  (a : ℕ → ℝ) :
+  AxSup →
+  IncreasingSequence a →
+  BoundedSequence a →
   Convergent a :=
 by
+  intro AxSup a_inc a_bdd
   let A := Set.range a
   have A_nonempty : A.Nonempty := by use a 0; tauto
   have A_upper_bdd : UpperBoundedSet A := by
-    obtain ⟨k, k_pos, hk⟩ := ha_bdd
+    obtain ⟨k, k_pos, hk⟩ := a_bdd
     unfold UpperBoundedSet
     use k
     intro m hm
@@ -21,7 +23,7 @@ by
     calc m
     _ ≤ |m| := le_abs_self m
     _ ≤ k := by rw [←hn]; exact hk n
-  obtain ⟨s, ⟨s_upper_bd, s_lub⟩, s_unique⟩ := uniqueness_supremum A A_nonempty A_upper_bdd
+  obtain ⟨s, ⟨s_upper_bd, s_lub⟩, s_unique⟩ := AxSup A A_nonempty A_upper_bdd
   use s
   intro ε ε_pos
   obtain ⟨x, xA, hx⟩ := s_lub ε ε_pos
@@ -29,7 +31,7 @@ by
   obtain ⟨n₀, hn₀⟩ := xA
   use n₀
   intro n hn
-  have h₁ : a n₀ ≤ a n := by exact inc_le_of_le ha_inc hn
+  have h₁ : a n₀ ≤ a n := by exact inc_le_of_le a_inc hn
   have h₂ : a n ≤ s := by exact s_upper_bd (a n) (by simp [A])
   rw [abs_lt]
   constructor
@@ -42,30 +44,29 @@ by
     _ ≤ 0 := by linarith
     _ < ε := ε_pos
 
-lemma dec_bdd_imp_conv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
-  unfold Convergent
-  unfold DecreasingSequence at ha_dec
-  unfold BoundedSequence at ha_bdd
-  obtain ⟨K, hK, K_bd⟩ := ha_bdd
-
+lemma convergesTo_of_bdd_dec
+  (a : ℕ → ℝ) :
+  AxSup →
+  DecreasingSequence a →
+  BoundedSequence a →
+  Convergent a := by
+  intro AxSup a_dec a_bdd
+  obtain ⟨K, hK, K_bd⟩ := a_bdd
   let b := λ n => -(a n)
-  have b_eq_neg_a : ∀ n, b n = - a n := by exact fun n => rfl
+  have b_eq_neg_a : ∀ n, b n = - a n := λ n => rfl
   have b_inc : IncreasingSequence b := by
-    unfold IncreasingSequence
     intro n
     rw [b_eq_neg_a n]
     rw [b_eq_neg_a (n+1)]
-    exact neg_le_neg_iff.mpr (ha_dec n)
+    exact neg_le_neg_iff.mpr (a_dec n)
   have b_bdd : BoundedSequence b := by
-    unfold BoundedSequence
-    refine ⟨K, hK, ?_⟩
+    use K, hK
     intro n
     rw [b_eq_neg_a n]
     have : |(-a n)| = |a n| := by exact abs_neg (a n)
     rw [this]
     exact K_bd n
-
-  have : Convergent b := by exact inc_bdd_imp_conv b b_inc b_bdd
+  have : Convergent b := by exact convergesTo_of_bdd_inc b AxSup b_inc b_bdd
   obtain ⟨q, hq⟩ := this
   use -q
   unfold ConvergesTo
@@ -83,7 +84,10 @@ lemma dec_bdd_imp_conv (a : ℕ → ℝ) (ha_dec : DecreasingSequence a) (ha_bdd
   rw [← b_eq_neg_a n₁]
   exact hn₀ n₁ hn₁
 
-theorem mono_bdd_imp_conv (a : ℕ → ℝ) (ha_mono : MonotonicSequence a) (ha_bdd : BoundedSequence a) : Convergent a := by
-  rcases ha_mono with hinc | hdec
-  · exact inc_bdd_imp_conv a hinc ha_bdd
-  · exact dec_bdd_imp_conv a hdec ha_bdd
+theorem convergesTo_of_bdd_mono :
+  AxSup →
+  AxMonoConv := by
+  intro AxSup a a_mono a_bdd
+  rcases a_mono with a_inc | a_dec
+  · exact convergesTo_of_bdd_inc a AxSup a_inc a_bdd
+  · exact convergesTo_of_bdd_dec a AxSup a_dec a_bdd

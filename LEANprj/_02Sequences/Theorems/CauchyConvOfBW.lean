@@ -1,9 +1,9 @@
-import LEANprj._02Sequences.Theorems.BolzanoWeierstrassConvSub
-import LEANprj._02Sequences.Theorems.CauchyImpliesBounded
+import LEANprj._02Sequences.Theorems.BWOfMonoConv
+import LEANprj._02Sequences.Theorems.BddOfCauchy
 import LEANprj.lemmas
 
 
-theorem convergent_imp_cauchy (a : ℕ → ℝ) (h : Convergent a) : CauchySequence a := by
+theorem cauchy_of_convergesTo (a : ℕ → ℝ) (h : Convergent a) : CauchySequence a := by
   intro ε hε
   obtain ⟨L, hL⟩ := h
   specialize hL (ε / 2) (half_pos hε)
@@ -14,26 +14,28 @@ theorem convergent_imp_cauchy (a : ℕ → ℝ) (h : Convergent a) : CauchySeque
   have h₁ := hN m (Nat.le_of_succ_le hm)
   have h₂ := hN n (Nat.le_of_succ_le hn)
   calc |a m - a n|
-      = |(a m - L) + (L - a n)| := by ring
+      = |(a m - L) + (L - a n)| := by ring_nf
     _ ≤ |a m - L| + |L - a n|   := abs_add _ _
     _ = |a m - L| + |a n - L|   := by simp [abs_sub_comm]
     _ < ε / 2 + ε / 2           := add_lt_add h₁ h₂
     _ = ε                       := add_halves ε
 
-theorem cauchy_imp_convergent
-  (a : ℕ → ℝ)
-  (h : CauchySequence a) :
+theorem convergesTo_of_cauchy
+  (a : ℕ → ℝ) :
+  AxBW →
+  CauchySequence a →
   Convergent a :=
 by
-  have ha_bdd : BoundedSequence a := by exact cauchy_implies_bdd h
-  obtain ⟨k, hk, conv_sub⟩ := bolzano_weierstrass_conv_subsequence a ha_bdd
+  intro AxBW a_cauchy
+  have ha_bdd : BoundedSequence a := bdd_of_cauchy a_cauchy
+  obtain ⟨k, hk, conv_sub⟩ := AxBW a ha_bdd
   obtain ⟨L, hL⟩ := conv_sub
   use L
   intro ε ε_pos
   obtain ⟨n₁, hn₁⟩ := hL (ε/2) (half_pos ε_pos)
-  dsimp [CauchySequence] at h
-  specialize h (ε/2) (half_pos ε_pos)
-  obtain ⟨n₂, hn₂⟩ := h
+  dsimp [CauchySequence] at a_cauchy
+  specialize a_cauchy (ε/2) (half_pos ε_pos)
+  obtain ⟨n₂, hn₂⟩ := a_cauchy
   let n₀ := max n₁ n₂ + 1
   use n₀
   intro n hn
@@ -64,13 +66,13 @@ by
     _ = ε := by linarith
 
 
-theorem cauchy_eq_conv
-  (a : ℕ → ℝ) :
-  CauchySequence a ↔ Convergent a :=
+theorem cauchy_conv_of_bw :
+  AxBW → AxCauchyConv :=
 by
+  intro AxBW a
   constructor
   · intro ha
-    exact cauchy_imp_convergent a ha
+    exact convergesTo_of_cauchy a AxBW ha
   · intro ha
-    exact convergent_imp_cauchy a ha
-#print axioms cauchy_eq_conv
+    exact cauchy_of_convergesTo a ha
+#print axioms cauchy_conv_of_bw

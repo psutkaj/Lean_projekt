@@ -1,4 +1,4 @@
-import LEANprj._01Sets.Theorems.NestedIntervalUniqueness
+import LEANprj._01Sets.Theorems.NIPUnique
 noncomputable section
 open Classical
 
@@ -169,12 +169,12 @@ end ConvergenceLemmas
 
 
 -- 6. HLAVNÍ VĚTA: EXISTENCE A JEDNOZNAČNOST SUPREMA
-theorem uniqueness_supremum :
-  ax_NIP → ax_sup :=
+theorem sup_unique :
+  AxNIP → AxSup :=
 by
-  dsimp [ax_NIP]
+  dsimp [AxNIP]
   -- KROK 1: INICIALIZACE A PŘÍPRAVA MEZÍ
-  intro ax_nip A hA hUpperBdd
+  intro AxNIP A hA hUpperBdd
   obtain ⟨l₀, hl₀⟩ := hA
   obtain ⟨u₀, hu₀⟩ := hUpperBdd
   have h_init : l₀ ≤ u₀ := hu₀ l₀ hl₀
@@ -213,7 +213,7 @@ by
           exact h_split a ha
 
   -- KROK 3: ZÍSKÁNÍ KANDIDÁTA (Průsečík intervalů)
-  obtain ⟨s, hs⟩ := ax_nip (lSeq A l₀ u₀) (uSeq A l₀ u₀) (lSeq_increasing A l₀ u₀ h_init) (uSeq_decreasing A l₀ u₀ h_init) (lSeq_le_uSeq A l₀ u₀ h_init)
+  obtain ⟨s, hs⟩ := AxNIP (lSeq A l₀ u₀) (uSeq A l₀ u₀) (lSeq_increasing A l₀ u₀ h_init) (uSeq_decreasing A l₀ u₀ h_init) (lSeq_le_uSeq A l₀ u₀ h_init)
   -- KROK 4: DŮKAZ EXISTENCE (Kandidát s splňuje definici IsSup)
   have hsSup : IsSup A s := by
     unfold IsSup
@@ -256,7 +256,6 @@ by
     let ε := y - s
     have hε : ε > 0 := sub_pos.mpr h_gt
     obtain ⟨x, hx_in, hx_close⟩ := hy.2 ε hε
-    have h_x_gt_s : s < x := by linarith
     have h_x_le_s : x ≤ s := hsSup.1 x hx_in
     linarith
 
@@ -266,15 +265,14 @@ by
     let ε := s - y
     have hε : ε > 0 := sub_pos.mpr h_gt
     obtain ⟨x, hx_in, hx_close⟩ := hsSup.2 ε hε
-    have h_x_gt_y : y < x := by linarith
     have h_x_le_y : x ≤ y := hy.1 x hx_in
     linarith
 
 -- 7. EXISTENCE A JEDNOZNAČNOST INFIMA
-theorem uniqueness_infimum : ax_NIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedSet A) →
+theorem inf_unique : AxNIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedSet A) →
   ∃! s : ℝ, IsInf A s := by
 
-  intro ax_nip A hA hLowerBdd
+  intro AxNIP A hA hLowerBdd
   let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
 
   have hNegA : negA.Nonempty := by
@@ -288,7 +286,7 @@ theorem uniqueness_infimum : ax_NIP → (A : Set ℝ) → (A.Nonempty) → (Lowe
     obtain ⟨a, ha, rfl⟩ := xNeg
     exact neg_le_neg_iff.mpr (hl a ha)
 
-  obtain ⟨s, hs, s_unique⟩ := uniqueness_supremum ax_nip negA hNegA hNegUpperBdd
+  obtain ⟨s, hs, s_unique⟩ := sup_unique AxNIP negA hNegA hNegUpperBdd
 
   use -s
   constructor
@@ -316,4 +314,4 @@ theorem uniqueness_infimum : ax_NIP → (A : Set ℝ) → (A.Nonempty) → (Lowe
         linarith
     linarith
 
-#print axioms uniqueness_supremum
+#print axioms sup_unique

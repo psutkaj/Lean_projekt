@@ -59,34 +59,31 @@ def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f 
 def FunctionContinuousOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∀ x ∈ M, FunctionContinuousAt f x
 def FunctionBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x| ≤ K
 
-
-
-
 -- 0. AXIOMY ÚPLNOSTI ℝ
-def ax_NIP : Prop :=
+def AxNIP : Prop :=
   (∀ l u : ℕ → ℝ,
   IncreasingSequence l →
   DecreasingSequence u →
   (∀ n, l n ≤ u n) →
   ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n)
 
-def ax_sup : Prop :=
+def AxSup : Prop :=
   ∀ (A : Set ℝ),
   A.Nonempty →
   UpperBoundedSet A →
   ∃! s : ℝ, IsSup A s
 
-def ax_monoconv : Prop :=
+def AxMonoConv : Prop :=
   ∀ (a : ℕ → ℝ),
   MonotonicSequence a →
   BoundedSequence a →
   Convergent a
 
-def ax_bw : Prop :=
+def AxBW : Prop :=
   ∀ (a : ℕ → ℝ),
   BoundedSequence a →
   ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ Convergent (Subsequence a k)
 
-def ax_cauchy_conv : Prop :=
+def AxCauchyConv : Prop :=
   ∀ (a : ℕ → ℝ),
   CauchySequence a ↔ Convergent a

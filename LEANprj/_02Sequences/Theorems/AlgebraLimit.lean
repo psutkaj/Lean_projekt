@@ -1,7 +1,9 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.ConvImpliesBdd
+import LEANprj._02Sequences.Theorems.BddOfConv
 
-theorem LimitAddSequence
+namespace convergesTo
+
+theorem add
   {a b : ℕ → ℝ} {c d : ℝ}
   (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
   ConvergesTo (a + b) (c + d) :=
@@ -22,7 +24,7 @@ by
     _ = ε := by ring
 
 
-theorem LimitSubSequence
+theorem sub
   {a b : ℕ → ℝ} {c d : ℝ}
   (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
   ConvergesTo (a - b) (c - d) :=
@@ -44,7 +46,7 @@ by
     _ = ε := by ring
 
 
-theorem lim_mul_seq
+theorem mul
   (a b : ℕ → ℝ) (c d : ℝ)
   (h₁ : ConvergesTo a c)
   (h₂ : ConvergesTo b d) :
@@ -52,7 +54,7 @@ theorem lim_mul_seq
 by
   unfold ConvergesTo at *
   intro ε ε_pos
-  have h_bound_a : BoundedSequence a := conv_implies_bdd (by use c; exact h₁)
+  have h_bound_a : BoundedSequence a := bdd_of_conv (by use c; exact h₁)
   obtain ⟨K₁, K₁_pos, hK₁⟩ := h_bound_a
   let K₂ := |d| + 1
   have K₂_pos : K₂ > 0 := by exact lt_add_of_le_of_pos (abs_nonneg d) zero_lt_one
@@ -81,7 +83,7 @@ by
   _ = 2 / 3 * ε := by ring
   _ < ε := by linarith
 
-lemma LimitSequenceInv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) : ConvergesTo (λ n ↦ (b n)⁻¹) d⁻¹ := by
+lemma inv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) : ConvergesTo (λ n ↦ (b n)⁻¹) d⁻¹ := by
   have d_pos : |d| > 0 := by exact abs_pos.mpr hd_ne
   obtain ⟨n₁, h_lower_bd⟩ := hb (|d| / 2) (by linarith)
   intro ε ε_pos
@@ -107,15 +109,7 @@ lemma LimitSequenceInv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne
     exact h_close n hn₂
   _ = ε := by dsimp [δ]; field_simp
 
-theorem LimitDivSequence (a b : ℕ → ℝ) (c d : ℝ) (h_d_nonzero : d ≠ 0) (h₁ : ConvergesTo a c) (h₂ : ConvergesTo b d) : ConvergesTo (a / b) (c / d) := by
-  exact LimitMulSequence a b⁻¹ c d⁻¹ h₁ (LimitSequenceInv b d h₂ h_d_nonzero)
+theorem div (a b : ℕ → ℝ) (c d : ℝ) (h_d_nonzero : d ≠ 0) (h₁ : ConvergesTo a c) (h₂ : ConvergesTo b d) : ConvergesTo (a / b) (c / d) := by
+  exact mul a b⁻¹ c d⁻¹ h₁ (inv b d h₂ h_d_nonzero)
 
-
-
-
-
-
-
-
-
-#print axioms LimitAddSequence
+end convergesTo

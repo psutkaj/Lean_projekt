@@ -17,7 +17,7 @@ lemma exists_mem_P_gt_of_infinite (P : Set ℕ) (hInf : P.Infinite) (t : ℕ) : 
   exact hInf (Set.finite_Iic t |>.subset hsub)
 
 -- Věta: Z každé posloupnosti v ℝ lze vybrat monotonní podposloupnost.
-theorem ex_mono_subsequence (a : ℕ → ℝ) :
+theorem exists_mono_subseq (a : ℕ → ℝ) :
   ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) := by
 
   -- Zavedeme množinu všech vrcholů posloupnosti.
