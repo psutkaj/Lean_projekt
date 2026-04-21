@@ -16,7 +16,6 @@ def StrictlyIncreasingSequenceN (k : ℕ → ℕ) := ∀ n : ℕ, k n < k (n + 1
 
 -- 3. PODPOSLOUPNOSTI
 def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := a ∘ k
--- def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : Sequence := λ n ↦ a (k n)
 
 -- 4. SUPREMUM A INFIMUM
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := (∀ x ∈ A, x ≤ s) ∧ (∀ ε > 0, ∃ x ∈ A, s - ε < x)
