@@ -19,7 +19,6 @@ theorem easy : 2 + 2 = 4 :=
 #check easy
 
 theorem hard : FermatLastTheorem := by
-
   sorry
 
 #check hard
@@ -52,7 +51,6 @@ by
 
 
 example (P : Prop) (hP : P) : P := by
-
   exact hP
 
 
@@ -79,9 +77,3 @@ example (a b : ℝ) :
   _ = a * (a + b) + b * (a + b) := by ring
   _ = a * a + b * a + a * b + b * b := by ring
   _ = a^2 + 2*a*b + b^2 := by ring
-
-
-def a : Sequence := λ n ↦ n
-def b : Sequence := λ n ↦ n^n
-def c : Sequence := λ n ↦ (-1)^n
-noncomputable def d : Sequence := λ n ↦ n / n

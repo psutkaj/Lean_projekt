@@ -1,5 +1,6 @@
 import LEANprj.defs
 
+
 lemma StrictlyIncreasingSequenceN_ge_id (k : ℕ → ℕ) (hk : StrictlyIncreasingSequenceN k) :
   ∀ n, k n ≥ n := by
   intro n
@@ -10,7 +11,6 @@ lemma StrictlyIncreasingSequenceN_ge_id (k : ℕ → ℕ) (hk : StrictlyIncreasi
     calc
       k (n + 1) ≥ k n + 1 := this
       _ ≥ n + 1 := by linarith
-
 
 lemma LimitOrderLe (a b  : ℕ → ℝ) (p q : ℝ)
   (h₁ : a ≤ b) (h₂ : ConvergesTo a p) (h₃ : ConvergesTo b q) : p ≤ q := by

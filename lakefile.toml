@@ -1,13 +1,10 @@
 name = "LEANprj"
 version = "0.1.0"
-defaultTargets = ["leanprj"]
+defaultTargets = ["LEANprj"]
 
 [[lean_lib]]
 name = "LEANprj"
-
-[[lean_exe]]
-name = "leanprj"
-root = "Main"
+src = "LEANprj"
 
 [[require]]
 name = "mathlib"
