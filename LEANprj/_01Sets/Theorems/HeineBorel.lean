@@ -1,8 +1,8 @@
 import LEANprj.defs
 import LEANprj.lemmas
-import LEANprj._02Sequences.Theorems.BolzanoWeierstrassConvSub
-import LEANprj._02Sequences.Theorems.UniquenessSeq
-import LEANprj._02Sequences.Theorems.ConvImpliesBdd
+import LEANprj._02Sequences.Theorems.AxBWOfAxMonoConv
+import LEANprj._02Sequences.Theorems.ConvergesToUnique
+import LEANprj._02Sequences.Theorems.BddOfConv
 
 theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M := by
   intro h_compact
@@ -22,7 +22,7 @@ theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M :=
     λ n => (Classical.choose_spec (exists_elem n)).2
   rcases h_compact a a_in_S with ⟨k, k_inc, l,  h_conv, l_in_M⟩
   have h_conv : Convergent (Subsequence a k) := by use l
-  have sub_bounded := ConvImpliesBdd h_conv
+  have sub_bounded := bdd_of_conv h_conv
   rcases sub_bounded with ⟨K, K_pos, h_sub_bound⟩
   let n_large := Nat.ceil K + 1
   have h_boom : |Subsequence a k n_large| > K := by
@@ -44,10 +44,10 @@ theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M :=
 
 
 
-theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M := by
+theorem HeineBorel (M : Set ℝ) : AxMonoConv → AxBW → (BoundedSet M ∧ ClosedSet M ↔ CompactSet M ):= by
+  intro AxMonoConv AxBW
   unfold BoundedSet ClosedSet CompactSet
   constructor
-  -- omezena a uzavrena -> kompaktni
   · intro a
     cases' a with bddM clsM
     intro a ha
@@ -59,7 +59,7 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
       intro n
       have : a n ∈ M := ha n
       exact c_bound (a n) (ha n)
-    obtain ⟨k, ⟨hk_inc, ⟨L, hL⟩⟩⟩ := BolzanoWeierstrassConvSub a ha_bdd
+    obtain ⟨k, ⟨hk_inc, ⟨L, hL⟩⟩⟩ := axBw_of_axMonoConv AxMonoConv a ha_bdd
     have LinM : L ∈ M := by
       apply clsM (Subsequence a k) L
       · intro n
@@ -76,6 +76,6 @@ theorem HeineBorel (M : Set ℝ) : BoundedSet M ∧ ClosedSet M ↔ CompactSet M
       obtain ⟨k, hk_inc, l, hl, lM⟩ := compactM a hn
       have h_leqL : l = L := by
         have hk_conv' := SubsequenceConvergesToSame ha_conv k hk_inc
-        apply UniquenessSeq (Subsequence a k) l L hl hk_conv'
+        apply convergesTo_unique (Subsequence a k) l L hl hk_conv'
       rw [← h_leqL]
       exact lM

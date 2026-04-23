@@ -1,5 +1,4 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.UniquenessSeq
 import LEANprj._04Functions.Theorems.HeineEqCauchy
 
 theorem UniquenessFun

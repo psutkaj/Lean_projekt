@@ -1,11 +1,12 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.CauchyEqConv
+import LEANprj._02Sequences.Theorems.AxCauchyConvOfAxBW
 
-theorem BolzanoCauchy (a : ℕ → ℝ) : SeriesConvergent a ↔ CauchySequence (PartialSum a) := by
+theorem BolzanoCauchy (a : ℕ → ℝ) : AxCauchyConv → (SeriesConvergent a ↔ CauchySequence (PartialSum a)) := by
+  intro AxCauchyConv
   rw [SeriesConvergent]
   unfold  SeriesConvergesTo
   rw [← Convergent]
-  exact Iff.symm (CauchyEqConv (PartialSum a))
+  exact Iff.symm (AxCauchyConv (PartialSum a))
 
 -- #print axioms BolzanoCauchy
 -- (Assuming your previous definitions of PartialSum and CauchySequence are loaded)
