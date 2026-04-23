@@ -2,7 +2,6 @@ import LEANprj.defs
 import LEANprj._02Sequences.Theorems.BddOfConv
 
 namespace convergesTo
-
 theorem add
   {a b : ℕ → ℝ} {c d : ℝ}
   (ha : ConvergesTo a c) (hb : ConvergesTo b d) :
@@ -22,7 +21,6 @@ by
     _ ≤ |a n - c| + |b n - d| := abs_add _ _
     _ < ε / 2 + ε / 2 := add_lt_add ha_appl hb_appl
     _ = ε := by ring
-
 
 theorem sub
   {a b : ℕ → ℝ} {c d : ℝ}
@@ -44,7 +42,6 @@ by
     _ = |a n - c| + |b n - d| := by simp; exact abs_sub_comm d (b n)
     _ < ε / 2 + ε / 2 := add_lt_add ha_appl hb_appl
     _ = ε := by ring
-
 
 theorem mul
   (a b : ℕ → ℝ) (c d : ℝ)

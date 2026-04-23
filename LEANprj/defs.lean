@@ -24,10 +24,6 @@ def IsInf (A : Set ℝ) (i : ℝ) : Prop := (∀ x ∈ A, i ≤ x) ∧ (∀ ε >
 -- 5. KONVERGENCE POSLOUPNOSTÍ
 def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
-def Divergent (a : ℕ → ℝ) := ¬Convergent a
-def DivergentToInf (a : ℕ → ℝ) := ∀ m > 0, ∃ n₀, ∀ n ≥ n₀, a n > m
-def DivergentToNegInf (a : ℕ → ℝ) := ∀ m < 0, ∃ n₀, ∀ n ≥ n₀, a n < m
-
 def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, (n > n₀ ∧ m > n₀) → |a n - a m| < ε
 
 -- 6. ŘADY

@@ -2,7 +2,6 @@ import LEANprj._02Sequences.Theorems.AxBwOfAxMonoConv
 import LEANprj._02Sequences.Theorems.BddOfCauchy
 import LEANprj.lemmas
 
-
 theorem cauchy_of_convergesTo (a : ℕ → ℝ) (h : Convergent a) : CauchySequence a := by
   intro ε hε
   obtain ⟨L, hL⟩ := h
@@ -65,7 +64,6 @@ by
     _ < ε/2 + ε/2 := add_lt_add hn₂ hn₁
     _ = ε := by linarith
 
-
 theorem axCauchyConv_of_axBw :
   AxBW → AxCauchyConv :=
 by
@@ -75,4 +73,3 @@ by
     exact convergesTo_of_cauchy a AxBW ha
   · intro ha
     exact cauchy_of_convergesTo a ha
-#print axioms axCauchyConv_of_axBw

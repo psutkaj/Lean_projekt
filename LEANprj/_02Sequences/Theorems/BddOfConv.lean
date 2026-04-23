@@ -1,13 +1,9 @@
 import LEANprj.defs
-open Classical
-open Real
 noncomputable section
 
 def max_upto (a : ℕ → ℝ) : ℕ → ℝ
   | 0 => |a 0|
   | (n + 1) => max (|a (n + 1)|) (max_upto a n)
-
-#eval max_upto (λ n ↦ (n - 5)^2) 9
 
 lemma le_max_upto
   (a : ℕ → ℝ) (n k : ℕ) (h : k ≤ n) :

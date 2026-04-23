@@ -3,19 +3,11 @@ noncomputable section
 open Classical
 
 -- 1. METODA PŮLENÍ INTERVALU (BISEKCE)
--- Zde definujeme algoritmickou konstrukci posloupnosti vnořených intervalů.
 section BisectionMethod
-
--- Kontext: Máme množinu A a počáteční meze l₀, u₀
 variable (A : Set ℝ) (l₀ u₀ : ℝ)
-
--- Definice středu (Midpoint)
--- @[simp] znamená, že taktika 'simp' automaticky nahradí 'mid l u' za '(l+u)/2'
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
 
--- Krok půlení (Rozhodovací strom)
--- Zjišťuje, zda existuje prvek množiny A v pravé polovině intervalu (mid, u].
--- Pokud ano, posuneme levý okraj na střed. Pokud ne, posuneme pravý okraj na střed.
+-- Krok půlení
 def step (l u : ℝ) : ℝ × ℝ :=
   if ∃ a ∈ A, mid l u < a then (mid l u, u) else (l, mid l u)
 
@@ -30,9 +22,9 @@ def uSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).2
 
 end BisectionMethod
 
--- 2. ELEMENTÁRNÍ GEOMETRICKÁ LEMMATA
+-- 2. ELEMENTÁRNÍ  LEMMATA
 -- Pomocná tvrzení o vlastnostech středu intervalu.
-section GeometryLemmas
+section Lemmas
 
 variable {l u : ℝ}
 
@@ -42,16 +34,13 @@ lemma l_le_mid (h : l ≤ u) : l ≤ mid l u := by
 lemma mid_le_u (h : l ≤ u) : mid l u ≤ u := by
   simp; linarith
 
-end GeometryLemmas
+end Lemmas
 
 -- 3. ZÁKLADNÍ VLASTNOSTI VYTVOŘENÝCH POSLOUPNOSTÍ
--- Důkazy monotonie a korektnosti hranic.
 section SequenceProperties
 
 variable (A : Set ℝ) (l₀ u₀ : ℝ)
--- Předpoklad: Počáteční interval je smysluplný (levý okraj ≤ pravý)
 variable (h_init : l₀ ≤ u₀)
-
 include h_init
 
 -- Zachování vnořenosti: lₙ ≤ uₙ platí pro všechna n
@@ -102,8 +91,6 @@ lemma gap_formula (n : ℕ) :
     rw [gap_halves A l₀ u₀ n, ih]
     field_simp; ring
 
-
-
 end SequenceProperties
 
 -- 4. LIMITA DÉLKY INTERVALU (Smrsknutí k nule)
@@ -112,7 +99,7 @@ section ConvergenceLemmas
 variable (A : Set ℝ) (l₀ u₀ : ℝ) (h_init : l₀ ≤ u₀)
 include h_init
 
--- Důkaz, že délka intervalu konverguje k nule (Archimédova vlastnost a Bernoulli)
+-- Důkaz, že délka intervalu konverguje k nule
 lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
   intro ε ε_pos
   have gap_nonneg : u₀ - l₀ ≥ 0 := by linarith
@@ -125,12 +112,9 @@ lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n
     intros n n_pos
     rw [gap_formula A l₀ u₀ n, hGap]
     simp; linarith
-
-  · -- Případ: Kladná počáteční délka (vyžaduje Archimédovu vlastnost)
+  · -- Případ: Kladná počáteční délka
     have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
     have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
-
-    -- Bernoulliho nerovnost: N ≤ 2^N
     have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
       intro N
       induction' N with k ih
@@ -140,7 +124,6 @@ lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n
              _ ≤ 2 ^ k + 2 ^ k := by exact add_le_add ih one_le
              _ = 2 * 2 ^ k := by ring
              _ = 2 ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
-
     obtain ⟨N, hN⟩ := exists_nat_gt ((u₀ - l₀) / ε)
     have pow_gt_gap_div : (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
     have pow_2_N_pos : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
@@ -152,14 +135,12 @@ lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n
         _ = ((u₀ - l₀) / ε) * (ε / (2^N)) := by ring
         _ < (2 ^ N) * (ε / (2^N)) := by exact mul_lt_mul_of_pos_right pow_gt_gap_div posRight
         _ = ε := by field_simp
-
     use N
     intros n hn
     have pow_inc : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
     have gap_dec : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos pow_2_N_pos (by norm_cast)
     have abs_gap_dec: |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
       rw [gap_abs n, gap_abs N]; exact gap_dec
-
     rw [gap_formula A l₀ u₀ n]
     calc
       |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := abs_gap_dec
@@ -173,14 +154,11 @@ theorem axSup_of_axNip :
   AxNIP → AxSup :=
 by
   dsimp [AxNIP]
-  -- KROK 1: INICIALIZACE A PŘÍPRAVA MEZÍ
   intro AxNIP A hA hUpperBdd
   obtain ⟨l₀, hl₀⟩ := hA
   obtain ⟨u₀, hu₀⟩ := hUpperBdd
   have h_init : l₀ ≤ u₀ := hu₀ l₀ hl₀
-
-  -- KROK 2: DŮKAZ STRUKTURÁLNÍCH INVARIANTŮ
-  -- Invariant: uₙ jsou vždy horní závory množiny A
+  -- uₙ jsou vždy horní závory množiny A
   have h_u_upper : ∀ n, ∀ a ∈ A, a ≤ uSeq A l₀ u₀ n := by
     intro n x hx
     induction n with
@@ -191,8 +169,7 @@ by
       · exact ih
       · push_neg at h
         exact h x hx
-
-  -- Invariant: V každém intervalu leží alespoň jeden prvek z A
+  -- V každém intervalu leží alespoň jeden prvek z A
   have h_contains_A_real : ∀ n, ∃ a ∈ A, lSeq A l₀ u₀ n ≤ a ∧ a ≤ uSeq A l₀ u₀ n := by
     intro n
     induction n with
@@ -211,14 +188,13 @@ by
         · exact h_low
         · push_neg at h_split
           exact h_split a ha
-
-  -- KROK 3: ZÍSKÁNÍ KANDIDÁTA (Průsečík intervalů)
+  -- kandidát - prusecik intervalu
   obtain ⟨s, hs⟩ := AxNIP (lSeq A l₀ u₀) (uSeq A l₀ u₀) (lSeq_increasing A l₀ u₀ h_init) (uSeq_decreasing A l₀ u₀ h_init) (lSeq_le_uSeq A l₀ u₀ h_init)
-  -- KROK 4: DŮKAZ EXISTENCE (Kandidát s splňuje definici IsSup)
+  -- overeni definice
   have hsSup : IsSup A s := by
     unfold IsSup
     constructor
-    · -- Vlastnost 1: s je horní závora
+    · -- s je horní závora
       intro x hx
       by_contra h_contra
       push_neg at h_contra
@@ -231,8 +207,7 @@ by
         _     < ε := by have := hn_gap (n + 1) (by linarith); exact lt_of_abs_lt this
         _     = x - s := rfl
       linarith
-
-    · -- Vlastnost 2: s je nejmenší horní závora (Aproximační vlastnost)
+    · -- s je nejmenší horní závora
       intro ε hε
       obtain ⟨n, hn_gap⟩ :=  gap_tendsto_zero A l₀ u₀ h_init ε hε
       obtain ⟨a, ha_in, ha_l, ha_u⟩ := h_contains_A_real (n + 1)
@@ -243,14 +218,11 @@ by
                have : s - uSeq A l₀ u₀ (n + 1) ≤ 0 := by simp; exact (hs (n + 1)).2
                linarith
            _     ≤ a := ha_l
-
-  -- Přidáme s do cíle pro důkaz existence
   use s, hsSup
-
-  -- KROK 5: DŮKAZ JEDNOZNAČNOSTI (∃!)
+  -- dukaz jednoznacnosti
   intro y hy
   apply le_antisymm
-  · -- Důkaz y ≤ s
+  · -- dukaz y ≤ s
     apply le_of_not_gt
     intro h_gt
     let ε := y - s
@@ -258,8 +230,7 @@ by
     obtain ⟨x, hx_in, hx_close⟩ := hy.2 ε hε
     have h_x_le_s : x ≤ s := hsSup.1 x hx_in
     linarith
-
-  · -- Důkaz s ≤ y
+  · -- dukaz s ≤ y
     apply le_of_not_gt
     intro h_gt
     let ε := s - y
@@ -268,26 +239,20 @@ by
     have h_x_le_y : x ≤ y := hy.1 x hx_in
     linarith
 
--- 7. EXISTENCE A JEDNOZNAČNOST INFIMA
 theorem inf_unique : AxNIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedSet A) →
   ∃! s : ℝ, IsInf A s := by
-
   intro AxNIP A hA hLowerBdd
   let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
-
   have hNegA : negA.Nonempty := by
     obtain ⟨a, ha⟩ := hA
     exact ⟨-a, a, ha, rfl⟩
-
   have hNegUpperBdd : ∃ u : ℝ, ∀ x ∈ negA, x ≤ u := by
     obtain ⟨l, hl⟩ := hLowerBdd
     use -l
     intro x xNeg
     obtain ⟨a, ha, rfl⟩ := xNeg
     exact neg_le_neg_iff.mpr (hl a ha)
-
   obtain ⟨s, hs, s_unique⟩ := axSup_of_axNip AxNIP negA hNegA hNegUpperBdd
-
   use -s
   constructor
   · constructor
@@ -313,5 +278,3 @@ theorem inf_unique : AxNIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedS
         use -b, ⟨b, hb_mem, rfl⟩
         linarith
     linarith
-
-#print axioms axSup_of_axNip

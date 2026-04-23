@@ -12,5 +12,3 @@ by
     intro n
     exact hKn (k n)
   exact AxMonoConv (Subsequence a k) k_mono sub_bdd
-
-#print axioms axBw_of_axMonoConv

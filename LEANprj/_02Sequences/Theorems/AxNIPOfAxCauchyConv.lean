@@ -61,5 +61,3 @@ theorem axNip_of_axCauchyConv :
     apply LimitOrderLe l (λ k ↦ (u n)) s (u n) this l_conv_s (?_)
     intro ε ε_pos
     simp_all
-
-#print axioms axNip_of_axCauchyConv
