@@ -1,11 +1,14 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.BolzanoWeierstrassConvSub
-import LEANprj._02Sequences.Theorems.SandwichSeq
+import LEANprj.lemmas
+import LEANprj._02Sequences.Theorems.AxBWOfAxMonoConv
+import LEANprj._02Sequences.Theorems.Sandwich
+import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 
 theorem WeierstrassBdd
   (f : ℝ → ℝ) (a b : ℝ) (_h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
-  FunctionBddOnSet Int f := by
+  AxMonoConv → FunctionBddOnSet Int f := by
+  intro AxMonoConv
   by_contra h_unbdd
   unfold FunctionBddOnSet at h_unbdd
   push_neg at h_unbdd
@@ -43,7 +46,7 @@ theorem WeierstrassBdd
           linarith
         _ ≤ |a| + |b| + 1 := by simp
         _ ≤ K := by dsimp [K]; simp
-  obtain ⟨k, hk_inc, c, hk_conv⟩ := BolzanoWeierstrassConvSub x_seq h_x_seq_bounded
+  obtain ⟨k, hk_inc, c, hk_conv⟩ := axBw_of_axMonoConv AxMonoConv x_seq h_x_seq_bounded
   have hc_in_Int : c ∈ Int := by
     rw [hInt]
     simp
@@ -143,7 +146,8 @@ theorem ContinuousImpliesSequential
 theorem WeierstrassMax
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
-  ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M := by
+  AxMonoConv → AxNIP → ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M := by
+  intro AxMonoConv AxNIP
   let S := {f y | y ∈ Int}
   have S_nonempty : S.Nonempty := by
     use f a
@@ -155,7 +159,7 @@ theorem WeierstrassMax
     rfl
   have S_bdd : BoundedSet S := by
     unfold BoundedSet
-    obtain ⟨c, c_pos, hc⟩ := WeierstrassBdd f a b h_ab Int hInt h_cont
+    obtain ⟨c, c_pos, hc⟩ := WeierstrassBdd f a b h_ab Int hInt h_cont AxMonoConv
     use c, c_pos
     intro m hm
     dsimp [S] at hm
@@ -170,7 +174,7 @@ theorem WeierstrassMax
     trans |a|
     · exact le_abs_self a
     · exact hc
-  obtain ⟨M, IsSupM, UniqueM⟩ := UniquenessOfSupremum S S_nonempty S_upper_bdd
+  obtain ⟨M, IsSupM, UniqueM⟩ := axSup_of_axNip AxNIP S S_nonempty S_upper_bdd
   unfold IsSup at IsSupM
   cases' IsSupM with upper_bd lowest_upper
   let ε : ℕ → ℝ := λ n ↦ 1 / (n + 1 : ℝ)
@@ -211,7 +215,7 @@ theorem WeierstrassMax
         _ ≤ |b| := le_abs_self b
         _ ≤ max (|a|) (|b|) := le_max_right _ _
         _ ≤ max (|a|) (|b|) + 1 := by linarith
-  obtain ⟨k, hk_inc, hk_conv⟩ := BolzanoWeierstrassConvSub x x_bdd
+  obtain ⟨k, hk_inc, hk_conv⟩ := axBw_of_axMonoConv AxMonoConv x x_bdd
   obtain ⟨c, hc⟩ := hk_conv
   have c_in_Int : c ∈ Int := by
     rw [hInt]
@@ -303,7 +307,9 @@ theorem WeierstrassMax
 theorem WeierstrassMin
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
+  AxMonoConv → AxNIP →
   ∃ m ∈ Int, ∀ x ∈ Int, f m ≤ f x := by
+  intro AxMonoConv AxNIP
   let g := λ x ↦ - f x
   have g_cont : FunctionContinuousOnSet Int g := by
     intro x hx
@@ -321,7 +327,7 @@ theorem WeierstrassMin
       _ = |- f x₁ + f x| := by ring_nf
     rw [←this]
     exact hδ
-  obtain ⟨m, hm, m_leq⟩ := WeierstrassMax g a b h_ab Int hInt g_cont
+  obtain ⟨m, hm, m_leq⟩ := WeierstrassMax g a b h_ab Int hInt g_cont AxMonoConv AxNIP
   use m, hm
   intro x hx
   specialize m_leq x hx
@@ -331,9 +337,11 @@ theorem WeierstrassMin
 theorem WeierstrassExtremeValue
   (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
   (h_cont : FunctionContinuousOnSet Int f) :
-  (FunctionBddOnSet Int f) ∧
+  AxNIP → AxMonoConv → AxSup →
+  ((FunctionBddOnSet Int f) ∧
   (∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M) ∧
-  (∃ m ∈ Int, ∀ x ∈ Int, f m ≤ f x) := by
-  exact ⟨WeierstrassBdd f a b h_ab Int hInt h_cont, WeierstrassMax f a b h_ab Int hInt h_cont, WeierstrassMin f a b h_ab Int hInt h_cont⟩
+  (∃ m ∈ Int, ∀ x ∈ Int, f m ≤ f x)) := by
+  intro AxNIP AxMonoConv AxSup
+  exact ⟨WeierstrassBdd f a b h_ab Int hInt h_cont AxMonoConv, WeierstrassMax f a b h_ab Int hInt h_cont AxMonoConv AxNIP, WeierstrassMin f a b h_ab Int hInt h_cont AxMonoConv AxNIP⟩
 
 #print axioms WeierstrassExtremeValue

@@ -1,5 +1,5 @@
 import LEANprj.defs
-import LEANprj._01Sets.Theorems.SupUnique
+import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 import LEANprj._05Continuity.Theorems.ContinuityKeepsSgn
 
 theorem BolzanoZeroValue

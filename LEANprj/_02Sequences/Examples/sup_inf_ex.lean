@@ -1,4 +1,4 @@
-import LEANprj.defs
+-- import LEANprj.defs
 
 -- example (a : ℕ → ℝ) (ha : ∀ n : ℕ, a n = 1) : IsSup a 1 ∧ IsInf a 1 := by
 --   constructor

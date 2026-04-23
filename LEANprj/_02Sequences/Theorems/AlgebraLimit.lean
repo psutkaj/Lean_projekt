@@ -66,7 +66,7 @@ by
   have hn₁ : n ≥ n₁ := le_of_max_le_left hn
   have hn₂ : n ≥ n₂ := le_of_max_le_right hn
   calc |a n * b n - c * d|
-  _ = |a n * (b n - d) + d * (a n - c)| := by ring
+  _ = |a n * (b n - d) + d * (a n - c)| := by ring_nf
   _ ≤ |a n * (b n - d)| + |d * (a n - c)| := by exact abs_add_le _ _
   _ = |a n| * |b n - d| + |d| * |a n - c| := by simp
   _ ≤ K₁ * ε_b + K₂ * ε_a := by
