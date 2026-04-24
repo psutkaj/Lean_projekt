@@ -4,10 +4,6 @@ import LEANprj.test
 import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 import LEANprj._01Sets.Theorems.HeineBorel
 import LEANprj._01Sets.Theorems.NIPUnique
-import LEANprj._02Sequences.Examples.bounded_ex
-import LEANprj._02Sequences.Examples.conv_ex
-import LEANprj._02Sequences.Examples.monotone_ex
-import LEANprj._02Sequences.Examples.sup_inf_ex
 import LEANprj._02Sequences.Theorems.AlgebraLimit
 import LEANprj._02Sequences.Theorems.AxBwOfAxMonoConv
 import LEANprj._02Sequences.Theorems.AxCauchyConvOfAxBw

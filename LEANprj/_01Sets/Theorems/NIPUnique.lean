@@ -17,7 +17,7 @@ by
   have : |s - t| > 0 := by
     simp
     push_neg
-    exact sub_ne_zero_of_ne (id (Ne.symm hne))
+    exact sub_ne_zero_of_ne hne.symm
   obtain ⟨n₀, hn₀⟩ := shrink_to_zero |s - t| this
   have : ∀ n > n₀, |u n - l n| ≥ |s - t| := by
     intro n hn
@@ -36,18 +36,18 @@ by
       _ = (u n - t) + (t - s) + (s - l n) := by ring
       _ ≥ 0 + (t - s) + 0 := by gcongr; linarith; linarith
       _ = t - s := by ring
-    have eq₁: |u n - l n| = u n - l n := abs_of_nonneg nonneg
+    have eq₁ : |u n - l n| = u n - l n := abs_of_nonneg nonneg
     have abs_eq : |s - t| = |t - s| := abs_sub_comm s t
     by_cases h : s > t
     · have : s - t > 0 := sub_pos.mpr h
-      have eq₂: |s - t| = s - t := abs_of_pos this
-      rw [eq₁,eq₂]
+      have eq₂ : |s - t| = s - t := abs_of_pos this
+      rw [eq₁, eq₂]
       exact geq_ty
     · push_neg at h
-      have : t > s := lt_of_le_of_ne h (id (Ne.symm hne))
+      have : t > s := lt_of_le_of_ne h hne.symm
       have : t - s > 0 := sub_pos.mpr this
-      have eq₂: |t - s| = t - s := abs_of_pos this
-      rw [eq₁,abs_eq,eq₂]
+      have eq₂ : |t - s| = t - s := abs_of_pos this
+      rw [eq₁, abs_eq,eq₂]
       exact geq_yt
   specialize hn₀ (n₀ + 1) (by linarith)
   specialize this (n₀ + 1) (by linarith)

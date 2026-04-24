@@ -42,8 +42,6 @@ theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M :=
   have h_bust := h_sub_bound n_large
   linarith
 
-
-
 theorem HeineBorel (M : Set ℝ) : AxMonoConv → AxBW → (BoundedSet M ∧ ClosedSet M ↔ CompactSet M ):= by
   intro AxMonoConv AxBW
   unfold BoundedSet ClosedSet CompactSet
