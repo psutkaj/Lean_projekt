@@ -28,7 +28,7 @@ theorem BolzanoZeroValue
       let ε := c - b
       obtain ⟨x, hx_M, hx_close⟩ := h_Approx ε (by linarith)
       have : x > b := by linarith
-      have : x ≤ b := by exact hx_M.2.1
+      have : x ≤ b := hx_M.2.1
       linarith
   use c, c_in_Icc
   by_cases h_fc_neg : f c < 0
@@ -41,7 +41,7 @@ theorem BolzanoZeroValue
       linarith
     let step := min (δ/2) (b - c)
     let x := c + step
-    have step_pos : step > 0 := by exact lt_min (half_pos δ_pos) (sub_pos.mpr h_c_lt_b)
+    have step_pos : step > 0 := lt_min (half_pos δ_pos) (sub_pos.mpr h_c_lt_b)
     have hx_in_M : x ∈ M := by
       constructor
       · linarith [c_in_Icc.1]

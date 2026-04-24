@@ -38,7 +38,7 @@ by
   have hb_appl := hbN n (le_trans (le_max_right _ _) hn)
   calc
     |a n - b n - (c - d)| = |(a n - c) + (-1) * (b n - d)| := by ring_nf
-    _ ≤ |a n - c| + |(-1) * (b n - d)| := by exact abs_add_le (a n - c) (-1 * (b n - d))
+    _ ≤ |a n - c| + |(-1) * (b n - d)| := abs_add_le (a n - c) (-1 * (b n - d))
     _ = |a n - c| + |b n - d| := by simp; exact abs_sub_comm d (b n)
     _ < ε / 2 + ε / 2 := add_lt_add ha_appl hb_appl
     _ = ε := by ring
@@ -54,7 +54,7 @@ by
   have h_bound_a : BoundedSequence a := bdd_of_conv (by use c; exact h₁)
   obtain ⟨K₁, K₁_pos, hK₁⟩ := h_bound_a
   let K₂ := |d| + 1
-  have K₂_pos : K₂ > 0 := by exact lt_add_of_le_of_pos (abs_nonneg d) zero_lt_one
+  have K₂_pos : K₂ > 0 := lt_add_of_le_of_pos (abs_nonneg d) zero_lt_one
   let ε_a := ε / (3 * K₂)
   let ε_b := ε / (3 * K₁)
   have h_εa_pos : ε_a > 0 := div_pos ε_pos (mul_pos three_pos K₂_pos)
@@ -67,7 +67,7 @@ by
   have hn₂ : n ≥ n₂ := le_of_max_le_right hn
   calc |a n * b n - c * d|
   _ = |a n * (b n - d) + d * (a n - c)| := by ring_nf
-  _ ≤ |a n * (b n - d)| + |d * (a n - c)| := by exact abs_add_le _ _
+  _ ≤ |a n * (b n - d)| + |d * (a n - c)| := abs_add_le _ _
   _ = |a n| * |b n - d| + |d| * |a n - c| := by simp
   _ ≤ K₁ * ε_b + K₂ * ε_a := by
     gcongr
@@ -81,11 +81,11 @@ by
   _ < ε := by linarith
 
 lemma inv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) : ConvergesTo (λ n ↦ (b n)⁻¹) d⁻¹ := by
-  have d_pos : |d| > 0 := by exact abs_pos.mpr hd_ne
+  have d_pos : |d| > 0 := abs_pos.mpr hd_ne
   obtain ⟨n₁, h_lower_bd⟩ := hb (|d| / 2) (by linarith)
   intro ε ε_pos
   let δ := ε * (|d| / 2 * |d|)
-  have δ_pos : δ > 0 := by dsimp [δ]; field_simp; simp; exact Left.mul_pos ε_pos (by exact pow_two_pos_of_ne_zero hd_ne)
+  have δ_pos : δ > 0 := by dsimp [δ]; field_simp; simp; exact Left.mul_pos ε_pos (pow_two_pos_of_ne_zero hd_ne)
   obtain ⟨n₂, h_close⟩ := hb δ δ_pos
   use max n₁ n₂
   intro n hn
@@ -96,7 +96,7 @@ lemma inv (b : ℕ → ℝ) (d : ℝ) (hb : ConvergesTo b d) (hd_ne : d ≠ 0) :
     rw [abs_sub_comm] at h_lower_bd
     have := abs_sub_abs_le_abs_sub d (b n)
     linarith
-  have h_bn_ne : b n ≠ 0 := by exact abs_pos.mp (by linarith)
+  have h_bn_ne : b n ≠ 0 := abs_pos.mp (by linarith)
   calc |(b n)⁻¹ - d⁻¹|
   _ = |(d - b n) / (b n * d)| := by field_simp
   _ = |d - b n| / (|b n| * |d|) := by rw [abs_div, abs_mul]

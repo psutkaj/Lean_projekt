@@ -37,7 +37,7 @@ theorem WeierstrassBdd
         have : |b| ≥ 0 := abs_nonneg b
         calc -1 ≤ 0 := by linarith
         _ ≤ |b| := this
-      _ ≤ a := by exact neg_abs_le a
+      _ ≤ a := neg_abs_le a
       _ ≤ x_seq n := h_left
     · calc x_seq n
         _ ≤ b := h_right
@@ -109,7 +109,7 @@ theorem WeierstrassBdd
   have h_val_bound : |f (x_seq (k n))| < |f c| + 1 := by
     rw [abs_sub_comm] at hN
     have : |f (x_seq (k n))| ≤ |f c| + |f (x_seq (k n)) - f c| := by linarith
-    have : |f (x_seq (k n)) - f c| = |f c - f (x_seq (k n))| := by exact abs_sub_comm (f (x_seq (k n))) (f c)
+    have : |f (x_seq (k n)) - f c| = |f c - f (x_seq (k n))| := abs_sub_comm (f (x_seq (k n))) (f c)
     have : |f c| + |f (x_seq (k n)) - f c| < |f c| + 1 := by linarith
     linarith
   have h_seq_bound : |f (x_seq (k n))| ≥ n + 1 := by
@@ -197,7 +197,7 @@ theorem WeierstrassMax
     constructor
     · simp
       have : max |a| |b| ≥ 0 := by
-        exact le_sup_of_le_right (by exact abs_nonneg b)
+        exact le_sup_of_le_right (abs_nonneg b)
       exact lt_add_of_nonneg_of_lt this (by simp)
     · intro n
 
@@ -323,7 +323,7 @@ theorem WeierstrassMin
     specialize hδ x₁ hx₁
     have : |f x₁ - f x| = |-f x₁ + f x| := by calc |f x₁ - f x|
       _ = |-1| * |f x₁ - f x| := by simp
-      _ = |(-1) * (f x₁ - f x)| := by exact Eq.symm (abs_mul (-1) (f x₁ - f x))
+      _ = |(-1) * (f x₁ - f x)| := Eq.symm (abs_mul (-1) (f x₁ - f x))
       _ = |- f x₁ + f x| := by ring_nf
     rw [←this]
     exact hδ

@@ -1,11 +1,11 @@
 import Mathlib
 
--- 1. POSLOUPNOSTI (Omezenost)
+-- ## 1. POSLOUPNOSTI (Omezenost)
 def LowerBoundedSequence (a : ℕ → ℝ) := ∃ l : ℝ, ∀ n : ℕ, l ≤ a n
 def UpperBoundedSequence (a : ℕ → ℝ) := ∃ u : ℝ, ∀ n : ℕ, a n ≤ u
 def BoundedSequence (a : ℕ → ℝ) := ∃ K > 0, ∀ n : ℕ, |a n| ≤ K
 
--- 2. POSLOUPNOSTI (Monotonie)
+-- ## 2. POSLOUPNOSTI (Monotonie)
 def IncreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a n ≤ a (n + 1)
 def StrictlyIncreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a n < a (n + 1)
 def DecreasingSequence (a : ℕ → ℝ) := ∀ n : ℕ, a (n + 1) ≤ a n
@@ -14,27 +14,27 @@ def MonotonicSequence (a : ℕ → ℝ) := IncreasingSequence a ∨ DecreasingSe
 def StrictlyMonotonicSequence (a : ℕ → ℝ) := StrictlyIncreasingSequence a ∨ StrictlyDecreasingSequence a
 def StrictlyIncreasingSequenceN (k : ℕ → ℕ) := ∀ n : ℕ, k n < k (n + 1)
 
--- 3. PODPOSLOUPNOSTI
+-- ## 3. PODPOSLOUPNOSTI
 def Subsequence (a : ℕ → ℝ) (k : ℕ → ℕ) : ℕ → ℝ := a ∘ k
 
--- 4. SUPREMUM A INFIMUM
+-- ## 4. SUPREMUM A INFIMUM
 def IsSup (A : Set ℝ) (s : ℝ) : Prop := (∀ x ∈ A, x ≤ s) ∧ (∀ ε > 0, ∃ x ∈ A, s - ε < x)
 def IsInf (A : Set ℝ) (i : ℝ) : Prop := (∀ x ∈ A, i ≤ x) ∧ (∀ ε > 0, ∃ x ∈ A, x < i + ε)
 
--- 5. KONVERGENCE POSLOUPNOSTÍ
+-- ## 5. KONVERGENCE POSLOUPNOSTÍ
 def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
 def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, (n > n₀ ∧ m > n₀) → |a n - a m| < ε
 
--- 6. ŘADY
+-- ## 6. ŘADY
 def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 1), a k
 def SeriesConvergesTo (a : ℕ → ℝ) (s : ℝ) : Prop := ConvergesTo (PartialSum a) s
 def SeriesConvergent (a : ℕ → ℝ) : Prop := ∃ s : ℝ, SeriesConvergesTo a s
 
--- 7. TOPOLOGICKÉ VLASTNOSTI MNOŽIN
+-- ## 7. TOPOLOGICKÉ VLASTNOSTI MNOŽIN
 def CompactSet (M : Set ℝ) : Prop :=
   ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ∈ M) →
-  ∃ (k : ℕ → ℕ), StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
+    ∃ (k : ℕ → ℕ), StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
 
 def ClosedSet (M : Set ℝ) : Prop :=
   ∀ (a : ℕ → ℝ) (L : ℝ), (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
@@ -43,9 +43,10 @@ def UpperBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, m ≤ c
 def LowerBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, c ≤ m
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| ≤ c
 
--- 8. LIMITY FUNKCÍ A SPOJITOST
+-- ## 8. LIMITY FUNKCÍ A SPOJITOST
 def HeineLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
   ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
+
 def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
   ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
 
@@ -54,31 +55,19 @@ def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f 
 def FunctionContinuousOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∀ x ∈ M, FunctionContinuousAt f x
 def FunctionBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x| ≤ K
 
--- 0. AXIOMY ÚPLNOSTI ℝ
+-- ## 0. AXIOMY ÚPLNOSTI ℝ
 def AxNIP : Prop :=
-  (∀ l u : ℕ → ℝ,
-  IncreasingSequence l →
-  DecreasingSequence u →
-  (∀ n, l n ≤ u n) →
-  ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n)
+  ∀ l u : ℕ → ℝ, IncreasingSequence l → DecreasingSequence u → (∀ n, l n ≤ u n) →
+    ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
 def AxSup : Prop :=
-  ∀ (A : Set ℝ),
-  A.Nonempty →
-  UpperBoundedSet A →
-  ∃! s : ℝ, IsSup A s
+  ∀ (A : Set ℝ), A.Nonempty → UpperBoundedSet A → ∃! s : ℝ, IsSup A s
 
 def AxMonoConv : Prop :=
-  ∀ (a : ℕ → ℝ),
-  MonotonicSequence a →
-  BoundedSequence a →
-  Convergent a
+  ∀ (a : ℕ → ℝ), MonotonicSequence a → BoundedSequence a → Convergent a
 
 def AxBW : Prop :=
-  ∀ (a : ℕ → ℝ),
-  BoundedSequence a →
-  ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ Convergent (Subsequence a k)
+  ∀ (a : ℕ → ℝ), BoundedSequence a → ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ Convergent (Subsequence a k)
 
 def AxCauchyConv : Prop :=
-  ∀ (a : ℕ → ℝ),
-  CauchySequence a ↔ Convergent a
+  ∀ (a : ℕ → ℝ), CauchySequence a ↔ Convergent a

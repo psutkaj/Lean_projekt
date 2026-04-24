@@ -5,6 +5,7 @@ open Classical
 -- 1. METODA PŮLENÍ INTERVALU (BISEKCE)
 section BisectionMethod
 variable (A : Set ℝ) (l₀ u₀ : ℝ)
+
 @[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
 
 -- Krok půlení
@@ -113,19 +114,19 @@ lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n
     rw [gap_formula A l₀ u₀ n, hGap]
     simp; linarith
   · -- Případ: Kladná počáteční délka
-    have gap_pos : u₀ - l₀ > 0 := by exact lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
-    have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := by exact div_pos gap_pos ε_pos
+    have gap_pos : u₀ - l₀ > 0 := lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
+    have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := div_pos gap_pos ε_pos
     have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
       intro N
       induction' N with k ih
       · simp
-      · have one_le : (1 : ℝ) ≤ 2 ^ k := by exact one_le_pow₀ (by linarith)
+      · have one_le : (1 : ℝ) ≤ 2 ^ k := one_le_pow₀ (by linarith)
         calc (↑k.succ : ℝ) = (k : ℝ) + 1 := by simp [Nat.succ_eq_add_one]
-             _ ≤ 2 ^ k + 2 ^ k := by exact add_le_add ih one_le
+             _ ≤ 2 ^ k + 2 ^ k := add_le_add ih one_le
              _ = 2 * 2 ^ k := by ring
-             _ = 2 ^ k.succ := by exact Eq.symm (pow_succ' 2 k)
+             _ = 2 ^ k.succ := Eq.symm (pow_succ' 2 k)
     obtain ⟨N, hN⟩ := exists_nat_gt ((u₀ - l₀) / ε)
-    have pow_gt_gap_div : (u₀ - l₀) / ε < 2 ^ N := by exact lt_of_le_of_lt' (nat_le_pow_two N) hN
+    have pow_gt_gap_div : (u₀ - l₀) / ε < 2 ^ N := lt_of_le_of_lt' (nat_le_pow_two N) hN
     have pow_2_N_pos : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
     have posRight : 0 < ε / 2 ^ N := div_pos ε_pos pow_2_N_pos
 
@@ -133,18 +134,18 @@ lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n
       calc
         (u₀ - l₀) / 2^N = (u₀ - l₀) / 2^N * ε / ε := by field_simp
         _ = ((u₀ - l₀) / ε) * (ε / (2^N)) := by ring
-        _ < (2 ^ N) * (ε / (2^N)) := by exact mul_lt_mul_of_pos_right pow_gt_gap_div posRight
+        _ < (2 ^ N) * (ε / (2^N)) := mul_lt_mul_of_pos_right pow_gt_gap_div posRight
         _ = ε := by field_simp
     use N
     intros n hn
-    have pow_inc : 2 ^ N < 2 ^ n := by exact Nat.pow_lt_pow_right (by linarith) (by linarith)
-    have gap_dec : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := by exact div_lt_div_of_pos_left gap_pos pow_2_N_pos (by norm_cast)
+    have pow_inc : 2 ^ N < 2 ^ n := Nat.pow_lt_pow_right (by linarith) (by linarith)
+    have gap_dec : (u₀ - l₀) / 2 ^ n < (u₀ - l₀) / 2 ^ N := div_lt_div_of_pos_left gap_pos pow_2_N_pos (by norm_cast)
     have abs_gap_dec: |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := by
       rw [gap_abs n, gap_abs N]; exact gap_dec
     rw [gap_formula A l₀ u₀ n]
     calc
       |(u₀ - l₀) / 2 ^ n| < |(u₀ - l₀) / 2 ^ N| := abs_gap_dec
-      _ < ε := by exact lt_of_eq_of_lt (gap_abs N) base
+      _ < ε := lt_of_eq_of_lt (gap_abs N) base
 
 end ConvergenceLemmas
 

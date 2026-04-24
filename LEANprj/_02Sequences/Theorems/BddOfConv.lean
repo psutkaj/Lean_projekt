@@ -10,14 +10,14 @@ lemma le_max_upto
   |a k| ≤ max_upto a n :=
 by
   induction' n with d hd
-  · have : k = 0 := by exact Nat.eq_zero_of_le_zero h
+  · have : k = 0 := Nat.eq_zero_of_le_zero h
     rw [this, max_upto]
   · rw [max_upto]
     by_cases h₁ : k = d + 1
     · exact le_sup_of_le_left (by rw [h₁])
     · push_neg at h₁
       have : k ≤ d := by
-        have : k < d + 1 := by exact Nat.lt_of_le_of_ne h h₁
+        have : k < d + 1 := Nat.lt_of_le_of_ne h h₁
         exact Nat.le_of_lt_succ this
       exact le_sup_of_le_right (hd this)
 
@@ -43,7 +43,7 @@ by
     exact le_max_upto a n₀ n h
   · simp
     right
-    have : |a n| - |c| ≤ |a n - c| := by exact abs_sub_abs_le_abs_sub (a n) c
+    have : |a n| - |c| ≤ |a n - c| := abs_sub_abs_le_abs_sub (a n) c
     calc |a n|
       _ ≤ |a n - c| + |c| := by linarith
       _ ≤ 1 + |c| := by

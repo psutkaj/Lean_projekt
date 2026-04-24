@@ -44,7 +44,7 @@ by
       rw [eq₁,eq₂]
       exact geq_ty
     · push_neg at h
-      have : t > s := by exact lt_of_le_of_ne h (id (Ne.symm hne))
+      have : t > s := lt_of_le_of_ne h (id (Ne.symm hne))
       have : t - s > 0 := sub_pos.mpr this
       have eq₂: |t - s| = t - s := abs_of_pos this
       rw [eq₁,abs_eq,eq₂]

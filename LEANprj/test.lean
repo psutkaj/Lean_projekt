@@ -73,7 +73,7 @@ example
 example (a b : ℝ) :
   (a + b)^2 = a^2 + 2*a*b + b^2 := by
   calc (a + b)^2
-  _ = (a + b) * (a + b) := by ring
-  _ = a * (a + b) + b * (a + b) := by ring
-  _ = a * a + b * a + a * b + b * b := by ring
-  _ = a^2 + 2*a*b + b^2 := by ring
+  _ = (a + b) * (a + b) := pow_two (a + b)
+  _ = a * (a + b) + b * (a + b) := RightDistribClass.right_distrib a b (a + b)
+  _ = a * a + b * a + a * b + b * b := by group
+  _ = a^2 + 2*a*b + b^2 := by group

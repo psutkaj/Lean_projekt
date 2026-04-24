@@ -18,8 +18,8 @@ by
   rw [abs_lt] at hc_appl
   have ha_lower  : q - ε < a n   := by linarith
   have hc_upper  : c n < q + ε   := by linarith
-  have hb_lower1 : q - ε < b n   := by exact lt_of_lt_of_le ha_lower (h₁ n)
+  have hb_lower1 : q - ε < b n   := lt_of_lt_of_le ha_lower (h₁ n)
   have hb_lower2 : - ε < b n - q := by linarith
-  have hb_upper1 : b n < q + ε   := by exact lt_of_le_of_lt (h₂ n) hc_upper
+  have hb_upper1 : b n < q + ε   := lt_of_le_of_lt (h₂ n) hc_upper
   have hb_upper2 : b n - q < ε   := by linarith
   exact ⟨hb_lower2, hb_upper2⟩

@@ -19,15 +19,15 @@ lemma HeineImpCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : HeineLimitFuncti
   have h_conv_a : ConvergesTo a x₀ := by
     unfold ConvergesTo
     intro e e_pos
-    have h_arch : ∃ n₀ : ℕ, 1 / (n₀ + 1 : ℝ) < e := by exact exists_nat_one_div_lt e_pos
+    have h_arch : ∃ n₀ : ℕ, 1 / (n₀ + 1 : ℝ) < e := exists_nat_one_div_lt e_pos
     obtain ⟨n₀, hn₀⟩ := h_arch
     use n₀
     intro n hn
     calc
-      |a n - x₀| < 1 / (n + 1) := by exact h_squeeze n
+      |a n - x₀| < 1 / (n + 1) := h_squeeze n
       _ ≤ 1 / (n₀ + 1) := by gcongr
-      _ < e := by exact hn₀
-  have h_conv_f : ConvergesTo (f ∘ a) b := by exact Heine a h_neq h_conv_a
+      _ < e := hn₀
+  have h_conv_f : ConvergesTo (f ∘ a) b := Heine a h_neq h_conv_a
   unfold ConvergesTo at h_conv_f
   obtain ⟨n₀, h_close⟩ := h_conv_f ε ε_pos
   specialize h_close n₀ (by linarith)

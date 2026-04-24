@@ -7,8 +7,8 @@ by
   by_contra hne
   push_neg at hne
   let ε := |p - q|
-  have hε_pos : ε > 0 := by exact abs_sub_pos.mpr hne
-  have hε_half_pos : ε / 2 > 0 := by exact half_pos hε_pos
+  have hε_pos : ε > 0 := abs_sub_pos.mpr hne
+  have hε_half_pos : ε / 2 > 0 := half_pos hε_pos
   obtain ⟨n₁, hn₁⟩ := h₁ (ε/2) hε_half_pos
   obtain ⟨n₂, hn₂⟩ := h₂ (ε/2) hε_half_pos
   let n := max n₁ n₂

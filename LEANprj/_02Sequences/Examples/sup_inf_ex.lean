@@ -37,7 +37,7 @@
 --         _ ≤ 1 := by linarith
 --     · calc
 --         (-1 : ℝ) ^ n = (-1)^(2*k + 1) := by rw [hk]
---         _ = (-1)^(2*k)*(-1)^(1) := by exact pow_add (-1) (2 * k) 1
+--         _ = (-1)^(2*k)*(-1)^(1) := pow_add (-1) (2 * k) 1
 --         _ = -1 := by simp
 --         _ ≤ 1 := by linarith
 --   · intros ε ε_pos

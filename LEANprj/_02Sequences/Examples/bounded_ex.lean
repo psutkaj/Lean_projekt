@@ -51,7 +51,7 @@
 --   · intro n
 --     dsimp [a]
 --     rw [abs_of_nonneg]
---     · have : (n + 1) > 0 := by exact Nat.zero_lt_succ n
+--     · have : (n + 1) > 0 := Nat.zero_lt_succ n
 --       apply (one_div_le (by linarith) (by linarith)).mpr
 --       linarith
 --     · simp

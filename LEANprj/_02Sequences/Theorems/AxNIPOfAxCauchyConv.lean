@@ -25,9 +25,9 @@ theorem axNip_of_axCauchyConv :
     · calc l (d + 1)
       _ ≥ l d := l_inc d
       _ ≥ l 0 - 1:= hd
-  have l_bdd : BoundedSequence l := by exact upperLowerBddIsBdd l l_up_bdd l_lo_bdd
-  have l_cauchy : CauchySequence l := by exact cauchy_of_inc_bdd l l_inc l_bdd
-  have l_conv : Convergent l := by exact (ax_cauchy l).mp l_cauchy
+  have l_bdd : BoundedSequence l := upperLowerBddIsBdd l l_up_bdd l_lo_bdd
+  have l_cauchy : CauchySequence l := cauchy_of_inc_bdd l l_inc l_bdd
+  have l_conv : Convergent l := (ax_cauchy l).mp l_cauchy
   obtain ⟨s, l_conv_s⟩ := l_conv
   use s
   intro n

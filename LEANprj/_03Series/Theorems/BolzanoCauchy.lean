@@ -55,8 +55,8 @@ theorem Image_Equivalent_To_Standard (a : ℕ → ℝ) :
   -- We need to feed (n + p) and (n) into the Cauchy hypothesis.
   -- We know n ≥ n₀. We must prove n + p > n₀.
   have h_np_gt : n + p > n₀ := by
-    calc n + p ≥ n := by exact Nat.le_add_right n p
-    _ > n₀ := by exact hn_ge
+    calc n + p ≥ n := Nat.le_add_right n p
+    _ > n₀ := hn_ge
 
   -- Now we specialize the Cauchy hypothesis with m = n + p and n = n
   -- The hypothesis requires: (n+p) > n₀ AND n > n₀

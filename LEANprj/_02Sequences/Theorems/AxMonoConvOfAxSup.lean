@@ -31,8 +31,8 @@ by
   obtain ⟨n₀, hn₀⟩ := xA
   use n₀
   intro n hn
-  have h₁ : a n₀ ≤ a n := by exact inc_le_of_le a_inc hn
-  have h₂ : a n ≤ s := by exact s_upper_bd (a n) (by simp [A])
+  have h₁ : a n₀ ≤ a n := inc_le_of_le a_inc hn
+  have h₂ : a n ≤ s := s_upper_bd (a n) (by simp [A])
   rw [abs_lt]
   constructor
   · have : s - ε < a n := by calc s - ε
@@ -63,10 +63,10 @@ lemma convergesTo_of_bdd_dec
     use K, hK
     intro n
     rw [b_eq_neg_a n]
-    have : |(-a n)| = |a n| := by exact abs_neg (a n)
+    have : |(-a n)| = |a n| := abs_neg (a n)
     rw [this]
     exact K_bd n
-  have : Convergent b := by exact convergesTo_of_bdd_inc b AxSup b_inc b_bdd
+  have : Convergent b := convergesTo_of_bdd_inc b AxSup b_inc b_bdd
   obtain ⟨q, hq⟩ := this
   use -q
   unfold ConvergesTo
@@ -78,7 +78,7 @@ lemma convergesTo_of_bdd_dec
   have : |a n₁ + q| = |-(a n₁) - q| := by
     calc
     |a n₁ + q| = |-1| * |a n₁ + q| := by simp
-    _ = |(-1) * (a n₁ + q)| := by exact Eq.symm (abs_mul (-1) (a n₁ + q))
+    _ = |(-1) * (a n₁ + q)| := Eq.symm (abs_mul (-1) (a n₁ + q))
     _ = |- (a n₁) - q| := by ring_nf
   rw [this]
   rw [← b_eq_neg_a n₁]

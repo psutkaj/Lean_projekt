@@ -29,7 +29,7 @@ lemma prefix_bounded (a : ℕ → ℝ) :
         simp
 
 theorem bdd_of_cauchy {a : ℕ → ℝ} (h : CauchySequence a) : BoundedSequence a := by
-  have hpos : (0 : ℝ) < 1 := by exact zero_lt_one
+  have hpos : (0 : ℝ) < 1 := zero_lt_one
   obtain ⟨N, hN⟩ := h 1 hpos
   obtain ⟨M0, hM0⟩ := prefix_bounded a (N + 1)
   have h_tail : ∀ n > N + 1, |a n| ≤ |a (N + 1)| + 1 := by
