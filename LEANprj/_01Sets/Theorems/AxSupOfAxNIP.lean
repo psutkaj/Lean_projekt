@@ -40,12 +40,11 @@ end Lemmas
 -- 3. ZÁKLADNÍ VLASTNOSTI VYTVOŘENÝCH POSLOUPNOSTÍ
 section SequenceProperties
 
-variable (A : Set ℝ) (l₀ u₀ : ℝ)
-variable (h_init : l₀ ≤ u₀)
-include h_init
+variable (A : Set ℝ)
+
 
 -- Zachování vnořenosti: lₙ ≤ uₙ platí pro všechna n
-lemma lSeq_le_uSeq : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
+lemma lSeq_le_uSeq {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
   intro n
   induction n with
   | zero => exact h_init
@@ -56,35 +55,32 @@ lemma lSeq_le_uSeq : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
     · exact l_le_mid ih
 
 -- Posloupnost levých okrajů je neklesající
-lemma lSeq_increasing : IncreasingSequence (lSeq A l₀ u₀) := by
+lemma lSeq_increasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : IncreasingSequence (lSeq A l₀ u₀) := by
   intro n
   dsimp [lSeq, uSeq, luNext, step]
-  have h_le := lSeq_le_uSeq A l₀ u₀ h_init n
+  have h_le := lSeq_le_uSeq A h_init n
   split_ifs
   · exact l_le_mid h_le
   · exact le_refl _
 
 -- Posloupnost pravých okrajů je nerostoucí
-lemma uSeq_decreasing : DecreasingSequence (uSeq A l₀ u₀) := by
+lemma uSeq_decreasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : DecreasingSequence (uSeq A l₀ u₀) := by
   intro n
   dsimp [lSeq, uSeq, luNext, step]
-  have h_le := lSeq_le_uSeq A l₀ u₀ h_init n
+  have h_le := lSeq_le_uSeq A h_init n
   split_ifs
   · exact le_refl _
   · exact mid_le_u h_le
 
-omit h_init
 
 -- Délka intervalu se v každém kroku zmenší přesně na polovinu
-lemma gap_halves (n : ℕ) :
+lemma gap_halves (l₀ u₀ : ℝ) (n : ℕ) :
   uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
   dsimp [lSeq, uSeq, luNext, step]
-  split_ifs
-  · simp; ring
-  · simp; ring
+  split_ifs <;> simp <;> ring
 
 -- Explicitní vzorec pro délku n-tého intervalu pomocí geometrické posloupnosti
-lemma gap_formula (n : ℕ) :
+lemma gap_formula (l₀ u₀ : ℝ) (n : ℕ) :
   uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
   induction n with
   | zero => simp [lSeq, uSeq, luNext]
@@ -97,11 +93,9 @@ end SequenceProperties
 -- 4. LIMITA DÉLKY INTERVALU (Smrsknutí k nule)
 section ConvergenceLemmas
 
-variable (A : Set ℝ) (l₀ u₀ : ℝ) (h_init : l₀ ≤ u₀)
-include h_init
-
 -- Důkaz, že délka intervalu konverguje k nule
-lemma gap_tendsto_zero : ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
+lemma gap_tendsto_zero (A : Set ℝ) {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) :
+    ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
   intro ε ε_pos
   have gap_nonneg : u₀ - l₀ ≥ 0 := by linarith
   have gap_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
@@ -190,7 +184,7 @@ by
         · push_neg at h_split
           exact h_split a ha
   -- kandidát - prusecik intervalu
-  obtain ⟨s, hs⟩ := AxNIP (lSeq A l₀ u₀) (uSeq A l₀ u₀) (lSeq_increasing A l₀ u₀ h_init) (uSeq_decreasing A l₀ u₀ h_init) (lSeq_le_uSeq A l₀ u₀ h_init)
+  obtain ⟨s, hs⟩ := AxNIP (lSeq A l₀ u₀) (uSeq A l₀ u₀) (lSeq_increasing A h_init) (uSeq_decreasing A h_init) (lSeq_le_uSeq A h_init)
   -- overeni definice
   have hsSup : IsSup A s := by
     unfold IsSup
@@ -201,7 +195,7 @@ by
       push_neg at h_contra
       let ε := x - s
       have ε_pos : ε > 0 := sub_pos.mpr h_contra
-      obtain ⟨n, hn_gap⟩ := gap_tendsto_zero A l₀ u₀ h_init ε ε_pos
+      obtain ⟨n, hn_gap⟩ := gap_tendsto_zero A h_init ε ε_pos
       have h_calc : x - s < x - s := calc
         x - s ≤ uSeq A l₀ u₀ (n + 1) - s := sub_le_sub_right (h_u_upper (n + 1) x hx) s
         _     ≤ uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) := by gcongr; exact (hs (n + 1)).1
@@ -210,7 +204,7 @@ by
       linarith
     · -- s je nejmenší horní závora
       intro ε hε
-      obtain ⟨n, hn_gap⟩ :=  gap_tendsto_zero A l₀ u₀ h_init ε hε
+      obtain ⟨n, hn_gap⟩ :=  gap_tendsto_zero A h_init ε hε
       obtain ⟨a, ha_in, ha_l, ha_u⟩ := h_contains_A_real (n + 1)
       use a, ha_in
       calc s - ε < s - (uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1)) := by simp; exact lt_of_abs_lt (hn_gap (n + 1) (by linarith))
