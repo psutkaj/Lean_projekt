@@ -1,6 +1,5 @@
 import LEANprj.defs
 import LEANprj.lemmas
-import LEANprj.test
 import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 import LEANprj._01Sets.Theorems.HeineBorel
 import LEANprj._01Sets.Theorems.NIPUnique
