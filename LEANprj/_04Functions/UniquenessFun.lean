@@ -1,5 +1,5 @@
 import LEANprj.defs
-import LEANprj._04Functions.Theorems.HeineEqCauchy
+import LEANprj._04Functions.HeineEqCauchy
 
 theorem UniquenessFun
   (f : ℝ → ℝ) (x₀ p q : ℝ) (h₁ : CauchyLimitFunction f x₀ p) (h₂ : CauchyLimitFunction f x₀ q) : p = q :=

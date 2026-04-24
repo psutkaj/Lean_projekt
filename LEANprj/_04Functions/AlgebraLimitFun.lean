@@ -1,6 +1,6 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.AlgebraLimit
-import LEANprj._04Functions.Theorems.HeineEqCauchy
+import LEANprj._02Sequences.AlgebraLimit
+import LEANprj._04Functions.HeineEqCauchy
 
 theorem LimitAddFunction {f g : ℝ → ℝ} {x₀ b c : ℝ}
   (hfb : CauchyLimitFunction f x₀ b) (hgc : CauchyLimitFunction g x₀ c) :

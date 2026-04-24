@@ -1,8 +1,8 @@
 import LEANprj.defs
 import LEANprj.lemmas
-import LEANprj._02Sequences.Theorems.AxBWOfAxMonoConv
-import LEANprj._02Sequences.Theorems.Sandwich
-import LEANprj._01Sets.Theorems.AxSupOfAxNIP
+import LEANprj._02Sequences.AxBWOfAxMonoConv
+import LEANprj._02Sequences.Sandwich
+import LEANprj._01Sets.AxSupOfAxNIP
 
 theorem WeierstrassBdd {f : ℝ → ℝ} {a b : ℝ}
   (h_cont : FunctionContinuousOnSet (Set.Icc a b) f) :

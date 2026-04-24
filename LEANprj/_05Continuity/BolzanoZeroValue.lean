@@ -1,6 +1,6 @@
 import LEANprj.defs
-import LEANprj._01Sets.Theorems.AxSupOfAxNIP
-import LEANprj._05Continuity.Theorems.ContinuityKeepsSgn
+import LEANprj._01Sets.AxSupOfAxNIP
+import LEANprj._05Continuity.ContinuityKeepsSgn
 
 theorem BolzanoZeroValue {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
   (h_cont : ∀ x ∈ Set.Icc a b, FunctionContinuousAt f x)

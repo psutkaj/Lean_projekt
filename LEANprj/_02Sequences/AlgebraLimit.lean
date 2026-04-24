@@ -1,5 +1,5 @@
 import LEANprj.defs
-import LEANprj._02Sequences.Theorems.BddOfConv
+import LEANprj._02Sequences.BddOfConv
 
 namespace convergesTo
 

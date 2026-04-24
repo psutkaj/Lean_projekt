@@ -1,6 +1,6 @@
 import LEANprj.defs
-import LEANprj._04Functions.Theorems.AlgebraLimitFun
-import LEANprj._04Functions.Theorems.HeineEqCauchy
+import LEANprj._04Functions.AlgebraLimitFun
+import LEANprj._04Functions.HeineEqCauchy
 
 theorem ContinuousAddFun {f g : ℝ → ℝ} (hf : FunctionContinuous f) (hg : FunctionContinuous g) : FunctionContinuous (f + g) := by
   intro x

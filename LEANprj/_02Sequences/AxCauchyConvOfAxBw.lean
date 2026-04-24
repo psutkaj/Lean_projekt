@@ -1,5 +1,5 @@
-import LEANprj._02Sequences.Theorems.AxBwOfAxMonoConv
-import LEANprj._02Sequences.Theorems.BddOfCauchy
+import LEANprj._02Sequences.AxBwOfAxMonoConv
+import LEANprj._02Sequences.BddOfCauchy
 import LEANprj.lemmas
 
 theorem cauchy_of_convergesTo {a : ℕ → ℝ} (h : Convergent a) :

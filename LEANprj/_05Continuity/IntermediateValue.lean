@@ -1,4 +1,4 @@
-import LEANprj._05Continuity.Theorems.BolzanoZeroValue
+import LEANprj._05Continuity.BolzanoZeroValue
 
 theorem IntermediateValue {f : ℝ → ℝ} {a b y₀ : ℝ} (hab : a ≤ b)
   (h_cont : ∀ x ∈ Set.Icc a b, FunctionContinuousAt f x) (h_val : f a < y₀ ∧ y₀ < f b) :

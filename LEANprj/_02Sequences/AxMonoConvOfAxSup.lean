@@ -1,4 +1,4 @@
-import LEANprj._01Sets.Theorems.AxSupOfAxNIP
+import LEANprj._01Sets.AxSupOfAxNIP
 import LEANprj.lemmas
 open Classical
 

@@ -1,4 +1,4 @@
-import LEANprj._02Sequences.Theorems.ExistsMonoSubseq
+import LEANprj._02Sequences.ExistsMonoSubseq
 
 theorem axBw_of_axMonoConv :
   AxMonoConv → AxBW :=

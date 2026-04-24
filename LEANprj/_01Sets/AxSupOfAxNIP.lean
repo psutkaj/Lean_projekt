@@ -1,4 +1,4 @@
-import LEANprj._01Sets.Theorems.NIPUnique
+import LEANprj._01Sets.NIPUnique
 noncomputable section
 open Classical
 

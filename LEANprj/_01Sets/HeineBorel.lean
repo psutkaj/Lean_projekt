@@ -1,8 +1,8 @@
 import LEANprj.defs
 import LEANprj.lemmas
-import LEANprj._02Sequences.Theorems.AxBWOfAxMonoConv
-import LEANprj._02Sequences.Theorems.ConvergesToUnique
-import LEANprj._02Sequences.Theorems.BddOfConv
+import LEANprj._02Sequences.AxBWOfAxMonoConv
+import LEANprj._02Sequences.ConvergesToUnique
+import LEANprj._02Sequences.BddOfConv
 
 theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M := by
   intro h_compact

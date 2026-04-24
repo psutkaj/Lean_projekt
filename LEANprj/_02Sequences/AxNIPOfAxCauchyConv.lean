@@ -1,5 +1,5 @@
-import LEANprj._02Sequences.Theorems.Sandwich
-import LEANprj._02Sequences.Theorems.CauchyOfIncBdd
+import LEANprj._02Sequences.Sandwich
+import LEANprj._02Sequences.CauchyOfIncBdd
 import LEANprj.lemmas
 
 theorem axNip_of_axCauchyConv :
