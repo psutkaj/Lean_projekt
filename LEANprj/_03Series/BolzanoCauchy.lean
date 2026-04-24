@@ -1,5 +1,5 @@
 import LEANprj.defs
-import LEANprj._02Sequences.AxCauchyConvOfAxBW
+import LEANprj._02Sequences.AxCauchyConvOfAxBw
 
 theorem BolzanoCauchy (a : ℕ → ℝ) :
   AxCauchyConv → (SeriesConvergent a ↔ CauchySequence (PartialSum a)) :=
