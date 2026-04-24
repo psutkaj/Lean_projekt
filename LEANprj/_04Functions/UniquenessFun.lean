@@ -1,8 +1,8 @@
 import LEANprj.defs
 import LEANprj._04Functions.HeineEqCauchy
 
-theorem UniquenessFun
-  (f : ℝ → ℝ) (x₀ p q : ℝ) (h₁ : CauchyLimitFunction f x₀ p) (h₂ : CauchyLimitFunction f x₀ q) : p = q :=
+theorem UniquenessFun {f : ℝ → ℝ} {x₀ p q : ℝ} (hfp : CauchyLimitFunction f x₀ p) (hfq : CauchyLimitFunction f x₀ q) :
+  p = q :=
 by
  -- 1. Proof by Contradiction
   --    Assume p ≠ q
@@ -14,8 +14,8 @@ by
   have hε : ε > 0 := half_pos (abs_pos.mpr (sub_ne_zero.mpr h_neq))
 
   -- 3. Get the Deltas for this specific ε
-  rcases h₁ ε hε with ⟨δ₁, hδ₁_pos, h_close_p⟩
-  rcases h₂ ε hε with ⟨δ₂, hδ₂_pos, h_close_q⟩
+  rcases hfp ε hε with ⟨δ₁, hδ₁_pos, h_close_p⟩
+  rcases hfq ε hε with ⟨δ₂, hδ₂_pos, h_close_q⟩
 
   -- 4. Construct a specific point x valid for both limits
   --    We pick a δ smaller than both δ₁ and δ₂

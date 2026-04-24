@@ -1,7 +1,8 @@
 import LEANprj.defs
 
 lemma prefix_bounded (a : ℕ → ℝ) :
-    ∀ N : ℕ, ∃ M : ℝ, ∀ n ≤ N, |a n| ≤ M := by
+  ∀ N : ℕ, ∃ M : ℝ, ∀ n ≤ N, |a n| ≤ M :=
+by
   intro N
   induction' N with N ih
   · use |a 0|
@@ -25,7 +26,9 @@ lemma prefix_bounded (a : ℕ → ℝ) :
       subst heq
       simp
 
-theorem bdd_of_cauchy {a : ℕ → ℝ} (h : CauchySequence a) : BoundedSequence a := by
+theorem bdd_of_cauchy {a : ℕ → ℝ} (h : CauchySequence a) :
+  BoundedSequence a :=
+by
   have hpos : (0 : ℝ) < 1 := zero_lt_one
   obtain ⟨N, hN⟩ := h 1 hpos
   obtain ⟨M0, hM0⟩ := prefix_bounded a (N + 1)

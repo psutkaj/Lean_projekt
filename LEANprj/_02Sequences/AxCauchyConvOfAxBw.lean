@@ -50,7 +50,7 @@ by
       _ ≥ n₀ := hn
       _ > n₂ := h₀₂
     · calc k n
-      _ ≥ n := StrictlyIncreasingSequenceN_ge_id k hk n
+      _ ≥ n := StrictlyIncreasingSequenceN_ge_id hk n
       _ ≥ n₀ := hn
       _ > n₂ := h₀₂)
   specialize hn₁ n (Nat.le_trans h₀₁ hn)

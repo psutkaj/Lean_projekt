@@ -5,21 +5,26 @@ open Classical
 private def Peak (a : ℕ → ℝ) (n : ℕ) : Prop := ∀ m : ℕ, n < m → a m ≤ a n
 
 -- Logická negace vrcholu
-lemma not_peak_iff_exists_gt (a : ℕ → ℝ) (n : ℕ) : ¬ Peak a n ↔ ∃ m > n, a n < a m := by
+lemma not_peak_iff_exists_gt (a : ℕ → ℝ) (n : ℕ) :
+  ¬ Peak a n ↔ ∃ m > n, a n < a m :=
+by
   unfold Peak; push_neg; rfl
 
 -- Pomocné lemma: Pokud je množina P nekonečná, pro každé t najdeme prvek v P ostře větší než t.
-lemma exists_mem_P_gt_of_infinite (P : Set ℕ) (hInf : P.Infinite) (t : ℕ) : ∃ m ∈ P, t < m := by
+lemma exists_mem_P_gt_of_infinite {P : Set ℕ} (hInf : P.Infinite) (t : ℕ) :
+  ∃ m ∈ P, t < m :=
+by
   by_contra! h
   exact hInf (Set.finite_Iic t |>.subset h)
 
 -- Věta: Z každé posloupnosti v ℝ lze vybrat monotonní podposloupnost.
 theorem exists_mono_subseq (a : ℕ → ℝ) :
-  ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) := by
+  ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ MonotonicSequence (Subsequence a k) :=
+by
   let P : Set ℕ := {n | Peak a n}
   by_cases hInf : P.Infinite
   · -- PŘÍPAD 1: Množina vrcholů P je nekonečná.
-    have step : ∀ t, ∃ m ∈ P, t < m := exists_mem_P_gt_of_infinite P hInf
+    have step : ∀ t, ∃ m ∈ P, t < m := exists_mem_P_gt_of_infinite hInf
     choose next hnext_P hnext_gt using step
     -- Zkonstruujeme indexovou posloupnost k rekurzivně.
     let k : ℕ → ℕ := fun n => Nat.rec (next 0) (fun _ kn => next kn) n

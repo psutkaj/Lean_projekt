@@ -78,8 +78,9 @@ by
   _ < ε := by linarith
 
 lemma inv {b : ℕ → ℝ} {d : ℝ} (hd : d ≠ 0)
-    (hbd : ConvergesTo b d) :
-    ConvergesTo (λ n ↦ (b n)⁻¹) d⁻¹ := by
+  (hbd : ConvergesTo b d) :
+  ConvergesTo (λ n ↦ (b n)⁻¹) d⁻¹ :=
+by
   have d_pos : |d| > 0 := abs_pos.mpr hd
   obtain ⟨n₁, h_lower_bd⟩ := hbd (|d| / 2) (by linarith)
   intro ε ε_pos
@@ -106,8 +107,8 @@ lemma inv {b : ℕ → ℝ} {d : ℝ} (hd : d ≠ 0)
   _ = ε := by dsimp [δ]; field_simp
 
 theorem div {a b : ℕ → ℝ} {c d : ℝ} (hd : d ≠ 0)
-    (hac : ConvergesTo a c) (hbd : ConvergesTo b d) :
-    ConvergesTo (a / b) (c / d) :=
-  mul hac (inv hd hbd)
+  (hac : ConvergesTo a c) (hbd : ConvergesTo b d) :
+  ConvergesTo (a / b) (c / d) :=
+mul hac (inv hd hbd)
 
 end convergesTo

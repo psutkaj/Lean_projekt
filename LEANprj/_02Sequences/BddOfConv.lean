@@ -5,22 +5,20 @@ def max_upto (a : ℕ → ℝ) : ℕ → ℝ
   | 0     => |a 0|
   | n + 1 => max (|a (n + 1)|) (max_upto a n)
 
-lemma le_max_upto
-  (a : ℕ → ℝ) (n k : ℕ) (h : k ≤ n) :
+lemma le_max_upto (a : ℕ → ℝ) {n k : ℕ} (hkn : k ≤ n) :
   |a k| ≤ max_upto a n :=
 by
   induction' n with d hd
-  · rw [Nat.eq_zero_of_le_zero h, max_upto]
+  · rw [Nat.eq_zero_of_le_zero hkn, max_upto]
   · rw [max_upto]
     by_cases h₁ : k = d + 1
     · exact le_sup_of_le_left (by rw [h₁])
     · push_neg at h₁
       apply le_sup_of_le_right
       apply hd
-      exact Nat.le_of_lt_succ (Nat.lt_of_le_of_ne h h₁)
+      exact Nat.le_of_lt_succ (Nat.lt_of_le_of_ne hkn h₁)
 
-theorem bdd_of_conv
-  {a : ℕ → ℝ} (a_conv : Convergent a) :
+theorem bdd_of_conv {a : ℕ → ℝ} (a_conv : Convergent a) :
   BoundedSequence a :=
 by
   obtain ⟨c, hc⟩ := a_conv
@@ -38,7 +36,7 @@ by
   by_cases h : n ≤ n₀
   · simp
     left
-    exact le_max_upto a n₀ n h
+    exact le_max_upto a h
   · simp
     right
     have : |a n| - |c| ≤ |a n - c| := abs_sub_abs_le_abs_sub (a n) c

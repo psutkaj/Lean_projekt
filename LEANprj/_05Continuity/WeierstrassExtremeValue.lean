@@ -104,7 +104,7 @@ by
     have : |f c| + |f (x_seq (k n)) - f c| < |f c| + 1 := by linarith
     linarith
   have h_seq_bound : |f (x_seq (k n))| ≥ n + 1 := by
-    have hknn : k n ≥ n := StrictlyIncreasingSequenceN_ge_id k hk_inc n
+    have hknn : k n ≥ n := StrictlyIncreasingSequenceN_ge_id hk_inc n
     have hfkn : |f (x_seq (k n))| ≥ k n + 1 := (h_x_seq_prop (k n)).2
     have hkn : k n + 1 ≥ n + 1 := by linarith
     trans k n + 1
@@ -206,7 +206,7 @@ by
       have a_leq_xkn : ∀ n : ℕ, a ≤ x (k n) := by
         intro n
         exact a_leq_xn (k n)
-      refine LimitOrderLe (λ n ↦ a) (Subsequence x k) a c a_leq_xkn ?_ hc
+      refine LimitOrderLe a_leq_xkn ?_ hc
       · unfold ConvergesTo
         intro ε ε_pos
         simp
@@ -217,7 +217,7 @@ by
       have xkn_leq_b : ∀ n : ℕ, x (k n) ≤ b := by
         intro n
         exact xn_leq_b (k n)
-      refine LimitOrderLe (Subsequence x k) (λ n ↦ b) c b xkn_leq_b hc ?_
+      refine LimitOrderLe xkn_leq_b hc ?_
       · unfold ConvergesTo
         intro ε ε_pos
         simp
@@ -244,7 +244,7 @@ by
             apply one_div_le_one_div_of_le
             · linarith
             · simp
-              have := StrictlyIncreasingSequenceN_ge_id k hk_inc n
+              have := StrictlyIncreasingSequenceN_ge_id hk_inc n
               linarith
         _ > M - ε := by
             have : 1 / (n + 1 : ℝ) ≤ 1 / (n₀ + 1 : ℝ) := by

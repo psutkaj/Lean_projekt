@@ -26,7 +26,7 @@ by
     · calc l (d + 1)
       _ ≥ l d := l_inc d
       _ ≥ l 0 - 1 := hd
-  have l_bdd : BoundedSequence l := upperLowerBddIsBdd l l_up_bdd l_lo_bdd
+  have l_bdd : BoundedSequence l := upperLowerBddIsBdd l_up_bdd l_lo_bdd
   have l_cauchy : CauchySequence l := cauchy_of_inc_bdd l l_inc l_bdd
   have l_conv : Convergent l := (ax_cauchy l).mp l_cauchy
   obtain ⟨s, l_conv_s⟩ := l_conv
@@ -59,6 +59,6 @@ by
         trans l n
         · exact inc_le_of_le l_inc h
         · exact sep n
-    apply LimitOrderLe l (λ _ ↦ (u n)) s (u n) this l_conv_s
+    apply LimitOrderLe this l_conv_s
     intro ε ε_pos
     simp [*]

@@ -1,6 +1,8 @@
 import LEANprj.defs
 
-theorem cauchy_of_inc_bdd (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bdd : BoundedSequence a) : CauchySequence a := by
+theorem cauchy_of_inc_bdd (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_bdd : BoundedSequence a) :
+  CauchySequence a :=
+by
   by_contra h_not_cauchy
   unfold CauchySequence at h_not_cauchy
   push_neg at h_not_cauchy

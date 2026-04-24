@@ -33,11 +33,11 @@ def SeriesConvergent (a : ℕ → ℝ) : Prop := ∃ s : ℝ, SeriesConvergesTo 
 
 -- ## 7. TOPOLOGICKÉ VLASTNOSTI MNOŽIN
 def CompactSet (M : Set ℝ) : Prop :=
-  ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ∈ M) →
-    ∃ (k : ℕ → ℕ), StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
+  ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ∈ M) →
+    ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
 
 def ClosedSet (M : Set ℝ) : Prop :=
-  ∀ (a : ℕ → ℝ) (L : ℝ), (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
+  ∀ a : ℕ → ℝ, ∀ L : ℝ, (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
 
 def UpperBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, m ≤ c
 def LowerBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, c ≤ m
@@ -45,10 +45,10 @@ def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| �
 
 -- ## 8. LIMITY FUNKCÍ A SPOJITOST
 def HeineLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
+  ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
 
 def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
+  ∀ ε > 0, ∃ δ > 0, ∀ x : ℝ, (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
 
 def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
 def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f x
@@ -57,17 +57,17 @@ def FunctionBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, 
 
 -- ## 0. AXIOMY ÚPLNOSTI ℝ
 def AxNIP : Prop :=
-  ∀ l u : ℕ → ℝ, IncreasingSequence l → DecreasingSequence u → (∀ n, l n ≤ u n) →
+  ∀ l u : ℕ → ℝ, IncreasingSequence l → DecreasingSequence u → (∀ n : ℕ, l n ≤ u n) →
     ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
 
 def AxSup : Prop :=
-  ∀ (A : Set ℝ), A.Nonempty → UpperBoundedSet A → ∃! s : ℝ, IsSup A s
+  ∀ A : Set ℝ, A.Nonempty → UpperBoundedSet A → ∃! s : ℝ, IsSup A s
 
 def AxMonoConv : Prop :=
-  ∀ (a : ℕ → ℝ), MonotonicSequence a → BoundedSequence a → Convergent a
+  ∀ a : ℕ → ℝ, MonotonicSequence a → BoundedSequence a → Convergent a
 
 def AxBW : Prop :=
-  ∀ (a : ℕ → ℝ), BoundedSequence a → ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ Convergent (Subsequence a k)
+  ∀ a : ℕ → ℝ, BoundedSequence a → ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ Convergent (Subsequence a k)
 
 def AxCauchyConv : Prop :=
-  ∀ (a : ℕ → ℝ), CauchySequence a ↔ Convergent a
+  ∀ a : ℕ → ℝ, CauchySequence a ↔ Convergent a

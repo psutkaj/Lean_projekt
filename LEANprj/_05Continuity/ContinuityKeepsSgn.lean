@@ -1,7 +1,9 @@
 import LEANprj.defs
 
 
-lemma ContinuityKeepsSgnNeg {f : ℝ → ℝ} {x₀ : ℝ} (h_cont : FunctionContinuousAt f x₀) (h_val : f x₀ < 0) : ∃ δ > 0, ∀ x, |x - x₀| < δ → f x < 0 := by
+lemma ContinuityKeepsSgnNeg {f : ℝ → ℝ} {x₀ : ℝ} (h_cont : FunctionContinuousAt f x₀) (h_val : f x₀ < 0) :
+  ∃ δ > 0, ∀ x, |x - x₀| < δ → f x < 0 :=
+by
   let ε := - f x₀
   have ε_pos : ε > 0 := Left.neg_pos_iff.mpr h_val
   obtain ⟨δ, δ_pos, h_imp⟩ := h_cont ε ε_pos
@@ -14,7 +16,9 @@ lemma ContinuityKeepsSgnNeg {f : ℝ → ℝ} {x₀ : ℝ} (h_cont : FunctionCon
     rw [abs_lt] at h_imp
     linarith
 
-lemma ContinuityKeepsSgnPos {f : ℝ → ℝ} {x₀ : ℝ} (h_cont : FunctionContinuousAt f x₀) (h_val : f x₀ > 0) : ∃ δ > 0, ∀ x, |x - x₀| < δ → f x > 0 := by
+lemma ContinuityKeepsSgnPos {f : ℝ → ℝ} {x₀ : ℝ} (h_cont : FunctionContinuousAt f x₀) (h_val : f x₀ > 0) :
+  ∃ δ > 0, ∀ x, |x - x₀| < δ → f x > 0 :=
+by
   let ε := f x₀
   have ε_pos : ε > 0 := h_val
   obtain ⟨δ, δ_pos, h_imp⟩ := h_cont ε ε_pos

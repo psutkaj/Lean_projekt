@@ -1,6 +1,8 @@
 import LEANprj.defs
 
-lemma HeineImpCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : HeineLimitFunction f x₀ b → CauchyLimitFunction f x₀ b := by
+lemma HeineImpCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :
+  HeineLimitFunction f x₀ b → CauchyLimitFunction f x₀ b :=
+by
   unfold HeineLimitFunction CauchyLimitFunction
   intro Heine
   by_contra h_not_cauchy
@@ -35,7 +37,9 @@ lemma HeineImpCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : HeineLimitFuncti
   simp at h_close
   linarith
 
-lemma CauchyImpHeine (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : CauchyLimitFunction f x₀ b → HeineLimitFunction f x₀ b := by
+lemma CauchyImpHeine (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :
+  CauchyLimitFunction f x₀ b → HeineLimitFunction f x₀ b :=
+by
   unfold HeineLimitFunction
   intros Cauchy a hne a_conv
   unfold ConvergesTo
@@ -52,7 +56,9 @@ lemma CauchyImpHeine (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : CauchyLimitFunct
     exact sub_ne_zero_of_ne (hne n)
   · exact hn₀ n hn
 
-theorem HeineEqCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : HeineLimitFunction f x₀ b ↔ CauchyLimitFunction f x₀ b := by
+theorem HeineEqCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :
+  HeineLimitFunction f x₀ b ↔ CauchyLimitFunction f x₀ b :=
+by
   constructor
   · -- Heine → Cauchy
     exact HeineImpCauchy f x₀ b

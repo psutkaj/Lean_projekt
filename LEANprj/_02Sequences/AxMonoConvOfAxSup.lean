@@ -3,10 +3,7 @@ import LEANprj.lemmas
 open Classical
 
 lemma convergesTo_of_bdd_inc (a : ℕ → ℝ) :
-  AxSup →
-  IncreasingSequence a →
-  BoundedSequence a →
-  Convergent a :=
+  AxSup → IncreasingSequence a → BoundedSequence a → Convergent a :=
 by
   intro AxSup a_inc a_bdd
   let A := Set.range a
@@ -44,10 +41,7 @@ by
     _ < ε := ε_pos
 
 lemma convergesTo_of_bdd_dec (a : ℕ → ℝ) :
-  AxSup →
-  DecreasingSequence a →
-  BoundedSequence a →
-  Convergent a :=
+  AxSup → DecreasingSequence a → BoundedSequence a → Convergent a :=
 by
   intro AxSup a_dec a_bdd
   obtain ⟨K, hK, K_bd⟩ := a_bdd
