@@ -2,7 +2,9 @@ import LEANprj._02Sequences.Theorems.AxBwOfAxMonoConv
 import LEANprj._02Sequences.Theorems.BddOfCauchy
 import LEANprj.lemmas
 
-theorem cauchy_of_convergesTo (a : ℕ → ℝ) (h : Convergent a) : CauchySequence a := by
+theorem cauchy_of_convergesTo {a : ℕ → ℝ} (h : Convergent a) :
+  CauchySequence a :=
+by
   intro ε hε
   obtain ⟨L, hL⟩ := h
   specialize hL (ε / 2) (half_pos hε)
@@ -19,15 +21,11 @@ theorem cauchy_of_convergesTo (a : ℕ → ℝ) (h : Convergent a) : CauchySeque
     _ < ε / 2 + ε / 2           := add_lt_add h₁ h₂
     _ = ε                       := add_halves ε
 
-theorem convergesTo_of_cauchy
-  (a : ℕ → ℝ) :
-  AxBW →
-  CauchySequence a →
+theorem convergesTo_of_cauchy {a : ℕ → ℝ} (axBW : AxBW) (a_cauchy : CauchySequence a) :
   Convergent a :=
 by
-  intro AxBW a_cauchy
   have ha_bdd : BoundedSequence a := bdd_of_cauchy a_cauchy
-  obtain ⟨k, hk, conv_sub⟩ := AxBW a ha_bdd
+  obtain ⟨k, hk, conv_sub⟩ := axBW a ha_bdd
   obtain ⟨L, hL⟩ := conv_sub
   use L
   intro ε ε_pos
@@ -57,19 +55,12 @@ by
       _ > n₂ := h₀₂)
   specialize hn₁ n (Nat.le_trans h₀₁ hn)
   calc |a n - L|
-    _ = |a n - Subsequence a k n + Subsequence a k n - L| := by ring
+    _ = |a n - Subsequence a k n + Subsequence a k n - L| := by ring_nf
     _ ≤ |a n - Subsequence a k n| + |Subsequence a k n - L| := by
-      simp [sub_add_cancel]
-      exact abs_sub_le (a n) (Subsequence a k n) L
+      simpa [sub_add_cancel] using abs_sub_le (a n) (Subsequence a k n) L
     _ < ε/2 + ε/2 := add_lt_add hn₂ hn₁
     _ = ε := by linarith
 
-theorem axCauchyConv_of_axBw :
-  AxBW → AxCauchyConv :=
-by
-  intro AxBW a
-  constructor
-  · intro ha
-    exact convergesTo_of_cauchy a AxBW ha
-  · intro ha
-    exact cauchy_of_convergesTo a ha
+theorem axCauchyConv_of_axBw (axBW : AxBW) :
+   AxCauchyConv :=
+fun _ => ⟨convergesTo_of_cauchy axBW, cauchy_of_convergesTo⟩

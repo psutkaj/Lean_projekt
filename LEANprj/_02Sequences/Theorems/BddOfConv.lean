@@ -2,24 +2,22 @@ import LEANprj.defs
 noncomputable section
 
 def max_upto (a : ℕ → ℝ) : ℕ → ℝ
-  | 0 => |a 0|
-  | (n + 1) => max (|a (n + 1)|) (max_upto a n)
+  | 0     => |a 0|
+  | n + 1 => max (|a (n + 1)|) (max_upto a n)
 
 lemma le_max_upto
   (a : ℕ → ℝ) (n k : ℕ) (h : k ≤ n) :
   |a k| ≤ max_upto a n :=
 by
   induction' n with d hd
-  · have : k = 0 := Nat.eq_zero_of_le_zero h
-    rw [this, max_upto]
+  · rw [Nat.eq_zero_of_le_zero h, max_upto]
   · rw [max_upto]
     by_cases h₁ : k = d + 1
     · exact le_sup_of_le_left (by rw [h₁])
     · push_neg at h₁
-      have : k ≤ d := by
-        have : k < d + 1 := Nat.lt_of_le_of_ne h h₁
-        exact Nat.le_of_lt_succ this
-      exact le_sup_of_le_right (hd this)
+      apply le_sup_of_le_right
+      apply hd
+      exact Nat.le_of_lt_succ (Nat.lt_of_le_of_ne h h₁)
 
 theorem bdd_of_conv
   {a : ℕ → ℝ} (a_conv : Convergent a) :
@@ -29,12 +27,12 @@ by
   obtain ⟨n₀, hn₀⟩ := hc 1 (by linarith)
   let K₀ := max_upto a n₀
   let K := max K₀ (|c| + 1)
-  have : K > 0 := by
-    dsimp [K]
+  use K
+  constructor
+  · dsimp [K]
     simp
     right
     exact Right.add_pos_of_nonneg_of_pos (abs_nonneg c) (by linarith)
-  use K, this
   intro n
   dsimp [K]
   by_cases h : n ≤ n₀

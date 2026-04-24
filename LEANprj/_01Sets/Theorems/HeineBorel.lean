@@ -11,8 +11,7 @@ theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M :=
   push_neg at h_unbdd
   have exists_elem : ∀ n : ℕ, ∃ x ∈ M, |x| > n := by
     intro n
-    have := h_unbdd (n + 1) (by linarith)
-    rcases this with ⟨x, x_in_S, hx_mag⟩
+    obtain ⟨x, x_in_S, hx_mag⟩ := h_unbdd (n + 1) (by linarith)
     use x, x_in_S
     linarith
   let a : ℕ → ℝ := λ n => Classical.choose (exists_elem n)
@@ -20,7 +19,7 @@ theorem compact_implies_bounded {M : Set ℝ} : CompactSet M → BoundedSet M :=
     λ n => (Classical.choose_spec (exists_elem n)).1
   have a_large : ∀ n, |a n| > n :=
     λ n => (Classical.choose_spec (exists_elem n)).2
-  rcases h_compact a a_in_S with ⟨k, k_inc, l,  h_conv, l_in_M⟩
+  rcases h_compact a a_in_S with ⟨k, k_inc, l, h_conv, l_in_M⟩
   have h_conv : Convergent (Subsequence a k) := by use l
   have sub_bounded := bdd_of_conv h_conv
   rcases sub_bounded with ⟨K, K_pos, h_sub_bound⟩
@@ -52,10 +51,7 @@ theorem HeineBorel (M : Set ℝ) : AxMonoConv → AxBW → (BoundedSet M ∧ Clo
     obtain ⟨c, c_pos, c_bound⟩ := bddM
     have ha_bdd : BoundedSequence a := by
       unfold BoundedSequence
-      use c
-      refine ⟨c_pos, ?_⟩
-      intro n
-      have : a n ∈ M := ha n
+      refine ⟨c, c_pos, fun n => ?_⟩
       exact c_bound (a n) (ha n)
     obtain ⟨k, ⟨hk_inc, ⟨L, hL⟩⟩⟩ := axBw_of_axMonoConv AxMonoConv a ha_bdd
     have LinM : L ∈ M := by
@@ -74,6 +70,6 @@ theorem HeineBorel (M : Set ℝ) : AxMonoConv → AxBW → (BoundedSet M ∧ Clo
       obtain ⟨k, hk_inc, l, hl, lM⟩ := compactM a hn
       have h_leqL : l = L := by
         have hk_conv' := SubsequenceConvergesToSame ha_conv k hk_inc
-        apply convergesTo_unique (Subsequence a k) l L hl hk_conv'
+        apply convergesTo_unique hl hk_conv'
       rw [← h_leqL]
       exact lM

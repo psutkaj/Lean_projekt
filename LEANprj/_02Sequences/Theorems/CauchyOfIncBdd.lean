@@ -32,8 +32,8 @@ theorem cauchy_of_inc_bdd (a : ℕ → ℝ) (ha_inc : IncreasingSequence a) (ha_
     · specialize h_jump (steps d)
       calc a (steps (d + 1))
         _ = a (next_idx (steps d)) := by simp [steps, Function.iterate_succ_apply']
-        _ ≥ a (steps d) + ε        := by linarith [h_jump.2]
-        _ ≥ (a 0 + d * ε) + ε      := by linarith [hd]
+        _ ≥ a (steps d) + ε        := by linarith
+        _ ≥ (a 0 + d * ε) + ε      := by linarith
         _ = a 0 + (d + 1 : ℝ) * ε  := by ring
       simp
   obtain ⟨K, _, h_bound⟩ := ha_bdd

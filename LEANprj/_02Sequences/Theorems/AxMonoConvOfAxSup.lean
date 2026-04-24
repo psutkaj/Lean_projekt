@@ -2,8 +2,7 @@ import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 import LEANprj.lemmas
 open Classical
 
-lemma convergesTo_of_bdd_inc
-  (a : ℕ → ℝ) :
+lemma convergesTo_of_bdd_inc (a : ℕ → ℝ) :
   AxSup →
   IncreasingSequence a →
   BoundedSequence a →
@@ -44,12 +43,12 @@ by
     _ ≤ 0 := by linarith
     _ < ε := ε_pos
 
-lemma convergesTo_of_bdd_dec
-  (a : ℕ → ℝ) :
+lemma convergesTo_of_bdd_dec (a : ℕ → ℝ) :
   AxSup →
   DecreasingSequence a →
   BoundedSequence a →
-  Convergent a := by
+  Convergent a :=
+by
   intro AxSup a_dec a_bdd
   obtain ⟨K, hK, K_bd⟩ := a_bdd
   let b := λ n => -(a n)
@@ -86,7 +85,8 @@ lemma convergesTo_of_bdd_dec
 
 theorem axMonoConv_of_axSup :
   AxSup →
-  AxMonoConv := by
+  AxMonoConv :=
+by
   intro AxSup a a_mono a_bdd
   rcases a_mono with a_inc | a_dec
   · exact convergesTo_of_bdd_inc a AxSup a_inc a_bdd

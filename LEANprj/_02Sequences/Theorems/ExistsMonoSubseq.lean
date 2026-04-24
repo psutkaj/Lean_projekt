@@ -2,7 +2,7 @@ import LEANprj.defs
 open Classical
 
 -- Definujeme pojem "vrcholu" (Peak point).
-private def Peak (a : ℕ → ℝ) (n : ℕ) : Prop := ∀ {m : ℕ}, n < m → a m ≤ a n
+private def Peak (a : ℕ → ℝ) (n : ℕ) : Prop := ∀ m : ℕ, n < m → a m ≤ a n
 
 -- Logická negace vrcholu
 lemma not_peak_iff_exists_gt (a : ℕ → ℝ) (n : ℕ) : ¬ Peak a n ↔ ∃ m > n, a n < a m := by
@@ -10,10 +10,8 @@ lemma not_peak_iff_exists_gt (a : ℕ → ℝ) (n : ℕ) : ¬ Peak a n ↔ ∃ m
 
 -- Pomocné lemma: Pokud je množina P nekonečná, pro každé t najdeme prvek v P ostře větší než t.
 lemma exists_mem_P_gt_of_infinite (P : Set ℕ) (hInf : P.Infinite) (t : ℕ) : ∃ m ∈ P, t < m := by
-  by_contra h;
-  push_neg at h
-  have hsub : P ⊆ Set.Iic t := fun m hmP => h m hmP
-  exact hInf (Set.finite_Iic t |>.subset hsub)
+  by_contra! h
+  exact hInf (Set.finite_Iic t |>.subset h)
 
 -- Věta: Z každé posloupnosti v ℝ lze vybrat monotonní podposloupnost.
 theorem exists_mono_subseq (a : ℕ → ℝ) :
@@ -42,7 +40,7 @@ theorem exists_mono_subseq (a : ℕ → ℝ) :
     -- Dokážeme monotonii: Protože skáčeme jen po vrcholech, posloupnost klesá.
     right
     intro n
-    exact k_in_P n (k_inc n)
+    exact k_in_P n _ (k_inc n)
 
   · -- PŘÍPAD 2: Množina vrcholů P je konečná.
     obtain ⟨B, hB⟩ := Set.exists_upper_bound_image P id (Set.not_infinite.mp hInf)
