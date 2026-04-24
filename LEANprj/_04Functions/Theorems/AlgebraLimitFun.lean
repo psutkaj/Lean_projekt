@@ -80,11 +80,11 @@ theorem LimitMulFunction {f g : ℝ → ℝ} (x₀ b c : ℝ) (h₁ : CauchyLimi
   intros s hs s_conv
   have h_f_seq := CauchyImpHeine f x₀ b h₁ s hs s_conv
   have h_g_seq := CauchyImpHeine g x₀ c h₂ s hs s_conv
-  exact convergesTo.mul (f ∘ s) (g ∘ s) b c h_f_seq h_g_seq
+  exact convergesTo.mul h_f_seq h_g_seq
 
 theorem LimitDivFunction {f g : ℝ → ℝ} (x₀ b c : ℝ) (h_cne : c ≠ 0) (h₁ : CauchyLimitFunction f x₀ b) (h₂ : CauchyLimitFunction g x₀ c) : CauchyLimitFunction (f / g) x₀ (b / c) := by
   rw [←HeineEqCauchy]
   intros s hs s_conv
   have h_f_seq := CauchyImpHeine f x₀ b h₁ s hs s_conv
   have h_g_seq := CauchyImpHeine g x₀ c h₂ s hs s_conv
-  exact convergesTo.div (f ∘ s) (g ∘ s) b c h_cne h_f_seq h_g_seq
+  exact convergesTo.div h_cne h_f_seq h_g_seq
