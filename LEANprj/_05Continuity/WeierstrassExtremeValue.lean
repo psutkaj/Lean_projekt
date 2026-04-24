@@ -1,6 +1,6 @@
 import LEANprj.defs
 import LEANprj.lemmas
-import LEANprj._02Sequences.AxBWOfAxMonoConv
+import LEANprj._02Sequences.AxBwOfAxMonoConv
 import LEANprj._02Sequences.Sandwich
 import LEANprj._01Sets.AxSupOfAxNIP
 
