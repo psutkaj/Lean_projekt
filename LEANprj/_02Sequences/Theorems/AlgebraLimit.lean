@@ -84,7 +84,7 @@ lemma inv {b : ℕ → ℝ} {d : ℝ} (hd : d ≠ 0)
   obtain ⟨n₁, h_lower_bd⟩ := hbd (|d| / 2) (by linarith)
   intro ε ε_pos
   let δ := ε * (|d| / 2 * |d|)
-  have δ_pos : δ > 0 := by dsimp [δ]; field_simp; simp; exact Left.mul_pos ε_pos (pow_two_pos_of_ne_zero hd)
+  have δ_pos : δ > 0 := by dsimp [δ]; field_simp; simpa using Left.mul_pos ε_pos (pow_two_pos_of_ne_zero hd)
   obtain ⟨n₂, h_close⟩ := hbd δ δ_pos
   use max n₁ n₂
   intro n hn

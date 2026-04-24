@@ -207,10 +207,10 @@ by
       obtain ⟨n, hn_gap⟩ :=  gap_tendsto_zero A h_init ε hε
       obtain ⟨a, ha_in, ha_l, ha_u⟩ := h_contains_A_real (n + 1)
       use a, ha_in
-      calc s - ε < s - (uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1)) := by simp; exact lt_of_abs_lt (hn_gap (n + 1) (by linarith))
+      calc s - ε < s - (uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1)) := by simpa using lt_of_abs_lt (hn_gap (n + 1) (by linarith))
            _     = lSeq A l₀ u₀ (n + 1) + (s - uSeq A l₀ u₀ (n + 1)) := by ring
            _     ≤ lSeq A l₀ u₀ (n + 1) := by
-               have : s - uSeq A l₀ u₀ (n + 1) ≤ 0 := by simp; exact (hs (n + 1)).2
+               have : s - uSeq A l₀ u₀ (n + 1) ≤ 0 := by simpa using (hs (n + 1)).2
                linarith
            _     ≤ a := ha_l
   use s, hsSup

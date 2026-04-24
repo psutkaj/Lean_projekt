@@ -45,13 +45,12 @@ lemma CauchyImpHeine (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : CauchyLimitFunct
   obtain ⟨n₀, hn₀⟩ := a_conv
   use n₀
   intro n hn
-  simp
   apply h
   constructor
   · simp
     push_neg
     exact sub_ne_zero_of_ne (hne n)
-  · apply hn₀ n hn
+  · exact hn₀ n hn
 
 theorem HeineEqCauchy (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) : HeineLimitFunction f x₀ b ↔ CauchyLimitFunction f x₀ b := by
   constructor

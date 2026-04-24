@@ -4,30 +4,27 @@ import LEANprj._02Sequences.Theorems.AxBWOfAxMonoConv
 import LEANprj._02Sequences.Theorems.Sandwich
 import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 
-theorem WeierstrassBdd
-  (f : ℝ → ℝ) (a b : ℝ) (_h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
-  (h_cont : FunctionContinuousOnSet Int f) :
-  AxMonoConv → FunctionBddOnSet Int f := by
+theorem WeierstrassBdd {f : ℝ → ℝ} {a b : ℝ}
+  (h_cont : FunctionContinuousOnSet (Set.Icc a b) f) :
+  AxMonoConv → FunctionBddOnSet (Set.Icc a b) f :=
+by
   intro AxMonoConv
   by_contra h_unbdd
   unfold FunctionBddOnSet at h_unbdd
   push_neg at h_unbdd
   let x_seq : ℕ → ℝ := λ n => Classical.choose (h_unbdd (n + 1) (by linarith))
-  have h_x_seq_prop : ∀ n, x_seq n ∈ Int ∧ |f (x_seq n)| ≥ n + 1 := by
+  have h_x_seq_prop : ∀ n, x_seq n ∈ (Set.Icc a b) ∧ |f (x_seq n)| ≥ n + 1 := by
     intro n
     obtain ⟨h_mem, h_lt⟩ := Classical.choose_spec (h_unbdd (n + 1) (by linarith))
     exact ⟨h_mem, le_of_lt h_lt⟩
   have h_x_seq_bounded : BoundedSequence x_seq := by
     unfold BoundedSequence
     let K := max (|a| + |b| + 1) 1
-    use K, by dsimp [K]; simp
+    use K, by (dsimp [K]; simp)
     intro n
     have h := (h_x_seq_prop n).1
-    rw [hInt] at h
-    simp at h
     cases' h with h_left h_right
     rw [abs_le]
-    dsimp [K]
     constructor
     · calc -max (|a| + |b| + 1) 1
       _ ≤ - (|a| + |b| + 1) := neg_le_neg (le_max_left _ _)
@@ -47,10 +44,8 @@ theorem WeierstrassBdd
         _ ≤ |a| + |b| + 1 := by simp
         _ ≤ K := by dsimp [K]; simp
   obtain ⟨k, hk_inc, c, hk_conv⟩ := axBw_of_axMonoConv AxMonoConv x_seq h_x_seq_bounded
-  have hc_in_Int : c ∈ Int := by
-    rw [hInt]
-    simp
-    have h_closure : ∀ n, x_seq (k n) ∈ Int := by
+  have hc_in_Int : c ∈ (Set.Icc a b) := by
+    have h_closure : ∀ n, x_seq (k n) ∈ (Set.Icc a b) := by
       intro n
       exact (h_x_seq_prop (k n)).1
     constructor
@@ -60,13 +55,11 @@ theorem WeierstrassBdd
       have ε_pos : ε > 0 := by dsimp[ε]; linarith
       obtain ⟨n₀, hn₀⟩ := hk_conv ε ε_pos
       specialize hn₀ n₀ (by linarith)
-      rw [hInt] at h_closure
       have h_x_ge_a := (h_closure n₀).1
       rw [Subsequence] at hn₀
-      simp at hn₀
       have upper_bound : c + ε = (a + c)/2 := by ring
       have upper_bound_lt_a : (a + c)/2 < a := by linarith
-      rw [abs_lt] at hn₀
+      rw [Function.comp_apply, abs_lt] at hn₀
       have h_x_lt_a : x_seq (k n₀) < a := by linarith
       linarith
     · by_contra hnot
@@ -76,11 +69,8 @@ theorem WeierstrassBdd
       have hε : ε > 0 := by linarith
       obtain ⟨N, hN⟩ := hk_conv ε hε
       specialize hN N (by linarith)
-      rw [hInt] at h_closure
       have h_x_le_b := (h_closure N).2
-      rw [Subsequence] at hN
-      simp at hN
-      rw [abs_lt] at hN
+      rw [Subsequence, Function.comp_apply, abs_lt] at hN
       have lower_bound : c - ε = (b + c)/2 := by ring
       have upper_bound_lt_a : (b + c)/2 > b := by linarith
       linarith
@@ -93,12 +83,13 @@ theorem WeierstrassBdd
     intro n hn
     specialize hN n hn
     rw [Subsequence] at hN
-    simp at hN
     by_cases h_eq : x_seq (k n) = c
-    · rw [← h_eq]; simp; exact hε
+    · rw [← h_eq]
+      simpa using hε
     · apply hδ
       constructor
-      · rw [abs_pos]; exact sub_ne_zero.mpr h_eq
+      · rw [abs_pos]
+        exact sub_ne_zero.mpr h_eq
       · exact hN
   obtain ⟨N, hN⟩ := h_f_conv 1 Real.zero_lt_one
   obtain ⟨m, hm⟩ := exists_nat_gt (|f c|)
@@ -113,53 +104,48 @@ theorem WeierstrassBdd
     have : |f c| + |f (x_seq (k n)) - f c| < |f c| + 1 := by linarith
     linarith
   have h_seq_bound : |f (x_seq (k n))| ≥ n + 1 := by
-    have : k n ≥ n := StrictlyIncreasingSequenceN_ge_id k hk_inc n
-    have : |f (x_seq (k n))| ≥ k n + 1 := (h_x_seq_prop (k n)).2
-    have : k n + 1 ≥ n + 1 := by linarith
+    have hknn : k n ≥ n := StrictlyIncreasingSequenceN_ge_id k hk_inc n
+    have hfkn : |f (x_seq (k n))| ≥ k n + 1 := (h_x_seq_prop (k n)).2
+    have hkn : k n + 1 ≥ n + 1 := by linarith
     trans k n + 1
-    · (expose_names; exact this_2)
-    · simp; linarith
+    · exact hfkn
+    · simp
+      linarith
   have h_n_large : n > |f c| := by
     have : (n : ℝ) ≥ m := Nat.cast_le.mpr (le_max_right N m)
     linarith
   linarith
 
-theorem ContinuousImpliesSequential
-  (f : ℝ → ℝ) (c : ℝ) (h_cont : FunctionContinuousAt f c)
-  (x : ℕ → ℝ) (h_conv : ConvergesTo x c) :
-  ConvergesTo (f ∘ x) (f c) := by
+theorem ContinuousImpliesSequential {f : ℝ → ℝ} {c : ℝ} (h_cont : FunctionContinuousAt f c)
+  {x : ℕ → ℝ} (h_conv : ConvergesTo x c) :
+  ConvergesTo (f ∘ x) (f c) :=
+by
   intro ε hε
   obtain ⟨δ, hδ_pos, h_f_delta⟩ := h_cont ε hε
   obtain ⟨n₀, h_x_delta⟩ := h_conv δ hδ_pos
   use n₀
   intro n hn
-  simp
   by_cases h_xn_eq_c : x n = c
-  · rw [h_xn_eq_c]
-    simp
-    exact hε
-  · apply h_f_delta
-    constructor
-    · exact abs_sub_pos.mpr h_xn_eq_c
-    · exact h_x_delta n hn
+  · rw [Function.comp_apply, h_xn_eq_c]
+    simpa using hε
+  · exact h_f_delta _ ⟨abs_sub_pos.mpr h_xn_eq_c, h_x_delta n hn⟩
 
-theorem WeierstrassMax
-  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
-  (h_cont : FunctionContinuousOnSet Int f) :
-  AxMonoConv → AxNIP → ∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M := by
+theorem WeierstrassMax {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
+  (h_cont : FunctionContinuousOnSet (Set.Icc a b) f) :
+  AxMonoConv → AxNIP → ∃ M ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f x ≤ f M :=
+by
   intro AxMonoConv AxNIP
-  let S := {f y | y ∈ Int}
+  let S := {f y | y ∈ (Set.Icc a b)}
   have S_nonempty : S.Nonempty := by
     use f a
     dsimp [S]
     use a
     constructor
-    rw [hInt]
     simpa
     rfl
   have S_bdd : BoundedSet S := by
     unfold BoundedSet
-    obtain ⟨c, c_pos, hc⟩ := WeierstrassBdd f a b h_ab Int hInt h_cont AxMonoConv
+    obtain ⟨c, c_pos, hc⟩ := WeierstrassBdd h_cont AxMonoConv
     use c, c_pos
     intro m hm
     dsimp [S] at hm
@@ -186,23 +172,17 @@ theorem WeierstrassMax
   have M_upper_bd_of_y : ∀ n : ℕ, y n ≤ M := by
     intro n
     exact upper_bd (y n) (y_in_S n)
-  have x_exists : ∀ n : ℕ, ∃ x ∈ Int, f x = y n := by
+  have x_exists : ∀ n : ℕ, ∃ x ∈ (Set.Icc a b), f x = y n := by
     intro n
     exact y_in_S n
   choose x x_in_Int fx_eq_y using x_exists
-  rw [hInt] at x_in_Int
   have x_bdd : BoundedSequence x := by
     unfold BoundedSequence
     use max |a| |b| + 1
     constructor
-    · simp
-      have : max |a| |b| ≥ 0 := by
-        exact le_sup_of_le_right (abs_nonneg b)
-      exact lt_add_of_nonneg_of_lt this (by simp)
+    · exact lt_add_of_nonneg_of_lt (le_sup_of_le_right (abs_nonneg b)) (by simp)
     · intro n
-
       specialize x_in_Int n
-      simp at x_in_Int
       rw [abs_le]
       constructor
       · calc - (max (|a|) (|b|) + 1)
@@ -217,8 +197,7 @@ theorem WeierstrassMax
         _ ≤ max (|a|) (|b|) + 1 := by linarith
   obtain ⟨k, hk_inc, hk_conv⟩ := axBw_of_axMonoConv AxMonoConv x x_bdd
   obtain ⟨c, hc⟩ := hk_conv
-  have c_in_Int : c ∈ Int := by
-    rw [hInt]
+  have c_in_Int : c ∈ (Set.Icc a b) := by
     simp
     constructor
     · have a_leq_xn : ∀ n : ℕ, a ≤ x n := by
@@ -247,7 +226,7 @@ theorem WeierstrassMax
   intro d d_in_Int
   have h_cont_c : FunctionContinuousAt f c := h_cont c c_in_Int
   have h_lim_continuity : ConvergesTo (f ∘ (Subsequence x k)) (f c) := by
-    apply ContinuousImpliesSequential f c h_cont_c
+    apply ContinuousImpliesSequential h_cont_c
     exact hc
   have h_lim_construction : ConvergesTo (f ∘ (Subsequence x k)) M := by
     intro ε ε_pos
@@ -267,7 +246,7 @@ theorem WeierstrassMax
             · simp
               have := StrictlyIncreasingSequenceN_ge_id k hk_inc n
               linarith
-        _ > M - ε             := by
+        _ > M - ε := by
             have : 1 / (n + 1 : ℝ) ≤ 1 / (n₀ + 1 : ℝ) := by
               apply one_div_le_one_div_of_le
               · linarith
@@ -288,30 +267,28 @@ theorem WeierstrassMax
     have diff_pos : |M - f c| > 0 := abs_sub_pos.mpr h
     let ε := |M - f c| / 2
     have ε_pos : ε > 0 := by dsimp [ε]; linarith
-    obtain ⟨N1, hN1⟩ := h_lim_construction ε ε_pos
-    obtain ⟨N2, hN2⟩ := h_lim_continuity ε ε_pos
-    let n := max N1 N2
-    specialize hN1 n (le_max_left _ _)
-    specialize hN2 n (le_max_right _ _)
+    obtain ⟨N₁, hN₁⟩ := h_lim_construction ε ε_pos
+    obtain ⟨N₂, hN₂⟩ := h_lim_continuity ε ε_pos
+    let n := max N₁ N₂
+    specialize hN₁ n (le_max_left _ _)
+    specialize hN₂ n (le_max_right _ _)
     have : |M - f c| ≤ |M - f (x (k n))| + |f (x (k n)) - f c| := abs_sub_le M (f (x (k n))) (f c)
-    rw [abs_sub_comm] at hN1
-    dsimp [Subsequence, ε] at hN1 hN2
+    rw [abs_sub_comm] at hN₁
+    dsimp [Subsequence, ε] at hN₁ hN₂
     linarith
 
   rw [← M_eq_fc]
   apply upper_bd
   use d, d_in_Int
 
-
-
-theorem WeierstrassMin
-  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
-  (h_cont : FunctionContinuousOnSet Int f) :
+theorem WeierstrassMin {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
+  (h_cont : FunctionContinuousOnSet (Set.Icc a b) f) :
   AxMonoConv → AxNIP →
-  ∃ m ∈ Int, ∀ x ∈ Int, f m ≤ f x := by
+  ∃ m ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f m ≤ f x :=
+by
   intro AxMonoConv AxNIP
-  let g := λ x ↦ - f x
-  have g_cont : FunctionContinuousOnSet Int g := by
+  let g := - f
+  have g_cont : FunctionContinuousOnSet (Set.Icc a b) g := by
     intro x hx
     unfold FunctionContinuousAt CauchyLimitFunction
     intro ε ε_pos
@@ -327,7 +304,7 @@ theorem WeierstrassMin
       _ = |- f x₁ + f x| := by ring_nf
     rw [←this]
     exact hδ
-  obtain ⟨m, hm, m_leq⟩ := WeierstrassMax g a b h_ab Int hInt g_cont AxMonoConv AxNIP
+  obtain ⟨m, hm, m_leq⟩ := WeierstrassMax hab g_cont AxMonoConv AxNIP
   use m, hm
   intro x hx
   specialize m_leq x hx
@@ -335,13 +312,14 @@ theorem WeierstrassMin
   linarith
 
 theorem WeierstrassExtremeValue
-  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b) (Int : Set ℝ) (hInt : Int = Set.Icc a b)
-  (h_cont : FunctionContinuousOnSet Int f) :
+  (f : ℝ → ℝ) (a b : ℝ) (hab : a ≤ b)
+  (h_cont : FunctionContinuousOnSet (Set.Icc a b) f) :
   AxNIP → AxMonoConv → AxSup →
-  ((FunctionBddOnSet Int f) ∧
-  (∃ M ∈ Int, ∀ x ∈ Int, f x ≤ f M) ∧
-  (∃ m ∈ Int, ∀ x ∈ Int, f m ≤ f x)) := by
+  ((FunctionBddOnSet (Set.Icc a b) f) ∧
+  (∃ M ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f x ≤ f M) ∧
+  (∃ m ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f m ≤ f x)) :=
+by
   intro AxNIP AxMonoConv AxSup
-  exact ⟨WeierstrassBdd f a b h_ab Int hInt h_cont AxMonoConv, WeierstrassMax f a b h_ab Int hInt h_cont AxMonoConv AxNIP, WeierstrassMin f a b h_ab Int hInt h_cont AxMonoConv AxNIP⟩
+  exact ⟨WeierstrassBdd h_cont AxMonoConv, WeierstrassMax hab h_cont AxMonoConv AxNIP, WeierstrassMin hab h_cont AxMonoConv AxNIP⟩
 
 #print axioms WeierstrassExtremeValue

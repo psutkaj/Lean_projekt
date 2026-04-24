@@ -2,15 +2,14 @@ import LEANprj.defs
 import LEANprj._01Sets.Theorems.AxSupOfAxNIP
 import LEANprj._05Continuity.Theorems.ContinuityKeepsSgn
 
-theorem BolzanoZeroValue
-  (f : ℝ → ℝ) (a b : ℝ) (h_ab : a ≤ b)
+theorem BolzanoZeroValue {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
   (h_cont : ∀ x ∈ Set.Icc a b, FunctionContinuousAt f x)
-  (h_fa : f a < 0) (h_fb : f b > 0) :
-  AxNIP →
-  ∃ c ∈ Set.Icc a b, f c = 0 := by
+  (hfa : f a < 0) (hfb : f b > 0) :
+  AxNIP → ∃ c ∈ Set.Icc a b, f c = 0 :=
+by
   intro ax_NIP
   let M := {x | a ≤ x ∧ x ≤ b ∧ f x < 0}
-  have ha_in_M : a ∈ M := by simp [M, h_ab, h_fa]
+  have ha_in_M : a ∈ M := by simp [M, hab, hfa]
   have M_nonempty : M.Nonempty := by use a
   have M_bdd : ∃ u, ∀ x ∈ M, x ≤ u := by
     use b
@@ -28,16 +27,14 @@ theorem BolzanoZeroValue
       let ε := c - b
       obtain ⟨x, hx_M, hx_close⟩ := h_Approx ε (by linarith)
       have : x > b := by linarith
-      have : x ≤ b := hx_M.2.1
-      linarith
+      linarith [hx_M.2.1]
   use c, c_in_Icc
   by_cases h_fc_neg : f c < 0
   · have h_cont_c := h_cont c c_in_Icc
     obtain ⟨δ, δ_pos, h_neg_neigh⟩ := ContinuityKeepsSgnNeg h_cont_c h_fc_neg
     have h_c_lt_b : c < b := by
       by_contra h_eq
-      have : c = b := le_antisymm c_in_Icc.2 (not_lt.mp h_eq)
-      rw [this] at h_fc_neg
+      rw [le_antisymm c_in_Icc.2 (not_lt.mp h_eq)] at h_fc_neg
       linarith
     let step := min (δ/2) (b - c)
     let x := c + step
@@ -49,9 +46,8 @@ theorem BolzanoZeroValue
         · dsimp [x, step]
           linarith [min_le_right (δ/2) (b-c)]
         · apply h_neg_neigh
-          dsimp [x, step]
-          simp
-          rw [abs_of_pos]
+          dsimp only [x, step]
+          rw [add_sub_cancel_left, abs_of_pos]
           linarith [min_le_left (δ/2) (b-c)]
           linarith
     have : x ≤ c := h_UB x hx_in_M
@@ -62,8 +58,7 @@ theorem BolzanoZeroValue
       let y := c - δ/2
       have h_y_UB : ∀ z ∈ M, z ≤ y := by
         intro z zM
-        by_contra hz_gt_y
-        push_neg at hz_gt_y
+        by_contra! hz_gt_y
         have h_dist : |z - c| < δ := by
           rw [abs_sub_comm, abs_of_nonneg (sub_nonneg.mpr (h_UB z zM))]
           calc c - z
@@ -73,7 +68,6 @@ theorem BolzanoZeroValue
         have : f z > 0 := h_pos_neigh z h_dist
         linarith [zM.2.2]
       obtain ⟨x, xM, hx_gt_y⟩ := h_Approx (δ/2) (half_pos hδ_pos)
-      have : x ≤ y := h_y_UB x xM
-      dsimp [y] at this
+      have : x ≤ c - δ / 2 := h_y_UB x xM
       linarith
     · linarith

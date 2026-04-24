@@ -15,13 +15,11 @@ by
   by_contra hne
   push_neg at hne
   have : |s - t| > 0 := by
-    simp
-    push_neg
-    exact sub_ne_zero_of_ne hne.symm
+    simpa using sub_ne_zero_of_ne hne.symm
   obtain ⟨n₀, hn₀⟩ := shrink_to_zero |s - t| this
   have : ∀ n > n₀, |u n - l n| ≥ |s - t| := by
     intro n hn
-    have nonneg : u n - l n ≥ 0 := by simp; exact sep n
+    have nonneg : u n - l n ≥ 0 := by simpa using sep n
     have := (hs n).2
     have := (ht n).1
     have := (hs n).1
@@ -29,12 +27,12 @@ by
     have geq_ty : u n - l n ≥ s - t := by
       calc u n - l n
       _ = (u n - s) + (s - t) + (t - l n) := by ring
-      _ ≥ 0 + (s - t) + 0 := by gcongr; linarith; linarith
+      _ ≥ 0 + (s - t) + 0 := by gcongr <;> linarith
       _ = s - t := by ring
     have geq_yt : u n - l n ≥ t - s := by
       calc u n - l n
       _ = (u n - t) + (t - s) + (s - l n) := by ring
-      _ ≥ 0 + (t - s) + 0 := by gcongr; linarith; linarith
+      _ ≥ 0 + (t - s) + 0 := by gcongr <;> linarith
       _ = t - s := by ring
     have eq₁ : |u n - l n| = u n - l n := abs_of_nonneg nonneg
     have abs_eq : |s - t| = |t - s| := abs_sub_comm s t

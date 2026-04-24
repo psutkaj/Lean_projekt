@@ -17,13 +17,13 @@ by
   rcases h₁ ε hε with ⟨δ₁, hδ₁_pos, h_close_p⟩
   rcases h₂ ε hε with ⟨δ₂, hδ₂_pos, h_close_q⟩
 
-  -- 4. Construct a specific point 'x' valid for both limits
+  -- 4. Construct a specific point x valid for both limits
   --    We pick a δ smaller than both δ₁ and δ₂
   let δ := min δ₁ δ₂
   have hδ_pos : δ > 0 := lt_min hδ₁_pos hδ₂_pos
 
-  --    We choose x to be x₀ + δ/2.
-  --    This is guaranteed to be inside the neighborhood but not equal to x₀.
+  --    We choose x to be x₀ + δ/2
+  --    This is guaranteed to be inside the neighborhood but not equal to x₀
   let x := x₀ + δ / 2
 
   -- 5. Verify x satisfies the puncture condition (0 < |x - x₀| < δ)
