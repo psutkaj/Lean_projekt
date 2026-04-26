@@ -1,0 +1,10 @@
+{
+  "name": "Lean 4",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": ["leanprover.lean4"]
+    }
+  },
+  "postCreateCommand": "curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y && export PATH=$PATH:$HOME/.elan/bin && lake exe cache get && lake build"
+}

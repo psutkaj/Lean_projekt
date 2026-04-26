@@ -321,5 +321,3 @@ theorem WeierstrassExtremeValue
 by
   intro AxNIP AxMonoConv AxSup
   exact ⟨WeierstrassBdd h_cont AxMonoConv, WeierstrassMax hab h_cont AxMonoConv AxNIP, WeierstrassMin hab h_cont AxMonoConv AxNIP⟩
-
-#print axioms WeierstrassExtremeValue

@@ -19,8 +19,12 @@ by
   have : |p - q| < ε := by
     calc  |p - q|
       _ = |p - a n + a n - q| := by simp;
-      _ ≤ |p - a n| + |a n - q| := by rw [sub_add_cancel]; exact abs_sub_le p (a n) q
-      _ = |a n - p| + |a n - q| := by rw [add_left_inj]; exact abs_sub_comm p (a n)
+      _ ≤ |p - a n| + |a n - q| := by
+        rw [sub_add_cancel]
+        exact abs_sub_le p (a n) q
+      _ = |a n - p| + |a n - q| := by
+        rw [add_left_inj]
+        exact abs_sub_comm p (a n)
       _ < ε / 2 + ε / 2 := add_lt_add hn₁ hn₂
       _ = ε := by simp
   dsimp [ε] at this

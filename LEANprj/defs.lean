@@ -31,6 +31,7 @@ def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 
 def SeriesConvergesTo (a : ℕ → ℝ) (s : ℝ) : Prop := ConvergesTo (PartialSum a) s
 def SeriesConvergent (a : ℕ → ℝ) : Prop := ∃ s : ℝ, SeriesConvergesTo a s
 
+
 -- ## 7. TOPOLOGICKÉ VLASTNOSTI MNOŽIN
 def CompactSet (M : Set ℝ) : Prop :=
   ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ∈ M) →

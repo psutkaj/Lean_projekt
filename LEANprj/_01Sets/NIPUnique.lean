@@ -12,8 +12,7 @@ by
   obtain ⟨s, hs⟩ := ex_nip
   use s, hs
   intro t ht
-  by_contra hne
-  push_neg at hne
+  by_contra! hne
   have : |s - t| > 0 := by
     simpa using sub_ne_zero_of_ne hne.symm
   obtain ⟨n₀, hn₀⟩ := shrink_to_zero |s - t| this
