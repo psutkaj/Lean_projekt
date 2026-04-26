@@ -26,35 +26,10 @@ def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
 def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, (n > n₀ ∧ m > n₀) → |a n - a m| < ε
 
--- ## 6. ŘADY
-def PartialSum (a : ℕ → ℝ) (n : ℕ) : ℝ := ∑ k ∈ Finset.range (n + 1), a k
-def SeriesConvergesTo (a : ℕ → ℝ) (s : ℝ) : Prop := ConvergesTo (PartialSum a) s
-def SeriesConvergent (a : ℕ → ℝ) : Prop := ∃ s : ℝ, SeriesConvergesTo a s
-
-
--- ## 7. TOPOLOGICKÉ VLASTNOSTI MNOŽIN
-def CompactSet (M : Set ℝ) : Prop :=
-  ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ∈ M) →
-    ∃ k : ℕ → ℕ, StrictlyIncreasingSequenceN k ∧ ∃ l : ℝ, ConvergesTo (Subsequence a k) l ∧ l ∈ M
-
-def ClosedSet (M : Set ℝ) : Prop :=
-  ∀ a : ℕ → ℝ, ∀ L : ℝ, (∀ n : ℕ, a n ∈ M) → ConvergesTo a L → L ∈ M
-
+-- ## 6. MNOŽINY
 def UpperBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, m ≤ c
 def LowerBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, c ≤ m
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| ≤ c
-
--- ## 8. LIMITY FUNKCÍ A SPOJITOST
-def HeineLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
-
-def CauchyLimitFunction (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ ε > 0, ∃ δ > 0, ∀ x : ℝ, (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
-
-def FunctionContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFunction f x₀ (f x₀)
-def FunctionContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunctionContinuousAt f x
-def FunctionContinuousOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∀ x ∈ M, FunctionContinuousAt f x
-def FunctionBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x| ≤ K
 
 -- ## 0. AXIOMY ÚPLNOSTI ℝ
 def AxNIP : Prop :=
