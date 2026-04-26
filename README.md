@@ -1,9 +1,9 @@
 
-# 📚 Formalizace MA1 v Lean 4
+# Formalizace MA1 v Lean 4
 
 Tento repozitář je součástí bakalářské práce na ZČU v Plzni. 
 
-## 🚀 Rychlé spuštění v prohlížeči
+## Rychlé spuštění v prohlížeči
 Klikněte na tlačítko níže pro okamžité vytvoření interaktivního prostředí:
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/psutkaj/Lean_projekt)
