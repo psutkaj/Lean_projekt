@@ -1,7 +1,6 @@
 import LEANprj.defs
 import LEANprj.lemmas
 import LEANprj._01Sets.AxSupOfAxNIP
-import LEANprj._01Sets.HeineBorel
 import LEANprj._01Sets.NIPUnique
 import LEANprj._02Sequences.AlgebraLimit
 import LEANprj._02Sequences.AxBwOfAxMonoConv
@@ -15,9 +14,8 @@ import LEANprj._02Sequences.CauchyOfIncBdd
 import LEANprj._02Sequences.ConvergesToUnique
 import LEANprj._02Sequences.ExistsMonoSubseq
 import LEANprj._02Sequences.Sandwich
-import LEANprj._03Series.BolzanoCauchy
 import LEANprj._04Functions.AlgebraLimitFun
-import LEANprj._04Functions.HeineEqCauchy
+import LEANprj._04Functions.HeineIffCauchy
 import LEANprj._04Functions.SandwichFun
 import LEANprj._04Functions.UniquenessFun
 import LEANprj._05Continuity.AlgebraContinuousFun
