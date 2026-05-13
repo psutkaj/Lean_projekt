@@ -31,6 +31,18 @@ def UpperBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, m ≤ c
 def LowerBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, c ≤ m
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| ≤ c
 
+
+-- ## 7. FUNKCE
+def HeineLimitFun (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
+  ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
+def CauchyLimitFun (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
+  ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
+
+def FunContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFun f x₀ (f x₀)
+def FunContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunContinuousAt f x
+def FunContinuousOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∀ x ∈ M, FunContinuousAt f x
+def FunBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x| ≤ K
+
 -- ## 0. AXIOMY ÚPLNOSTI ℝ
 def AxNIP : Prop :=
   ∀ l u : ℕ → ℝ, IncreasingSequence l → DecreasingSequence u → (∀ n : ℕ, l n ≤ u n) →
