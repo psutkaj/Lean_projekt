@@ -4,35 +4,37 @@ open Classical
 
 -- 1. METODA PŮLENÍ INTERVALU (BISEKCE)
 section BisectionMethod
-variable (A : Set ℝ) (l₀ u₀ : ℝ)
+variable (A : Set ℝ)
 
-@[simp] def mid (l u : ℝ) : ℝ := (l + u) / 2
+@[simp] private def mid (l u : ℝ) : ℝ := (l + u) / 2
 
 -- Krok půlení
-def step (l u : ℝ) : ℝ × ℝ :=
+private def step (l u : ℝ) : ℝ × ℝ :=
   if ∃ a ∈ A, mid l u < a then (mid l u, u) else (l, mid l u)
 
+variable (l₀ u₀ : ℝ)
+
 -- Rekurzivní definice posloupností okrajů (generuje n-tý interval)
-def luNext : ℕ → ℝ × ℝ
+private def luNext : ℕ → ℝ × ℝ
   | 0 => (l₀, u₀)
   | n+1 => step A (luNext n).1 (luNext n).2
 
 -- Projekce pro snazší přístup k levé a pravé posloupnosti
-def lSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).1
-def uSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).2
+private def lSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).1
+private def uSeq (n : ℕ) : ℝ := (luNext A l₀ u₀ n).2
 
 end BisectionMethod
 
--- 2. ELEMENTÁRNÍ  LEMMATA
+-- 2. ELEMENTÁRNÍ LEMMATA
 -- Pomocná tvrzení o vlastnostech středu intervalu.
 section Lemmas
 
 variable {l u : ℝ}
 
-lemma l_le_mid (h : l ≤ u) : l ≤ mid l u := by
+private lemma l_le_mid (h : l ≤ u) : l ≤ mid l u := by
   simp; linarith
 
-lemma mid_le_u (h : l ≤ u) : mid l u ≤ u := by
+private lemma mid_le_u (h : l ≤ u) : mid l u ≤ u := by
   simp; linarith
 
 end Lemmas
@@ -44,7 +46,7 @@ variable (A : Set ℝ)
 
 
 -- Zachování vnořenosti: lₙ ≤ uₙ platí pro všechna n
-lemma lSeq_le_uSeq {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
+private lemma lSeq_le_uSeq {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : ∀ n, lSeq A l₀ u₀ n ≤ uSeq A l₀ u₀ n := by
   intro n
   induction n with
   | zero => exact h_init
@@ -55,7 +57,7 @@ lemma lSeq_le_uSeq {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : ∀ n, lSeq A l�
     · exact l_le_mid ih
 
 -- Posloupnost levých okrajů je neklesající
-lemma lSeq_increasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : IncreasingSequence (lSeq A l₀ u₀) := by
+private lemma lSeq_increasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : IncreasingSequence (lSeq A l₀ u₀) := by
   intro n
   dsimp [lSeq, uSeq, luNext, step]
   have h_le := lSeq_le_uSeq A h_init n
@@ -64,7 +66,7 @@ lemma lSeq_increasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : IncreasingSeq
   · exact le_refl _
 
 -- Posloupnost pravých okrajů je nerostoucí
-lemma uSeq_decreasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : DecreasingSequence (uSeq A l₀ u₀) := by
+private lemma uSeq_decreasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : DecreasingSequence (uSeq A l₀ u₀) := by
   intro n
   dsimp [lSeq, uSeq, luNext, step]
   have h_le := lSeq_le_uSeq A h_init n
@@ -72,16 +74,17 @@ lemma uSeq_decreasing {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) : DecreasingSeq
   · exact le_refl _
   · exact mid_le_u h_le
 
-
 -- Délka intervalu se v každém kroku zmenší přesně na polovinu
-lemma gap_halves (l₀ u₀ : ℝ) (n : ℕ) :
-  uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 := by
+private lemma gap_halves (l₀ u₀ : ℝ) (n : ℕ) :
+  uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1) = (uSeq A l₀ u₀ n - lSeq A l₀ u₀ n) / 2 :=
+by
   dsimp [lSeq, uSeq, luNext, step]
   split_ifs <;> simp <;> ring
 
 -- Explicitní vzorec pro délku n-tého intervalu pomocí geometrické posloupnosti
-lemma gap_formula (l₀ u₀ : ℝ) (n : ℕ) :
-  uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n := by
+private lemma gap_formula (l₀ u₀ : ℝ) (n : ℕ) :
+  uSeq A l₀ u₀ n - lSeq A l₀ u₀ n = (u₀ - l₀) / 2^n :=
+by
   induction n with
   | zero => simp [lSeq, uSeq, luNext]
   | succ n ih =>
@@ -94,13 +97,13 @@ end SequenceProperties
 section ConvergenceLemmas
 
 -- Důkaz, že délka intervalu konverguje k nule
-lemma gap_tendsto_zero (A : Set ℝ) {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) :
-    ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε := by
+private lemma gap_tendsto_zero (A : Set ℝ) {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) :
+  ∀ ε > 0, ∃ N : ℕ, ∀ n > N, |uSeq A l₀ u₀ n - lSeq A l₀ u₀ n| < ε :=
+by
   intro ε ε_pos
   have gap_nonneg : u₀ - l₀ ≥ 0 := by linarith
   have gap_abs : ∀ n, |(u₀ - l₀) / 2^n| = (u₀ - l₀) / 2^n := by
     intro n; simp [div_nonneg gap_nonneg]
-
   by_cases hGap : u₀ - l₀ = 0
   · -- Případ: Počáteční interval má nulovou délku
     use 0
@@ -108,7 +111,7 @@ lemma gap_tendsto_zero (A : Set ℝ) {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) 
     rw [gap_formula A l₀ u₀ n, hGap]
     simp; linarith
   · -- Případ: Kladná počáteční délka
-    have gap_pos : u₀ - l₀ > 0 := lt_of_le_of_ne gap_nonneg fun a => hGap (id (Eq.symm a))
+    have gap_pos : u₀ - l₀ > 0 := lt_of_le_of_ne gap_nonneg (hGap ·.symm)
     have gap_div_ε_pos : (u₀ - l₀) / ε > 0 := div_pos gap_pos ε_pos
     have nat_le_pow_two : ∀ N : ℕ, (N : ℝ) ≤ 2 ^ N := by
       intro N
@@ -123,7 +126,6 @@ lemma gap_tendsto_zero (A : Set ℝ) {l₀ u₀ : ℝ} (h_init : l₀ ≤ u₀) 
     have pow_gt_gap_div : (u₀ - l₀) / ε < 2 ^ N := lt_of_le_of_lt' (nat_le_pow_two N) hN
     have pow_2_N_pos : 0 < (2 : ℝ) ^ N := pow_pos (by norm_num) N
     have posRight : 0 < ε / 2 ^ N := div_pos ε_pos pow_2_N_pos
-
     have base : (u₀ - l₀) / 2^N < ε := by
       calc
         (u₀ - l₀) / 2^N = (u₀ - l₀) / 2^N * ε / ε := by field_simp
@@ -204,7 +206,7 @@ by
       linarith
     · -- s je nejmenší horní závora
       intro ε hε
-      obtain ⟨n, hn_gap⟩ :=  gap_tendsto_zero A h_init ε hε
+      obtain ⟨n, hn_gap⟩ := gap_tendsto_zero A h_init ε hε
       obtain ⟨a, ha_in, ha_l, ha_u⟩ := h_contains_A_real (n + 1)
       use a, ha_in
       calc s - ε < s - (uSeq A l₀ u₀ (n + 1) - lSeq A l₀ u₀ (n + 1)) := by simpa using lt_of_abs_lt (hn_gap (n + 1) (by linarith))
@@ -234,8 +236,9 @@ by
     have h_x_le_y : x ≤ y := hy.1 x hx_in
     linarith
 
-theorem inf_unique : AxNIP → (A : Set ℝ) → (A.Nonempty) → (LowerBoundedSet A) →
-  ∃! s : ℝ, IsInf A s := by
+theorem inf_unique : AxNIP → ∀ A : Set ℝ, A.Nonempty → LowerBoundedSet A →
+  ∃! s : ℝ, IsInf A s :=
+by
   intro AxNIP A hA hLowerBdd
   let negA : Set ℝ := {x | ∃ a ∈ A, x = -a}
   have hNegA : negA.Nonempty := by

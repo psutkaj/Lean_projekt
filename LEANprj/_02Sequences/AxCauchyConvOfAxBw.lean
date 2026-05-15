@@ -62,5 +62,5 @@ by
     _ = ε := by linarith
 
 theorem axCauchyConv_of_axBw (axBW : AxBW) :
-   AxCauchyConv :=
+  AxCauchyConv :=
 fun _ => ⟨convergesTo_of_cauchy axBW, cauchy_of_convergesTo⟩

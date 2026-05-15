@@ -22,7 +22,7 @@ by
     exact ⟨h_mem, le_of_lt h_lt⟩
   have h_x_seq_bounded : BoundedSequence x_seq := by
     let K := max (|a| + |b| + 1) 1
-    use K, by (dsimp [K]; simp)
+    use K, by simp [K]
     intro n
     have h := (h_x_seq_prop n).1
     cases' h with h_left h_right
@@ -32,7 +32,7 @@ by
       _ ≤ - (|a| + |b| + 1) := neg_le_neg (le_max_left _ _)
       _ ≤ -|a| := by
         simp
-        refine neg_le.mp ?_
+        rw [neg_le]
         have : |b| ≥ 0 := abs_nonneg b
         calc -1 ≤ 0 := by linarith
         _ ≤ |b| := this
@@ -44,10 +44,10 @@ by
           have : b ≤ |b| := le_abs_self b
           linarith
         _ ≤ |a| + |b| + 1 := by simp
-        _ ≤ K := by dsimp [K]; simp
+        _ ≤ K := by simp [K]
   obtain ⟨k, hk_inc, c, hk_conv⟩ := axBw_of_axMonoConv (axMonoConv_of_axSup (axSup_of_axNip ax_NIP)) x_seq h_x_seq_bounded
-  have hc_in_Int : c ∈ (Set.Icc a b) := by
-    have h_closure : ∀ n, x_seq (k n) ∈ (Set.Icc a b) := by
+  have hc_in_Int : c ∈ Set.Icc a b := by
+    have h_closure : ∀ n, x_seq (k n) ∈ Set.Icc a b := by
       intro n
       exact (h_x_seq_prop (k n)).1
     constructor
@@ -129,7 +129,7 @@ by
 theorem WeierstrassMax (ax_NIP : AxNIP)
   {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
   (h_cont : FunContinuousOnSet (Set.Icc a b) f) :
-  ∃ M ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f x ≤ f M :=
+  ∃ M ∈ Set.Icc a b, ∀ x ∈ Set.Icc a b, f x ≤ f M :=
 by
   let S := {f y | y ∈ (Set.Icc a b)}
   have S_nonempty : S.Nonempty := by
@@ -193,20 +193,20 @@ by
       have a_leq_xkn : ∀ n : ℕ, a ≤ x (k n) := by
         intro n
         exact a_leq_xn (k n)
-      refine LimitOrderLe a_leq_xkn ?_ hc
-      · intro ε ε_pos
-        simp
-        tauto
+      apply LimitOrderLe a_leq_xkn _ hc
+      intro ε ε_pos
+      simp
+      tauto
     · have xn_leq_b : ∀ n : ℕ, x n ≤ b := by
         intro n
         exact (x_in_Int n).2
       have xkn_leq_b : ∀ n : ℕ, x (k n) ≤ b := by
         intro n
         exact xn_leq_b (k n)
-      refine LimitOrderLe xkn_leq_b hc ?_
-      · intro ε ε_pos
-        simp
-        tauto
+      apply LimitOrderLe xkn_leq_b hc
+      intro ε ε_pos
+      simp
+      tauto
   use c, c_in_Int
   intro d d_in_Int
   have h_cont_c : FunContinuousAt f c := h_cont c c_in_Int
@@ -253,7 +253,7 @@ by
 
 theorem WeierstrassMin (ax_NIP : AxNIP) {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
   (h_cont : FunContinuousOnSet (Set.Icc a b) f) :
-  ∃ m ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f m ≤ f x :=
+  ∃ m ∈ Set.Icc a b, ∀ x ∈ Set.Icc a b, f m ≤ f x :=
 by
   let g := - f
   have g_cont : FunContinuousOnSet (Set.Icc a b) g := by
@@ -282,6 +282,6 @@ theorem WeierstrassExtremeValue
   (ax_NIP : AxNIP) {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)
   (h_cont : FunContinuousOnSet (Set.Icc a b) f) :
   ((FunBddOnSet (Set.Icc a b) f) ∧
-  (∃ M ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f x ≤ f M) ∧
-  (∃ m ∈ (Set.Icc a b), ∀ x ∈ (Set.Icc a b), f m ≤ f x)) :=
+  (∃ M ∈ Set.Icc a b, ∀ x ∈ Set.Icc a b, f x ≤ f M) ∧
+  (∃ m ∈ Set.Icc a b, ∀ x ∈ Set.Icc a b, f m ≤ f x)) :=
   ⟨WeierstrassBdd ax_NIP h_cont, WeierstrassMax ax_NIP hab h_cont, WeierstrassMin ax_NIP hab h_cont⟩
