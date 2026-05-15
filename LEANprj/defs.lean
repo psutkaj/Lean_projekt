@@ -22,7 +22,7 @@ def IsSup (A : Set ℝ) (s : ℝ) : Prop := (∀ x ∈ A, x ≤ s) ∧ (∀ ε >
 def IsInf (A : Set ℝ) (i : ℝ) : Prop := (∀ x ∈ A, i ≤ x) ∧ (∀ ε > 0, ∃ x ∈ A, x < i + ε)
 
 -- ## 5. KONVERGENCE POSLOUPNOSTÍ
-def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀, ∀ n ≥ n₀, |a n - q| < ε
+def ConvergesTo (a : ℕ → ℝ) (q : ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n ≥ n₀, |a n - q| < ε
 def Convergent (a : ℕ → ℝ) := ∃ q : ℝ, ConvergesTo a q
 def CauchySequence (a : ℕ → ℝ) := ∀ ε > 0, ∃ n₀ : ℕ, ∀ n m : ℕ, (n > n₀ ∧ m > n₀) → |a n - a m| < ε
 
@@ -31,12 +31,11 @@ def UpperBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, m ≤ c
 def LowerBoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, ∀ m ∈ M, c ≤ m
 def BoundedSet (M : Set ℝ) : Prop := ∃ c : ℝ, c > 0 ∧ ∀ m ∈ M, |m| ≤ c
 
-
 -- ## 7. FUNKCE
 def HeineLimitFun (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ (a : ℕ → ℝ), (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
+  ∀ a : ℕ → ℝ, (∀ n : ℕ, a n ≠ x₀) → ConvergesTo a x₀ → ConvergesTo (f ∘ a) b
 def CauchyLimitFun (f : ℝ → ℝ) (x₀ : ℝ) (b : ℝ) :=
-  ∀ ε > 0, ∃ δ > 0, ∀ (x : ℝ), (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
+  ∀ ε > 0, ∃ δ > 0, ∀ x : ℝ, (0 < |x - x₀| ∧ |x - x₀| < δ) → |f x - b| < ε
 
 def FunContinuousAt (f : ℝ → ℝ) (x₀ : ℝ) := CauchyLimitFun f x₀ (f x₀)
 def FunContinuous (f : ℝ → ℝ) := ∀ x : ℝ, FunContinuousAt f x
@@ -46,7 +45,7 @@ def FunBddOnSet (M : Set ℝ) (f : ℝ → ℝ) := ∃ K > 0, ∀ x ∈ M, |f x|
 -- ## 0. AXIOMY ÚPLNOSTI ℝ
 def AxNIP : Prop :=
   ∀ l u : ℕ → ℝ, IncreasingSequence l → DecreasingSequence u → (∀ n : ℕ, l n ≤ u n) →
-    ∃ s : ℝ, ∀ n, l n ≤ s ∧ s ≤ u n
+    ∃ s : ℝ, ∀ n : ℕ, l n ≤ s ∧ s ≤ u n
 
 def AxSup : Prop :=
   ∀ A : Set ℝ, A.Nonempty → UpperBoundedSet A → ∃! s : ℝ, IsSup A s
