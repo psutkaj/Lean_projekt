@@ -46,7 +46,6 @@ by
     right
     intro n
     exact k_in_P n _ (k_inc n)
-
   · -- PŘÍPAD 2: Množina vrcholů P je konečná.
     obtain ⟨B, hB⟩ := Set.exists_upper_bound_image P id (Set.not_infinite.mp hInf)
     -- Všechny indexy od B + 1 výše už NEJSOU vrcholy.

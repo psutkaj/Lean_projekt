@@ -45,19 +45,16 @@ lemma convergesTo_of_bdd_dec (a : ℕ → ℝ) :
 by
   intro AxSup a_dec a_bdd
   obtain ⟨K, hK, K_bd⟩ := a_bdd
-  let b := λ n => -(a n)
+  let b := -a
   have b_eq_neg_a : ∀ n, b n = - a n := λ n => rfl
   have b_inc : IncreasingSequence b := by
     intro n
-    rw [b_eq_neg_a n]
-    rw [b_eq_neg_a (n+1)]
-    exact neg_le_neg_iff.mpr (a_dec n)
+    rw [b_eq_neg_a n, b_eq_neg_a (n+1), neg_le_neg_iff]
+    exact a_dec n
   have b_bdd : BoundedSequence b := by
     use K, hK
     intro n
-    rw [b_eq_neg_a n]
-    have : |(-a n)| = |a n| := abs_neg (a n)
-    rw [this]
+    rw [b_eq_neg_a n, abs_neg (a n)]
     exact K_bd n
   have : Convergent b := convergesTo_of_bdd_inc b AxSup b_inc b_bdd
   obtain ⟨q, hq⟩ := this

@@ -13,27 +13,24 @@ by
   use s, hs
   intro t ht
   by_contra! hne
-  have : |s - t| > 0 := by
-    simpa using sub_ne_zero_of_ne hne.symm
-  obtain ⟨n₀, hn₀⟩ := shrink_to_zero |s - t| this
-  have : ∀ n > n₀, |u n - l n| ≥ |s - t| := by
-    intro n hn
-    have nonneg : u n - l n ≥ 0 := by simpa using sep n
-    have := (hs n).2
-    have := (ht n).1
-    have := (hs n).1
-    have := (ht n).2
-    have geq_ty : u n - l n ≥ s - t := by
-      calc u n - l n
-      _ = (u n - s) + (s - t) + (t - l n) := by ring
+  obtain ⟨n₀, hn₀⟩ := shrink_to_zero |s - t| (by simpa using sub_ne_zero_of_ne hne.symm)
+  have : |u n₀.succ - l n₀.succ| ≥ |s - t| := by
+    have nonneg : u n₀.succ - l n₀.succ ≥ 0 := by simpa using sep n₀.succ
+    have := (hs n₀.succ).2
+    have := (ht n₀.succ).1
+    have := (hs n₀.succ).1
+    have := (ht n₀.succ).2
+    have geq_ty : u n₀.succ - l n₀.succ ≥ s - t := by
+      calc u n₀.succ - l n₀.succ
+      _ = (u n₀.succ - s) + (s - t) + (t - l n₀.succ) := by ring
       _ ≥ 0 + (s - t) + 0 := by gcongr <;> linarith
       _ = s - t := by ring
-    have geq_yt : u n - l n ≥ t - s := by
-      calc u n - l n
-      _ = (u n - t) + (t - s) + (s - l n) := by ring
+    have geq_yt : u n₀.succ - l n₀.succ ≥ t - s := by
+      calc u n₀.succ - l n₀.succ
+      _ = (u n₀.succ - t) + (t - s) + (s - l n₀.succ) := by ring
       _ ≥ 0 + (t - s) + 0 := by gcongr <;> linarith
       _ = t - s := by ring
-    have eq₁ : |u n - l n| = u n - l n := abs_of_nonneg nonneg
+    have eq₁ : |u n₀.succ - l n₀.succ| = u n₀.succ - l n₀.succ := abs_of_nonneg nonneg
     have abs_eq : |s - t| = |t - s| := abs_sub_comm s t
     by_cases h : s > t
     · have : s - t > 0 := sub_pos.mpr h
@@ -47,5 +44,4 @@ by
       rw [eq₁, abs_eq,eq₂]
       exact geq_yt
   specialize hn₀ (n₀ + 1) (by linarith)
-  specialize this (n₀ + 1) (by linarith)
   linarith
