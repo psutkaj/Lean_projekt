@@ -1,6 +1,6 @@
 import LEANprj.defs
 import LEANprj._02Sequences.Sandwich
-import LEANprj._04Functions.HeineIffCauchy
+import LEANprj._03Functions.HeineIffCauchy
 
 theorem sandwich_fun {a b c : ℝ → ℝ} {x₀ q : ℝ}
   (hab : a ≤ b) (hbc : b ≤ c) (haq : CauchyLimitFun a x₀ q) (hcq : CauchyLimitFun c x₀ q) :

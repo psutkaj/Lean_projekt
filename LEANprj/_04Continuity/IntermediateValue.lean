@@ -1,4 +1,4 @@
-import LEANprj._05Continuity.BolzanoZeroValue
+import LEANprj._04Continuity.BolzanoZeroValue
 
 theorem IntermediateValue (ax_NIP : AxNIP)
   {f : ℝ → ℝ} {a b y₀ : ℝ} (hab : a ≤ b)

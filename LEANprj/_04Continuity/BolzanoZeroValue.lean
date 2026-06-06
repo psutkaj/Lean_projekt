@@ -1,6 +1,6 @@
 import LEANprj.defs
 import LEANprj._01Sets.AxSupOfAxNIP
-import LEANprj._05Continuity.ContinuityKeepsSgn
+import LEANprj._04Continuity.ContinuityKeepsSgn
 
 theorem BolzanoZeroValue (ax_NIP : AxNIP)
   {f : ℝ → ℝ} {a b : ℝ} (hab : a ≤ b)

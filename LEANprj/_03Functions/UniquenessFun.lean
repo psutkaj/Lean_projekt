@@ -1,5 +1,5 @@
 import LEANprj.defs
-import LEANprj._04Functions.HeineIffCauchy
+import LEANprj._03Functions.HeineIffCauchy
 import LEANprj._02Sequences.ConvergesToUnique
 
 theorem limitFun_uniq {f : ℝ → ℝ} {x₀ p q : ℝ}

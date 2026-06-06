@@ -1,6 +1,6 @@
 import LEANprj.defs
-import LEANprj._04Functions.AlgebraLimitFun
-import LEANprj._04Functions.HeineIffCauchy
+import LEANprj._03Functions.AlgebraLimitFun
+import LEANprj._03Functions.HeineIffCauchy
 
 namespace ContFun
 

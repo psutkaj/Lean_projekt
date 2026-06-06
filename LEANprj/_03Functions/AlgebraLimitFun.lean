@@ -1,6 +1,6 @@
 import LEANprj.defs
 import LEANprj._02Sequences.AlgebraLimit
-import LEANprj._04Functions.HeineIffCauchy
+import LEANprj._03Functions.HeineIffCauchy
 
 namespace LimitFun
 

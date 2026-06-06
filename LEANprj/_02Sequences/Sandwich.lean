@@ -1,7 +1,8 @@
 import LEANprj.defs
 
 theorem sandwich_seq {a b c : ℕ → ℝ} {q : ℝ}
-  (hab : a ≤ b) (hbc : b ≤ c) (haq : ConvergesTo a q) (hcq : ConvergesTo c q) :
+  (hab : a ≤ b) (hbc : b ≤ c)
+  (haq : ConvergesTo a q) (hcq : ConvergesTo c q) :
   ConvergesTo b q :=
 by
   intro ε ε_pos
